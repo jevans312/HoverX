@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+    <!--w and h are width and height in pixels, fullscreen 0 or 1 sets fullscreen on startup -->
+    <graphics w="1024" h="786" fullscreen="0" />
+    <!--
+    <fullscreen onstartup="0"
+    <graphicswindowed w="640" h="480" />
+    <graphicsfullscreen w="1024" h="786" />
+    -->
+    <!--hp is not used at the mo -->
+    <!--drag is the number you velocits is scaled by every frame (lower slows you down faster, dont go above 1) -->
+    <!--radius is your crafts radius... -->
+    <!--accel is acceleration, (top speed can be calculated from drag and acceleration) -->
+    <!--steerspeed... is the speed you steer at -->
+    <!--grip is not currently active! -->
+    <!--jump power is the velocity upwards you jump at (jump height can be calculated from this and gravity)-->
+    <!--gravity is the rate at which you loose vertical velocity -->
+    <!--minzvel... is the minimum vertical velocity, or maximum fall speed -->
+    <playerglobal hp="5" drag="0.992" radius="1.5" accel="0.007" steerspeed="0.04" grip="0.05" jumppower="0.05" gravity="0.001" minzvel="-0.04"/>
+    <!--
+    <level width="200" top="50" bottom="-50" teleport="1" playernum="2">
+        <player id="0" r="1" g="0" b="0" up="w" down="s" left="a" right="d" b1="lshift" b2="lctrl"/>
+        <player id="1" r="0" g="1" b="0" up="up" down="down" left="left" right="right" b1="rshift" b2="rctrl"/>
+    </level>
+    Level now has its own file again, not deleting this yet, as i want to configure controls later
+    -->
+</root>

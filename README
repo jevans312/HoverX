@@ -1,0 +1,41 @@
+Build Instruction:
+Run make in src
+CMake not quite working 100% yet
+
+Dependancies:
+SDL2, SDL2_image, tinyxml, enet (dev versions if you are compiling)
+All of these are installable on ubuntu with apt-get
+
+Major Bugs:
+-Fullscreen is broken
+-App will crash on start if settings.xml is not present.
+-I haven't compiled hover cad in some time... need to make a Makefile
+
+Controls:
+Arrow left and right are turning; forward is jump
+left shift is the gas
+spacebar is the brake
+
+Singleplayer:
+make a new room; menu->Sectors->New and pick a map and wait for it to load!
+
+Multiplayer:
+the host will need to do a /host 1 to allow connections to him
+the connecting players will need to /connect "the host ip address here"
+
+Levels:
+alley: old school remake of a hover race track
+sumo: demo of a sumo wrestling game mode; not impleamented yet
+classic 8: cool map made by Lee!
+
+Commands:
+/createroom mapname.xml     //maps should be in levels folder
+/leaveroom
+/closeroom
+/startrace 3(or whatever)   //the laps that will be in the race
+/host 1(or 0)               //start a server and allow clients to join
+/connect 127.0.0.1          //connect to server
+/exit and /quit
+
+Settings:
+edit the settings.xml file to set the resolution and user name; everything else is ignored

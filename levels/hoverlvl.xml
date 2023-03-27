@@ -1,0 +1,96 @@
+<root>
+    <lvl name="Test Level!" />
+    <textures skytex="img/skyline.jpg">
+        <add texture="img/floor.jpg" />
+        <add texture="img/Red Right.jpg" />
+        <add texture="img/Red Left.jpg" />
+        <add texture="img/Yellow Right.jpg" />
+        <add texture="img/Yellow Left.jpg" />
+        <add texture="img/Grey Right.jpg" />
+        <add texture="img/Grey Left.JPG" />
+        <add texture="img/Green Right.jpg" />
+        <add texture="img/Green Left.JPG" />
+        <add texture="img/caution.jpg" />
+    </textures>
+    <verts>
+        <v x="-11.099999" y="5.900003" type="0" />
+        <v x="16.700001" y="-1.400000" type="0" />
+        <v x="17.700001" y="1.500002" type="0" />
+        <v x="17.500000" y="4.100000" type="0" />
+        <v x="16.799999" y="7.100000" type="0" />
+        <v x="16.000000" y="9.800001" type="0" />
+        <v x="13.900001" y="14.400001" type="0" />
+        <v x="12.100000" y="17.100000" type="0" />
+        <v x="8.600001" y="19.900002" type="0" />
+        <v x="-34.600002" y="41.799999" type="0" />
+        <v x="-23.200001" y="-24.800001" type="0" />
+        <v x="48.400002" y="-13.800000" type="0" />
+        <v x="60.400002" y="43.200001" type="0" />
+        <v x="43.600002" y="27.400000" type="1" dir="-2.250000" />
+        <v x="21.000000" y="30.200001" type="4" />
+    </verts>
+    <lines>
+        <l v1="1" v2="0" />
+        <l v1="2" v2="1" />
+        <l v1="0" v2="2" />
+        <l v1="3" v2="0" />
+        <l v1="2" v2="3" />
+        <l v1="4" v2="3" />
+        <l v1="0" v2="4" />
+        <l v1="5" v2="4" />
+        <l v1="0" v2="5" />
+        <l v1="6" v2="5" />
+        <l v1="0" v2="6" />
+        <l v1="7" v2="6" />
+        <l v1="0" v2="7" />
+        <l v1="8" v2="7" />
+        <l v1="0" v2="8" />
+        <l v1="10" v2="9" />
+        <l v1="11" v2="10" />
+        <l v1="12" v2="11" />
+        <l v1="9" v2="12" />
+    </lines>
+    <polys>
+        <p roof="4.000000" floor="0.000000" ftex="0" rtex="-1">
+            <add l="0" tex="0" />
+            <add l="1" tex="0" />
+            <add l="2" tex="0" />
+        </p>
+        <p roof="4.000000" floor="0.000000" ftex="0" rtex="-1">
+            <add l="3" tex="0" />
+            <add l="4" tex="0" />
+            <add l="2" tex="0" />
+        </p>
+        <p roof="4.000000" floor="0.000000" ftex="0" rtex="-1">
+            <add l="5" tex="0" />
+            <add l="6" tex="0" />
+            <add l="3" tex="0" />
+        </p>
+        <p roof="4.000000" floor="0.000000" ftex="0" rtex="-1">
+            <add l="7" tex="0" />
+            <add l="8" tex="0" />
+            <add l="6" tex="0" />
+        </p>
+        <p roof="4.000000" floor="0.000000" ftex="0" rtex="-1">
+            <add l="8" tex="0" />
+            <add l="9" tex="0" />
+            <add l="10" tex="0" />
+        </p>
+        <p roof="4.000000" floor="0.000000" ftex="0" rtex="-1">
+            <add l="11" tex="0" />
+            <add l="12" tex="0" />
+            <add l="10" tex="0" />
+        </p>
+        <p roof="4.000000" floor="0.000000" ftex="0" rtex="-1">
+            <add l="13" tex="0" />
+            <add l="14" tex="0" />
+            <add l="12" tex="0" />
+        </p>
+        <p roof="4.000000" floor="0.000000" ftex="0" rtex="-1">
+            <add l="15" tex="0" />
+            <add l="16" tex="0" />
+            <add l="17" tex="0" />
+            <add l="18" tex="0" />
+        </p>
+    </polys>
+</root>

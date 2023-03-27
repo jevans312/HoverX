@@ -1,0 +1,180 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0102 
+header_name {.h} 
+code_name {.cxx}
+Function {make_window()} {open
+} {
+  Fl_Window {} {
+    label {Ground Height} open
+    xywh {128 205 925 630} type Double hide
+  } {
+    Fl_Box DrawingBox {
+      label GlWindow
+      xywh {5 35 675 590} box ROUNDED_BOX
+      code0 {\#include "MyWindow.H"}
+      class shape_window
+    }
+    Fl_Menu_Bar asd {
+      xywh {0 0 920 30} align 64
+    } {
+      submenu {} {
+        label file open
+        xywh {0 0 100 20}
+      } {
+        menuitem {} {
+          label load
+          callback flload
+          xywh {0 0 100 20}
+        }
+        menuitem {} {
+          label save
+          callback flsave
+          xywh {10 10 100 20}
+        }
+        menuitem {} {
+          label reset
+          callback flreset
+          xywh {30 30 100 20}
+        }
+        menuitem {} {
+          label exit
+          callback flexit
+          xywh {40 40 100 20}
+        }
+        menuitem {} {
+          label {save as}
+          callback flsaveas
+          xywh {20 20 100 20}
+        }
+      }
+      submenu {} {
+        label tools open
+        xywh {0 0 100 20}
+      } {
+        menuitem {} {
+          label Textures
+          callback opentexturewin
+          xywh {0 0 100 20}
+        }
+      }
+    }
+    Fl_Group {} {
+      label Point
+      xywh {695 100 215 255} box SHADOW_BOX
+    } {
+      Fl_Value_Input flvertx {
+        label Y
+        callback flsetvertx
+        xywh {775 105 50 25} color 49 when 8
+      }
+      Fl_Value_Input flverty {
+        label X
+        callback flsetverty
+        xywh {710 105 45 25} color 49
+      }
+      Fl_Value_Input flvertz {
+        label Z
+        callback flsetvertz
+        xywh {845 105 50 25} color 49 when 8
+      }
+      Fl_Value_Slider flvertsize {
+        label {vert size}
+        xywh {705 220 180 30} type {Horz Knob} align 1 minimum 0.1 maximum 20 value 6
+      }
+      Fl_Choice flverttype {
+        label Type
+        callback flsetverttype open
+        xywh {735 140 165 20} down_box BORDER_BOX
+      } {}
+    }
+    Fl_Group {} {
+      label Wall
+      xywh {700 385 210 55} box SHADOW_BOX
+    } {
+      Fl_Choice fllinetex {
+        label Texture
+        callback flsetlinetex open
+        xywh {805 390 100 20} down_box BORDER_BOX
+      } {
+        menuitem {} {
+          label None
+          xywh {0 0 100 20} value 1
+        }
+      }
+    }
+    Fl_Group {} {
+      label Room
+      xywh {700 460 210 160} box SHADOW_BOX
+    } {
+      Fl_Value_Input flpolyroof {
+        label {Roof Height}
+        callback flsetroofheight
+        xywh {825 490 80 25}
+      }
+      Fl_Value_Input flpolyfloor {
+        label {Ground Height}
+        callback flsetfloorheight
+        xywh {825 520 80 25}
+      }
+      Fl_Choice flrooftex {
+        label {Roof Texture}
+        callback flsetrooftex open
+        xywh {805 555 100 25} down_box BORDER_BOX
+      } {
+        menuitem {} {
+          label None
+          xywh {10 10 100 20} value 1
+        }
+      }
+      Fl_Choice flfloortex {
+        label {Floor Texture}
+        callback flsetfloortex open
+        xywh {805 585 100 25} down_box BORDER_BOX
+      } {
+        menuitem {} {
+          label None
+          xywh {20 20 100 20} value 1
+        }
+      }
+    }
+    Fl_Button flpolymode {
+      label {Make Rooms}
+      callback flsetpolymode
+      xywh {700 40 105 30} down_box DOWN_BOX
+    }
+    Fl_Button flobjmode {
+      label {Make Objects}
+      callback flsetobjmode
+      xywh {810 40 105 30}
+    }
+    Fl_Dial VertDir {
+      label {Object Direction}
+      callback flSetVertDir selected
+      xywh {705 170 35 35} type Line align 8 minimum -3 maximum 3
+      code0 {o->step(0.75);}
+      code1 {o->angles(0, 360);}
+    }
+  }
+} 
+
+Function {make_texture_window()} {} {
+  Fl_Window {} {
+    label {Ground Height: Texture list} open
+    xywh {426 332 450 330} type Double hide
+  } {
+    Fl_Browser fltexlist {
+      label {Avalable Textures}
+      xywh {25 25 260 260} type Hold box DOWN_BOX align 1
+    }
+    Fl_Button flnewtexbutton {
+      label {Add New}
+      callback flnewtex
+      xywh {315 100 100 40}
+    }
+    Fl_Button fldeltexbutton {
+      label {Remove Selected}
+      callback fldeltex
+      xywh {295 160 140 25}
+    }
+  }
+} 
