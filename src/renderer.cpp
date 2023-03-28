@@ -20,7 +20,7 @@ void DrawWorld() {
     //output all errors during rendering
     GLenum errorcode;
     while( (errorcode = glGetError()) != GL_NO_ERROR ) {
-        cout << "DrawWorld() GL error: " << gluErrorString(errorcode) << endl;
+        cout << "renderer::DrawWorld() GL error: " << gluErrorString(errorcode) << '\n';
     }
 }
 
@@ -56,64 +56,42 @@ void DrawSky() {
 
 //should be conditional on wether a player is loaded
 void SetCamera() {
-    /*
-    //again assuming dude 0 is the client
-    mylvl.camavg = mylvl.dude[0].pos.c;
-
-    //get direction in x/y
-    vector2d v (-sinf(mylvl.dude[0].dirangle), -cosf(mylvl.dude[0].dirangle));
-
-    gluLookAt(mylvl.camavg.x+v.x*5,   mylvl.camavg.y+v.y*5, 2+mylvl.dude[0].pos.c.z,
-              mylvl.camavg.x,         mylvl.camavg.y,       1+mylvl.dude[0].pos.c.z,
-              0,0,1);
-    */
-
     int entcam = 0;
     if(LC.EntityAddress != -1) entcam = LC.EntityAddress;
 
     if(LC.lvl.Ent[entcam].isUsed) {
-        LC.lvl.camavg = LC.lvl.Ent[entcam].pos.c;
-        //cout << "cam x: " << mylvl.Ent[entcam].pos.c.x << " y: " << mylvl.Ent[entcam].pos.c.y << endl;
+        vector2d const entPos = LC.lvl.Ent[entcam].pos.c;
+        vector2d const v (-sinf(LC.lvl.Ent[entcam].Yaw), -cosf(LC.lvl.Ent[entcam].Yaw));
 
-        vector2d v (-sinf(LC.lvl.Ent[entcam].Yaw), -cosf(LC.lvl.Ent[entcam].Yaw));
-
-        gluLookAt(LC.lvl.camavg.x+v.x*5,   LC.lvl.camavg.y+v.y*5, 2+LC.lvl.Ent[entcam].pos.c.z,
-                  LC.lvl.camavg.x,         LC.lvl.camavg.y,       1+LC.lvl.Ent[entcam].pos.c.z,
+        gluLookAt(entPos.x + v.x*5, entPos.y + v.y*5,   entPos.z + 2,
+                  entPos.x,         entPos.y,           entPos.z + 1,
                   0,0,1);
     }
-    else cout << "no cam!" << endl;
+    else {
+        cout << "SetCamera::Invalid Entity:" << IntToStr(entcam)
+             <<  " LC.EntityAddress:" << IntToStr(LC.EntityAddress) <<'\n';
+
+        if(LC.lvl.Loaded) {
+            //Maybe server disconnected so we just unload level?
+            cout << "SetCamera::Unloading level" <<  '\n';
+            LC.lvl.Unload();
+        } else {
+            //This is probably a messed up state..
+            cout << "SetCamera::Setting LC.DrawWorld = false" << '\n';
+            LC.DrawWorld = false;
+        }
+    }
 }
 
 void DrawLevel() {
     glDisable(GL_CULL_FACE);
     glCallList(LC.lvl.DisplayList);
-}
-
-/*Draw all players
-void DrawPlayers() {
     glEnable(GL_CULL_FACE);
-
-    //go through the players drawing them one at a time
-    for (int i = 0; i < mylvl.dudenum; i++) {
-        if (mylvl.dude[i].Alive) {
-            //draw the model
-            glMatrixMode(GL_MODELVIEW);
-            glPushMatrix();
-                //postion and roatate
-                glTranslatef(mylvl.dude[i].pos.c.x, mylvl.dude[i].pos.c.y, mylvl.dude[i].pos.c.z);
-                //glRotatef( -( mylvl.dude[i].dirangle * (180/3.14159265) ), 0.0, 0.0, 1.0  );
-
-                //draw model
-                glCallList(mylvl.dude[i].Model.DisplayList);
-            glPopMatrix();
-        }
-    }
 }
-*/
 
 void DrawEntities() {
-    if(!LC.lvl.Loaded) {
-        cout << "DrawEntities: attempting to draw world while no world exist" << endl;
+    if(LC.lvl.Loaded ==  false) {
+        cout << "DrawEntities: No level is loaded" << '\n';
         return;
     }
 
@@ -137,9 +115,10 @@ void DrawEntities() {
 
 void DrawHUD() {
     //draw desktop if not in game
-    if(!LC.DrawWorld) {
+    if(LC.DrawWorld) {
+        UI_DrawLapTimes();
+    } else {
         UI_DrawDesktop();
-        if(LC.isConnectedToRemoteServer) UI_DrawUserList();
     }
 
     //draw messages
@@ -147,7 +126,4 @@ void DrawHUD() {
 
     //draw buttons and such
     UI_DrawButtons();
-
-    //draw lap info
-    if(LC.DrawWorld) UI_DrawLapTimes();
 }

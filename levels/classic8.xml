@@ -10,7 +10,7 @@
         <add texture="img/Grey Left.JPG" />
         <add texture="img/Green Right.jpg" />
         <add texture="img/Green Left.JPG" />
-        <add texture="img/caution.jpg" />
+        <add texture="img/caution.png" />
     </textures>
     <verts>
         <v x="-21.700001" y="-1.400003" type="0" />

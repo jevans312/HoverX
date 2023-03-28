@@ -13,7 +13,7 @@ public:
     int LastUpdate;
 
     void Clear() {
-        Name = "unnamed";
+        Name = "unknown";
         LastUpdate = -1;
     }
 
@@ -72,7 +72,7 @@ public:
     void HandleNewPacket(ENetEvent localevent);
 
     LocalClient() {
-        Username = "unnamed.exe";
+        Username = "unnamed";
         MSGmode = false;
         isConnected = false;
         isConnectedToRemoteServer = false;

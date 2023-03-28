@@ -48,9 +48,9 @@ bool objModel::Load(const string& modelfile, const string& texturefile)   {
     Triangle        F[MAXOBJ_FACE];
     Vertex2D        T[MAXOBJ_TEXTURE];
     unsigned int    VertexCount = 1;
+    unsigned int    NormalCount = 1;
     unsigned int    FaceCount = 1;
     unsigned int    TextureCount = 1;
-    unsigned int    NormalCount = 1;
 
     //return 0 if the model is alreay loaded; should be more discriptive
     if (Loaded) {

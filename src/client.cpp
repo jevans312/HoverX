@@ -590,13 +590,13 @@ bool LocalClient::NetServerConnect(string IPAddressString) {
     ServerPeer = enet_host_connect (ClientHost, & AddresToConnect, MAXCHANNELS, 2);
 
     if (ServerPeer == NULL)   {
-        cout << "client: could not connect to host: no server" << endl;
+        cout << "LocalClient: could not connect to host: no server" << endl;
         return false;
     }
 
     // Wait up to 1 second for the connection attempt to succeed.
     if (enet_host_service (ClientHost, & event, 1000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT)  {
-        cout << "client: connected to host" << endl;
+        cout << "LocalClient: connected to host" << endl;
         isConnectedToRemoteServer = true; //the type of networking we are using
         return true;
     } else {
@@ -731,15 +731,15 @@ void LocalClient::SendMessages() {
     int msgcount = 0;
     int bufpos = 0; //where we will wright to in the packetbuffer
     char packetbuffer[1023];    //1kB of buffer
+    memset(packetbuffer,  '\0', sizeof(packetbuffer));
     char textmessagedata[MAXMSGLENTH];
     uint16_t textmessagesize;
     uint8_t messagetype;
-    for( int tempi = 0 ; tempi < 1023 ; tempi++) packetbuffer[tempi] = '\0'; //clear char array
 
     for(int j = 0; j < MAXMSGS; j++) {
         //move data from client list to packet buffer
         if(MessageBuffer[j].Type != 0) {
-            for( int tempi = 0 ; tempi < MAXMSGLENTH ; tempi++) textmessagedata[tempi] = '\0'; //clear char array
+            memset(textmessagedata,  '\0', sizeof(textmessagedata));
             textmessagesize = 0;
             messagetype = 0;
 

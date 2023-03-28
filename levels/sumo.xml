@@ -10,7 +10,7 @@
         <add texture="img/Grey Left.JPG" />
         <add texture="img/Green Right.jpg" />
         <add texture="img/Green Left.JPG" />
-        <add texture="img/caution.jpg" />
+        <add texture="img/caution.png" />
         <add texture="img/wall.jpg" />
         <add texture="img/wall2.jpg" />
         <add texture="img/transparent.png" />

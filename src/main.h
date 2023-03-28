@@ -87,7 +87,8 @@ public:
 
 //helper functions
 
-bool FileExists( const char* FileName );    //returns true if file exist
+string BoolToStr(const bool b);
+bool FileExists(const char* FileName);    //returns true if file exist
 int FindKeyByName(KeyValue *kv, string keytofind);     //return the location of the data we are looking for or -1 on fail
 void ParseTKV(string worldstr, TypeKeyValue *TKV);     //turn world string into type key and value
 template <typename ROFL>
@@ -97,5 +98,4 @@ std::string IntToStr(ROFL tmp)  {
     out << tmp;
     return out.str();
 }
-
 #endif

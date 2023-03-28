@@ -1,8 +1,8 @@
 CXX := g++
 LD := g++
-#FLAGS := -g
-FLAGS := -O3 -march=native -ffast-math
-EXTRA_CFLAGS := -Wall -Wextra
+FLAGS := -g
+#FLAGS := -O3 -march=native -ffast-math
+EXTRA_CFLAGS := -Wall -Wextra -Wpedantic
 INC := -I/usr/include
 LIB := -lm -ldl -lSDL2 -lSDL2_image -lGL -lGLU -ltinyxml -lenet
 

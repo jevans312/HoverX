@@ -52,77 +52,19 @@ int DrawDeltaTime = 0;
 int afterdraw = 0;
 int beforedraw = 0;
 
+// used by UI class //TODO: Get rid of these global
+int window_width = 640;
+int window_height = 480;
+int window_fullscreen = 0;
+
 int mouse_x = 320;
 int mouse_y = 240;
 float mx = 0;
 float my = 0;
 
-int window_width = 640;
-int window_height = 480;
-int window_fullscreen = 0;
-
 // SDL/GL/Window stuff
 SDL_Window *window;
 SDL_GLContext   glContext;
-
-//should go into renderer
-void InitGL(int Width, int Height)  {
-    glViewport(0, 0, Width, Height);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();    // Reset The Projection Matrix
-
-    gluPerspective(45.0f,(GLfloat)Width/(GLfloat)Height, 1.0f, 400.0f); // Calculate The Aspect Ratio Of The Window
-
-    glMatrixMode(GL_MODELVIEW);
-
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);                   // Black Background
-    glClearDepth(1.0f);                                     // Depth Buffer Setup
-    glDepthFunc(GL_LEQUAL);                                 // Type Of Depth Testing
-    glEnable(GL_DEPTH_TEST);                                // Enable Depth Testing
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);      // Enable Alpha Blending (disable alpha testing)
-    glEnable(GL_BLEND);                                     // Enable Blending       (disable alpha testing)
-    glAlphaFunc(GL_GREATER,0.1f);                           // Set Alpha Testing     (disable blending)
-    glEnable(GL_ALPHA_TEST);                                // Enable Alpha Testing  (disable blending)
-    glEnable(GL_TEXTURE_2D);                                // Enable Texture Mapping
-    glEnable(GL_CULL_FACE);                                 // Remove Back Face
-    glShadeModel(GL_SMOOTH);                                // Select Smooth Shading
-    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);      // Set Perspective Calculations To Most Accurate
-
-
-    //output some gl info
-    cout << "maker: " << glGetString(GL_VENDOR) << endl;
-    cout << "render path: " << glGetString(GL_RENDERER) << endl;
-    cout << "opengl version: " << glGetString(GL_VERSION) << endl << endl;
-    //cout << "extentions: " << glGetString(GL_EXTENSIONS) << endl;
-
-    //lighting
-    GLfloat White_Light[] = {1.0, 1.0, 1.0, 1.0};
-    GLfloat Ambiant_Light[] = {0.7, 0.7, 0.9, 1.0};
-    GLfloat Light0_Position[] = {0.0, 0.0, 1.0, 1.0};
-    //GLfloat Specular_Material[] = {1.0, 1.0, 1.0, 1.0};
-
-
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, White_Light);
-    glLightfv(GL_LIGHT0, GL_POSITION, Light0_Position);
-
-    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, Ambiant_Light);
-    glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
-    glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
-
-    //default texture to load when one is missing
-    DefaultTextureID = LoadGLTexture((char*)"img/default.png");
-    if (DefaultTextureID ==  0) {
-        cout << "InitGL: Could not load default texture img/default.png" << endl;
-    }
-
-    //Background image of the window
-    DesktopTexture = LoadGLTexture((char*)"img/desktop.jpg");
-    if (DesktopTexture ==  0) {
-        cout << "InitGL: Could not load img/desktop.jpg" << endl;
-    }
-}
 
 //100 fps
 #define TICK_RATE 10
@@ -131,7 +73,7 @@ int static TimeofLastUpdate = 0;
 int GetDeltaTime() {
     int returnvalue = 0;
     int timenow = 0;
-    timenow = SDL_GetTicks();
+    timenow = SDL_GetTicks64();
 
     //get the time between the last tick and now
     returnvalue = timenow - TimeofLastUpdate;
@@ -145,7 +87,7 @@ int GetDeltaTime() {
 int static tickcount = 0;
 void Tick() {
     if(tickcount == 100) {
-        //cout << "one sec of ticking, SDL_GetTicks: " << SDL_GetTicks() << endl;
+        //cout << "one sec of ticking, SDL_GetTicks: " << SDL_GetTicks() << '\n';
         tickcount = 0;
     }
     tickcount++;
@@ -179,7 +121,7 @@ void Ticker() {
 void DrawGLScene() {
     //fps counter
     DrawDeltaTime = afterdraw - beforedraw;
-    beforedraw = SDL_GetTicks();
+    beforedraw = SDL_GetTicks64();
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear The Screen And The Depth Buffer
     glLoadIdentity();   // Reset The View
@@ -193,62 +135,140 @@ void DrawGLScene() {
     // swap buffers to display, since we're double buffered.
     //SDL_GL_SwapBuffers();
     SDL_GL_SwapWindow(window);
-    afterdraw = SDL_GetTicks();
+    afterdraw = SDL_GetTicks64();
 }
 
-void initvid(int width,int height,int fs) {
-    //TODO: SDL_RESIZABLE
-    SDL_WindowFlags windowFlags;
-    windowFlags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
+void initGlWindow(const int width, const int height, const int fs) {
+    // gl version
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 
-    if(fs) {
-        windowFlags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI |  SDL_WINDOW_FULLSCREEN);
-    }
+    // data and buffer sizes
+    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
+    // antialiasing
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 2);
+
+    //SDL_GL_SetSwapInterval(1);  is supposed to enable vsync but just in case
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
+    //TODO: SDL_RESIZABLE and SDL_WINDOW_FULLSCREEN
+    if (SDL_Init(SDL_INIT_VIDEO) < 0)  cout << "SDL_INIT_VIDEO Failed: " << SDL_GetError() << '\n';
+    if(fs) cout << "initGlWindow: fullscreen has not been implemented" << '\n';
+    SDL_WindowFlags windowFlags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
     window = SDL_CreateWindow("HoverX", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, windowFlags);
     glContext = SDL_GL_CreateContext(window);
     SDL_GL_MakeCurrent(window, glContext);
-    SDL_GL_SetSwapInterval(1);                              //Enable vsync
-    cout << "initvid: Completed window creation" << endl;
+    SDL_GL_SetSwapInterval(1); //Enable vsync
 
-    InitGL(width, height);
+    //output openGL info
+    cout << "HoverX: Window Created" << '\n';
+    cout << "====== OpenGL ======" << '\n';
+    cout << "Vendor: " << glGetString(GL_VENDOR) << '\n';
+    cout << "Renderer: " << glGetString(GL_RENDERER) << '\n';
+    cout << "Version: " << glGetString(GL_VERSION) << '\n';
+
+    glViewport(0, 0, width, height);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();    // Reset The Projection Matrix
+    gluPerspective(45.0f,(GLfloat)width/(GLfloat)height, 1.0f, 400.0f); // Calculate The Aspect Ratio Of The Window
+    glMatrixMode(GL_MODELVIEW);
+
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);                   // Black Background
+    glClearDepth(1.0f);                                     // Depth Buffer Setup
+
+    glDepthFunc(GL_LESS);                                 // Type Of Depth Testing
+    glEnable(GL_DEPTH_TEST);                                // Enable Depth Testing
+
+    glEnable(GL_BLEND);                                    // Enable Blending
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);      // Enable Alpha Blending
+
+    glAlphaFunc(GL_GREATER, 0.5f);                          // Set Alpha Testing
+    glEnable(GL_ALPHA_TEST);                               // Enable Alpha Testing
+
+    glEnable(GL_TEXTURE_2D);                                // Enable Texture Mapping
+    glEnable(GL_CULL_FACE);                                 // Remove Back Face rendering
+    glCullFace(GL_BACK);
+
+    glShadeModel(GL_SMOOTH);                                // Select Smooth Shading
+    glDisable(GL_DITHER);                                   // TODO: What does this do?
+    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);      // Set Perspective Calculations To Most Accurate
+
+    //lighting
+    glEnable(GL_LIGHTING);
+    GLfloat White_Light[] = {0.4, 0.4, 0.4, 0.0};
+    GLfloat Light_Position[] = {0.0, 0.0, 1.0};
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, White_Light);
+    glLightfv(GL_LIGHT0, GL_POSITION, Light_Position);
+    glEnable(GL_LIGHT0);
+
+    GLfloat Ambiant_Light[] = {0.7, 0.7, 0.7, 0.0};
+    //glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
+    //glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, Ambiant_Light);
 }
 
 void InitLocalClient() {
-    if ( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
-        fprintf(stderr, "Unable to initialize SDL: %s\n", SDL_GetError());
+    if (SDL_Init(SDL_INIT_TIMER) < 0) {
+        cout << "InitLocalClient: SDL_INIT_TIMER Failed: " << SDL_GetError() << '\n';
     }
 
-    //load settings
-    xmlfile settings;
-    TiXmlElement *xGame = settings.getxmlfirstelement((char*)"settings.xml");
-    TiXmlElement *xGraphics = settings.getelement(xGame, (char*)"graphics");
-    window_width = (int)atoi(xGraphics->Attribute("w"));
-    window_height = (int)atoi(xGraphics->Attribute("h"));
-    window_fullscreen = (int)atoi(xGraphics->Attribute("fullscreen"));
-    TiXmlElement *xUser = settings.getelement(xGame, (char*)"user");
-    LC.Username = xUser->Attribute("name");
-    settings.endxml();
-
-    //open window
-    initvid(window_width, window_height, window_fullscreen);
-
     //set up networking
-    LC.ClientHost = enet_host_create (
-        NULL        /* create a client host */,
-        1           /* only allow 1 outgoing connection */,
-        MAXCHANNELS /* max channels */,
-        0           /* 0 is unlimited; 128000 12.8k of incoming bandwidth */,
-        0           /* 0 is unlimited; 128000 12.8k of amount of outgoing bandwidth */);
+    enet_initialize();
+    LC.ClientHost = enet_host_create (NULL, 1,  MAXCHANNELS, 0, 0);
+    if (LC.ClientHost == NULL) {
+        cout <<  "InitLocalClient: could not create net client" << '\n';
+    } else {
+        isConnected = true;
+    }
 
-    if (LC.ClientHost == NULL)
-        cout <<  "client: could not create net client" << endl;
-    isConnected = true;
+    //Display related initializations
+    if(isConsole ==  false) {
+        //load settings
+        if(FileExists((char*)"settings.xml")) {
+            xmlfile settings;
+            TiXmlElement *xGame = settings.getxmlfirstelement((char*)"settings.xml");
+            TiXmlElement *xGraphics = settings.getelement(xGame, (char*)"graphics");
+            window_width = (int)atoi(xGraphics->Attribute("w"));
+            window_height = (int)atoi(xGraphics->Attribute("h"));
+            window_fullscreen = (int)atoi(xGraphics->Attribute("fullscreen"));
+            TiXmlElement *xUser = settings.getelement(xGame, (char*)"user");
+            LC.Username = xUser->Attribute("name");
+            settings.endxml();
+        } else {
+            LC.Username = "unnamed";
+        }
 
-    initsimplefont((char*)"img/font.tga");                  //font system
-    UI_Setup(); //init ui system
-    //keys = SDL_GetKeyState(NULL);                          //umm
-    LC.DrawWorld = false;
+        //open window and setup OpenGL
+        initGlWindow(window_width, window_height, window_fullscreen);
+
+        //2D drawing stuff
+        initsimplefont((char*)"img/font.tga");
+        UI_Setup();
+
+        //default texture to load when one is missing
+        DefaultTextureID = LoadGLTexture((char*)"img/default.png");
+        if (DefaultTextureID ==  0) {
+            cout << "InitGL: Could not load default texture img/default.png" << '\n';
+        }
+
+        //Background image of the window
+        DesktopTexture = LoadGLTexture((char*)"img/desktop.jpg");
+        if (DesktopTexture ==  0) {
+            cout << "InitGL: Could not load img/desktop.jpg" << '\n';
+        }
+
+        //Show "desktop"
+        LC.DrawWorld = false;
+    }
 }
 
 void GetInput() {
@@ -259,7 +279,7 @@ void GetInput() {
                 done = 1;
                 break;
             case SDL_KEYDOWN:
-                //cout << event.key.keysym.sym << " pressed" << endl;
+                //cout << event.key.keysym.sym << " pressed" << '\n';
                 //keys[event.key.keysym.sym] = 1;
 
                 //get input this sucks bad 96 instead of 1
@@ -324,12 +344,8 @@ int main(int argc, char *argv[]) {
         if(argstr == "console") isConsole = true;
     }
 
-    enet_initialize(); //start networking
-    SDL_Init(SDL_INIT_TIMER);
-
-    //open window and load settings
-    if(!isConsole)
-        InitLocalClient();
+    //Setup client and create if not in cosole mode
+    InitLocalClient();
 
     //turn the server on; allow remote connections if in console mode
     hxServer.Start(isConsole);
@@ -350,6 +366,14 @@ int main(int argc, char *argv[]) {
 }
 
 //helper functions
+string BoolToStr(const bool b) {
+    if(b) {
+        return "True";
+    } else {
+        return "False";
+    }
+}
+
 bool FileExists( const char* FileName ) {    //returns true if file exist
     FILE* fp = NULL;
 
@@ -389,7 +413,7 @@ void ParseTKV(string worldstr, TypeKeyValue *TKV) {     //turn data string into 
         //find the '/'
         slash1 = worldstr.find('/', slash1);
         slash2 = worldstr.find('/', slash1 + 1);
-        //cout << "slash1: " << slash1 << " slash2: " << slash2 << endl;
+        //cout << "slash1: " << slash1 << " slash2: " << slash2 << '\n';
 
         //use the end of the file as the end if there are no more '/'
         if(slash2 == string::npos) {
@@ -400,7 +424,7 @@ void ParseTKV(string worldstr, TypeKeyValue *TKV) {     //turn data string into 
         if(slash1 != string::npos && slash2 != string::npos) {
             //seperate the type class from the rest of the string
             datapoint = worldstr.substr(slash1 + 1, slash2 - 1);
-            //cout << "datapoint: " << datapoint << endl;
+            //cout << "datapoint: " << datapoint << '\n';
 
             //remove datapoin from the world string so it doesnt get proccessed again
             worldstr = worldstr.substr(slash2, worldstr.length());
@@ -416,7 +440,7 @@ void ParseTKV(string worldstr, TypeKeyValue *TKV) {     //turn data string into 
             j = 0;
             endofkv = false;
             while( !endofkv && j < 31 ) {
-                //cout << endl << "what to process: \"" << datapoint << "\"" << endl;
+                //cout << '\n' << "what to process: \"" << datapoint << "\"" << '\n';
 
                 //remove space from begining of string; potentail bug only removes 1 leading ' '
                 if(datapoint.length() != 0) {
@@ -436,27 +460,27 @@ void ParseTKV(string worldstr, TypeKeyValue *TKV) {     //turn data string into 
 
                     if(equalpos != string::npos) {
                         string keyvaluestr = datapoint.substr(0, strend);
-                        //cout << "keyvaluestr: \"" << keyvaluestr << "\"" << endl;
+                        //cout << "keyvaluestr: \"" << keyvaluestr << "\"" << '\n';
 
                         datapoint = datapoint.substr(strend, datapoint.length());
-                        //cout << "new datapoint: \"" << datapoint << "\"" << endl;
+                        //cout << "new datapoint: \"" << datapoint << "\"" << '\n';
 
                         //now pull out the left and right side of the '='
                         TKV[i].KV[j].Key = keyvaluestr.substr(0, equalpos);
                         TKV[i].KV[j].sValue = keyvaluestr.substr(equalpos+1, strend);
 
-                        //cout << "\"" << TKV[i].KV[j].Key << "\"" << "=" << "\"" << TKV[i].KV[j].sValue << "\"" << endl;
+                        //cout << "\"" << TKV[i].KV[j].Key << "\"" << "=" << "\"" << TKV[i].KV[j].sValue << "\"" << '\n';
                     }
                 }
                 else endofkv = true;
 
                 j++;
             }
-            if(j >= 31) cout << "HandleWorldString: more than 32 key/values in type" << endl;
+            if(j >= 31) cout << "HandleWorldString: more than 32 key/values in type" << '\n';
         }
 
         i++;
     }
-    if(i >= 63) cout << "HandleWorldString: more than 64 types in string" << endl;
+    if(i >= 63) cout << "HandleWorldString: more than 64 types in string" << '\n';
 
 }

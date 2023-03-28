@@ -8,7 +8,6 @@ All of these are installable on ubuntu with apt-get
 
 Major Bugs:
 -Fullscreen is broken
--App will crash on start if settings.xml is not present.
 -I haven't compiled hover cad in some time... need to make a Makefile
 
 Controls:

@@ -86,8 +86,6 @@ public:
     StartPoints SpawnPoint;
     GLuint  DisplayList;    //address where the levels drawing list will be
 
-    vector2d camavg;
-
     GameClass Game; //game data
 
     int GetGameTime();

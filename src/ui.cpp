@@ -82,6 +82,8 @@ void UI_AddMSG(const string& tMSG) {
 }
 
 void UI_DrawDesktop() {
+    glDisable(GL_LIGHTING);
+    glDisable(GL_DEPTH_TEST);
     go2d(0.f,1.f,0.f,1.f);
     glPushMatrix();
     glBindTexture(GL_TEXTURE_2D, DesktopTexture);
@@ -112,6 +114,13 @@ void UI_DrawDesktop() {
 
     glPopMatrix();
     leave2d();
+
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_LIGHTING);
+
+    if(LC.isConnectedToRemoteServer) {
+        UI_DrawUserList();
+    }
 }
 
 void UI_DrawUserList() {
@@ -184,8 +193,10 @@ void UI_DrawMSGs() {
 
         //draw fps
         glColor3f(0, 0, 0);
+        //cout << "DrawDeltaTime: " << DrawDeltaTime;
         if(DrawDeltaTime < 1) DrawDeltaTime = 1;
         printgls(0.825, 0.025, (char*)"FPS %i", 1000/DrawDeltaTime);
+        //cout << " FPS: " << (1000/DrawDeltaTime) << '\n';
 
     glPopMatrix();
     leave2d();

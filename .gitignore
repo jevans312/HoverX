@@ -1,2 +1,4 @@
 HoverX
 src/*.o
+src/hx-cppcheck-build-dir/
+src/hx.cppcheck

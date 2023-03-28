@@ -15,19 +15,21 @@ extern LocalClient LC;
 //extern bool isHost;
 
 //class functions
-bool ServerClass::Start(bool AllowRemoteConnections) {
+bool ServerClass::Start(bool AllowRemoteConnections, const string ip) {
+    isAcceptingRemoteClients = AllowRemoteConnections;
+
     if(isRunning) {
-        cout << "ServerClass::Start: Server already running" << endl;
+        cout << "Server: Server already running" << endl;
         return false;
     }
 
-    Address.host = ENET_HOST_ANY;
+    //Address.host = ENET_HOST_ANY;
+    enet_address_set_host (&Address, ip.c_str());
     Address.port = 41414;
 
-    cout << "Starting Server: ";
-
-    //create lvl memory
-    lvl = new level[MAXLVL];
+    cout << "====== Server ======" << '\n'
+         << "Address: " << Address.host << ":" << Address.port << '\n'
+         << "Allow Remote Connections: " << BoolToStr(isAcceptingRemoteClients) << '\n';
 
     Host = enet_host_create (& Address      /* the address to bind the server host to */,
                             MAXCLIENTS      /* allow up to MAXCLIENTS clients and/or outgoing connections */,
@@ -36,17 +38,22 @@ bool ServerClass::Start(bool AllowRemoteConnections) {
                             0               /* assume any amount of outgoing bandwidth */);
 
     //cant return false other wise the server wont start; this could cause problems
-    if (Host == NULL)   cout <<  "could not create net host; ";
+    if (Host == NULL) {
+        cout << "Host is NULL!" << '\n'
+             << "====== Failed ======" << '\n';
+        return false;
+    } else {
+        //create lvl memory
+        lvl = new level[MAXLVL];
 
-    //this bit acts as a replacement for an actual local client log in
-    Clients[0].isConnected = true;
-    Clients[0].Name = LC.Username;
+        //this bit acts as a replacement for an actual local client log in
+        Clients[0].isConnected = true;
+        Clients[0].Name = LC.Username;
 
-    isRunning = true;
-    isAcceptingRemoteClients = AllowRemoteConnections;
-    cout << "AllowRemoteConnections: " << AllowRemoteConnections << "; ";
-    cout << "server started" << endl;
-    return true;
+        isRunning = true;
+        cout << "====== Started ======" << '\n';
+        return true;
+    }
 }
 
 void ServerClass::Stop() {
@@ -70,7 +77,7 @@ int ServerClass::AddClientTextMessage(string newtextmessage, int clientaddress) 
 
     //find a empty message slot
     for(int i = 0; i <= MAXMSGS; i++) {
-        if(Clients[clientaddress].MessageBuffer[i].Type == 0) {     //crashbug: if the server is in a room that is closed the program will crash here
+        if(Clients[clientaddress].MessageBuffer[i].Type == 0) {     //TODO: crashbug: if the server is in a room that is closed the program will crash here
             emptymsgaddress = i;
             i = MAXMSGS + 1;
         }

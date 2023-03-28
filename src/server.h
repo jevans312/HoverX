@@ -63,7 +63,7 @@ public:
     ClientList Clients[MAXCLIENTS];
 
     //functions
-    bool Start(bool AllowRemoteConnections);
+    bool Start(bool AllowRemoteConnections, const string ip = "127.0.0.1");
     void Stop();
     void Update(); //reseive and send data and update world
 
