@@ -10,8 +10,6 @@
 #include "line2d.h"
 #include "poly2d.h"
 
-using namespace std;
-
 //helper fuctions
 string PrettyPrintTime(int milliseconds);
 
@@ -64,38 +62,31 @@ public:
 
 class level {
 public:
-    bool Loaded;
     string MapName; //just for referance
-
+    bool Loaded;
     int gridtexid;  //sky texture
-
     int vertnum, linenum, polynum;
+    int linestage, tlili;   //for adding lines
+    int OwnerAddress;   //which client ownes this room
+    int EntityCount;
+    short unsigned int CheckPointCount;
     vector2d *lvlvert;
     line2d *lvlline;
     poly2d *lvlpoly;
     vector2d *tlvlvert;
     line2d *tlvlline;
-    int linestage, tlili;   //for adding lines
-
-    int OwnerAddress;   //which client ownes this room
-
-    int EntityCount;
     Entity *Ent;
-
-    short unsigned int CheckPointCount;
+    GameClass Game; //game data
     StartPoints SpawnPoint;
     GLuint  DisplayList;    //address where the levels drawing list will be
 
-    GameClass Game; //game data
-
+    //functions
     int GetGameTime();
     bool StartGame(uint8_t GameType);
     void AddPlayerEntity(int clientaddress);
     void Add3dobject(vector2d pos, string modelfile, string texturefile);
     void FinishedLap(Entity &ent);
     void CheckTimerEvents();
-
-    //functions
     bool Load(string LevelFilename);
     void Unload();
     void Update();

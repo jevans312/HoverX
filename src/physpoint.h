@@ -17,7 +17,7 @@ public:
     void dophys(float drag, float timediv)  {
         vector2d v = (c-o);
 
-        o=c;
+        o = c;
         drag = 1-drag;
         drag/=timediv;
         drag = 1-drag;
@@ -30,7 +30,6 @@ public:
             c+=v.scalefr(scalar);
             o-=v.scalefr(1-scalar);
         }
-
     }
 
     void teleport(float x, float y) {
@@ -38,10 +37,7 @@ public:
         o.x = x;
         c.y = y;
         o.y = y;
-
     }
-
-
 };
 
 #endif

@@ -1,10 +1,10 @@
 CXX := g++
 LD := g++
 FLAGS := -g
-#FLAGS := -O3 -march=native -ffast-math
+#FLAGS := -O3 -march=native
 EXTRA_CFLAGS := -Wall -Wextra -Wpedantic
 INC := -I/usr/include
-LIB := -lm -ldl -lSDL2 -lSDL2_image -lGL -lGLU -ltinyxml -lenet
+LIB := -lm -ldl -lSDL2 -lSDL2_image -lGL -lGLU -lGLEW -ltinyxml -lenet
 
 TARGET := HoverX
 all: ${TARGET}

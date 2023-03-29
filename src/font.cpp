@@ -1,6 +1,6 @@
 #include "glex.h"
-#include"glness.h"
-#include"font.h"
+#include "glness.h"
+#include "font.h"
 
 #include <stdarg.h>
 #include <stdio.h>

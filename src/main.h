@@ -87,6 +87,7 @@ public:
 
 //helper functions
 
+string IntToIpAddress(unsigned int ip);
 string BoolToStr(const bool b);
 bool FileExists(const char* FileName);    //returns true if file exist
 int FindKeyByName(KeyValue *kv, string keytofind);     //return the location of the data we are looking for or -1 on fail

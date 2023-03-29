@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "iostream"
-
+#include <iostream>
 #include "SDL2/SDL.h"
 #include "enet/enet.h"
 
@@ -170,11 +169,14 @@ void initGlWindow(const int width, const int height, const int fs) {
     SDL_GL_SetSwapInterval(1); //Enable vsync
 
     //output openGL info
-    cout << "HoverX: Window Created" << '\n';
+    GLenum err = glewInit();
+    cout << '\n';
     cout << "====== OpenGL ======" << '\n';
     cout << "Vendor: " << glGetString(GL_VENDOR) << '\n';
     cout << "Renderer: " << glGetString(GL_RENDERER) << '\n';
     cout << "Version: " << glGetString(GL_VERSION) << '\n';
+    cout << "GLEW: " << ((GLEW_OK ==  err)?glewGetString(GLEW_VERSION):glewGetErrorString(err)) << '\n';
+    if(!GLEW_VERSION_3_0) cout << "OpenGL 3.0: Not supported" << '\n';
 
     glViewport(0, 0, width, height);
     glMatrixMode(GL_PROJECTION);
@@ -217,12 +219,16 @@ void initGlWindow(const int width, const int height, const int fs) {
 }
 
 void InitLocalClient() {
+    cout << "====== HoverX ======" << '\n';
     if (SDL_Init(SDL_INIT_TIMER) < 0) {
         cout << "InitLocalClient: SDL_INIT_TIMER Failed: " << SDL_GetError() << '\n';
     }
 
     //set up networking
     enet_initialize();
+    //cout << "ENet: " << ENET_VERSION_MAJOR << "."
+    //     << ENET_VERSION_MINOR <<  "." << ENET_VERSION_PATCH << '\n';
+
     LC.ClientHost = enet_host_create (NULL, 1,  MAXCHANNELS, 0, 0);
     if (LC.ClientHost == NULL) {
         cout <<  "InitLocalClient: could not create net client" << '\n';
@@ -232,6 +238,7 @@ void InitLocalClient() {
 
     //Display related initializations
     if(isConsole ==  false) {
+        cout << "Client: Local" << '\n';
         //load settings
         if(FileExists((char*)"settings.xml")) {
             xmlfile settings;
@@ -243,7 +250,9 @@ void InitLocalClient() {
             TiXmlElement *xUser = settings.getelement(xGame, (char*)"user");
             LC.Username = xUser->Attribute("name");
             settings.endxml();
+            cout << "Settings.xml: Loaded" << '\n';
         } else {
+            cout << "Settings.xml: No file" << '\n';
             LC.Username = "unnamed";
         }
 
@@ -341,7 +350,10 @@ int main(int argc, char *argv[]) {
     //get commandline options
     for(int i = 1; i < argc; i++) {
         string argstr = argv[i];
-        if(argstr == "console") isConsole = true;
+
+        if(argstr == "console") {
+            isConsole = true;
+        }
     }
 
     //Setup client and create if not in cosole mode
@@ -366,6 +378,19 @@ int main(int argc, char *argv[]) {
 }
 
 //helper functions
+string IntToIpAddress(unsigned int ip) {
+    char ips[20];
+    unsigned char bytes[4];
+    bytes[0] = ip & 0xFF;
+    bytes[1] = (ip >> 8) & 0xFF;
+    bytes[2] = (ip >> 16) & 0xFF;
+    bytes[3] = (ip >> 24) & 0xFF;
+    sprintf(ips, "%d.%d.%d.%d", bytes[3], bytes[2], bytes[1], bytes[0]);
+    return ips;
+    //return (IntToStr(bytes[3]) + "." + IntToStr(bytes[2]) + "." +
+    //        IntToStr(bytes[1]) + "." + IntToStr(bytes[0]));
+}
+
 string BoolToStr(const bool b) {
     if(b) {
         return "True";

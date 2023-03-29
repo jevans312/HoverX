@@ -5,8 +5,9 @@
 #include <OpenGL/gl.h> // Header File For The OpenGL32 Library
 #include <OpenGL/glu.h> // Header File For The GLu32 Library
 #else
-#include <GL/gl.h> // Header File For The OpenGL32 Library
-#include <GL/glu.h> // Header File For The GLu32 Library
-#endif
+//#include <GL/gl.h> // Header File For The OpenGL32 Library
+//#include <GL/glu.h> // Header File For The GLu32 Library
+#include <GL/glew.h>
+# endif
 
 #endif

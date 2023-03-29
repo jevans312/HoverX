@@ -1,3 +1,4 @@
+#include <enet/enet.h>
 #include <SDL2/SDL.h>
 #include "string.h"
 #include "main.h"
@@ -6,30 +7,27 @@
 #include "level.h"
 #include "ui.h"
 
-//extern level mylvl;                                        //the one true world
-
+//extern level mylvl;
 //extern ServerClass hxServer;
-extern LocalClient LC;
 //extern bool ingame;
 //extern bool isConnected;
 //extern bool isHost;
+extern LocalClient LC;
 
-//class functions
 bool ServerClass::Start(bool AllowRemoteConnections, const string ip) {
-    isAcceptingRemoteClients = AllowRemoteConnections;
-
     if(isRunning) {
-        cout << "Server: Server already running" << endl;
-        return false;
+        Stop();
     }
 
-    //Address.host = ENET_HOST_ANY;
-    enet_address_set_host (&Address, ip.c_str());
+    isAcceptingRemoteClients = AllowRemoteConnections;
+
+    enet_address_set_host(&Address, ip.c_str()); // Address.host = ENET_HOST_ANY;
     Address.port = 41414;
 
+    cout << '\n';
     cout << "====== Server ======" << '\n'
-         << "Address: " << Address.host << ":" << Address.port << '\n'
-         << "Allow Remote Connections: " << BoolToStr(isAcceptingRemoteClients) << '\n';
+         << "Address: " << IntToIpAddress(Address.host) << ":" << Address.port << '\n'
+         << "Connections Accepted: " << (isAcceptingRemoteClients ? "Remote":"Local") << '\n';
 
     Host = enet_host_create (& Address      /* the address to bind the server host to */,
                             MAXCLIENTS      /* allow up to MAXCLIENTS clients and/or outgoing connections */,
@@ -40,7 +38,7 @@ bool ServerClass::Start(bool AllowRemoteConnections, const string ip) {
     //cant return false other wise the server wont start; this could cause problems
     if (Host == NULL) {
         cout << "Host is NULL!" << '\n'
-             << "====== Failed ======" << '\n';
+             << "Running: False" << '\n';
         return false;
     } else {
         //create lvl memory
@@ -51,7 +49,7 @@ bool ServerClass::Start(bool AllowRemoteConnections, const string ip) {
         Clients[0].Name = LC.Username;
 
         isRunning = true;
-        cout << "====== Started ======" << '\n';
+        cout << "Running: True" << '\n';
         return true;
     }
 }
@@ -69,6 +67,8 @@ void ServerClass::Stop() {
     //reset the server status
     isRunning = false;
     isAcceptingRemoteClients = false;
+
+    cout << "Server: Stopped" << '\n';
 }
 
 //messages that will go out to the clients

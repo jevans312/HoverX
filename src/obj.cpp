@@ -54,12 +54,12 @@ bool objModel::Load(const string& modelfile, const string& texturefile)   {
 
     //return 0 if the model is alreay loaded; should be more discriptive
     if (Loaded) {
-        cout << "this object has a model loaded" << endl;
+        cout << "objModel::Load: Object already has a model loaded" << '\n';
         return 0;
     }
 
 	ifstream is(modelfile.c_str(), ios::in|ios::ate);
-	if (!is) cout << "empty obj file" << endl;
+	if (!is) cout << "objModel::Load: Empty obj file" << '\n';
 
 	is.tellg();                //get the file size (we started at the end)...
 	is.seekg (0, ios::beg);    //...then get back to start
@@ -68,76 +68,71 @@ bool objModel::Load(const string& modelfile, const string& texturefile)   {
 
     //read data in
 	while(skipCommentLine(is)) {
-	if (!(is >> ele_id)) cout << "theres a problem with the obj file" << endl;
-
-	if ("mtllib" == ele_id) {
-		//string strFileName;
-		//is >> strFileName;
-		//parseMtlLib(strFileName);
-	}
-	else if ("usemtl" == ele_id) {
-		//string strMtlName;
-		//is >> strMtlName;
-		//map<string, SMaterial>::iterator it = m_materialMap.find(strMtlName);
-		//if (it != m_materialMap.end())
-		//	pMesh->setMaterial((*it).second);
-		//else
-		//	CLogger::get() << "  * Material not found in current mtllib :\"" << strMtlName << "\". Ignoring material.\n";
-	}
-	else if ("v" == ele_id) {	//	vertex data
-		is >> x >> y >> z;
-
-		if(VertexCount < MAXOBJ_VERTEX) {
-            V[VertexCount].x = x;
-            V[VertexCount].y = y;
-            V[VertexCount].z = z;
-            VertexCount++;
-		}
-		else cout << "too many vertexs in file, will not load correctly" << endl;
-
-		is.clear();
-	}
-	else if ("vt" == ele_id) {	// texture data
-		is >> x >> y;
-		if(TextureCount < MAXOBJ_TEXTURE) {
-            T[TextureCount].x = x;
-            T[TextureCount].y = -y; //flip the y cord so the textues display correctly
-            TextureCount++;
-		}
-		else cout << "too many texture cordinates, will not load correctly" << endl;
-		is.clear();                           // is z (i.e. w) is not available, have to clear error flag.
-	}
-	else if ("vn" == ele_id) {	// normal data
-		is >> x >> y >> z;
-		if(!is.good()) {        // in case it is -1#IND00
-			x = y = z = 0.0;
-			is.clear();
-			skipLine(is);
-		}
-		if(NormalCount < MAXOBJ_NORMAL) {
-            N[NormalCount].x = x;
-            N[NormalCount].y = y;
-            N[NormalCount].z = z;
-            //cout << "added normal " << NormalCount << " x" << N[NormalCount].x << " y " << N[NormalCount].y << " z " << N[NormalCount].z << endl;
-            NormalCount++;
-		}
-		else cout << "too many normals, will not load correctly" << endl;
-	}
-	else if ("f" == ele_id) {	//	face data
-	    char c;
-
-        if(VertexCount < MAXOBJ_FACE) {
-            is >> F[FaceCount].v1 >> c >> F[FaceCount].vt1 >> c >> F[FaceCount].vn1 >>
-                    F[FaceCount].v2 >> c >> F[FaceCount].vt2 >> c >> F[FaceCount].vn2 >>
-                    F[FaceCount].v3 >> c >> F[FaceCount].vt3 >> c >> F[FaceCount].vn3;
-                    FaceCount++;
+        if (!(is >> ele_id)) {
+            cout << "objModel::Load: Error processing line" << '\n';
         }
-        else cout << "too many polys in file, it will not load correctly" << endl;
 
-        is.clear();
-	}
+        //TODO: Implement mtllib and usemtl
+        if ("v" == ele_id) {	//	vertex data
+            is >> x >> y >> z;
 
-	else    skipLine(is);
+            if(VertexCount < MAXOBJ_VERTEX) {
+                V[VertexCount].x = x;
+                V[VertexCount].y = y;
+                V[VertexCount].z = z;
+                VertexCount++;
+            }
+            else cout << "objModel::Load: too many vertexs in file, will not load correctly" << '\n';
+
+            is.clear();
+        }
+        else if ("vt" == ele_id) {	// texture data
+            is >> x >> y;
+            if(TextureCount < MAXOBJ_TEXTURE) {
+                T[TextureCount].x = x;
+                T[TextureCount].y = -y; //flip the y cord so the textues display correctly
+                TextureCount++;
+            }
+            else cout << "objModel::Load: too many texture cordinates, will not load correctly" << '\n';
+
+            is.clear();                           // is z (i.e. w) is not available, have to clear error flag.
+        }
+        else if ("vn" == ele_id) {	// normal data
+            is >> x >> y >> z;
+            if(!is.good()) {        // in case it is -1#IND00
+                cout << "objModel::Load: File stream != good()" << '\n';
+                x = y = z = 0.0;
+                //skipLine(is);
+            } else {
+                if(NormalCount < MAXOBJ_NORMAL) {
+                    N[NormalCount].x = x;
+                    N[NormalCount].y = y;
+                    N[NormalCount].z = z;
+                    //cout << "added normal " << NormalCount << " x" << N[NormalCount].x << " y " << N[NormalCount].y << " z " << N[NormalCount].z << '\n';
+                    NormalCount++;
+                }
+                else cout << "objModel::Load: too many normals, will not load correctly" << '\n';
+            }
+
+            is.clear();
+        }
+        else if ("f" == ele_id) {	//	face data
+            char c;
+
+            if(VertexCount < MAXOBJ_FACE) {
+                is >> F[FaceCount].v1 >> c >> F[FaceCount].vt1 >> c >> F[FaceCount].vn1 >>
+                        F[FaceCount].v2 >> c >> F[FaceCount].vt2 >> c >> F[FaceCount].vn2 >>
+                        F[FaceCount].v3 >> c >> F[FaceCount].vt3 >> c >> F[FaceCount].vn3;
+                        FaceCount++;
+            }
+            else cout << "objModel::Load: too many polys in file, it will not load correctly" << '\n';
+
+            is.clear();
+        }
+        else {
+            cout << "objModel::Load: Ignored property \'" << ele_id << "\'" << '\n';
+            skipLine(is);
+        }
 	} //end of while
 
 	//close file

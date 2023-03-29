@@ -43,13 +43,14 @@ int LoadGLTexture(char*filename)  {
 
         glGenTextures(1, &newid);
         glBindTexture(GL_TEXTURE_2D, newid);
-        glTexImage2D( GL_TEXTURE_2D, 0, pfmat, TextureImage->w,TextureImage->h, 0,
-                            pfmat, GL_UNSIGNED_BYTE, TextureImage->pixels );
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 4.0f);
-        gluBuild2DMipmaps(GL_TEXTURE_2D, pfmat, TextureImage->w, TextureImage->h,
+        glTexImage2D(GL_TEXTURE_2D, 0, pfmat, TextureImage->w,TextureImage->h, 0,
                             pfmat, GL_UNSIGNED_BYTE, TextureImage->pixels);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        //gluBuild2DMipmaps(GL_TEXTURE_2D, pfmat, TextureImage->w, TextureImage->h,
+        //pfmat, GL_UNSIGNED_BYTE, TextureImage->pixels);
 
         //add to list of already loaded textures
         texidS ttexid;
