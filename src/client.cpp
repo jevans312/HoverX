@@ -93,7 +93,7 @@ void LocalClient::BroadcastKeyState() {
     unsigned int bufpos = 0;
     uint8_t binarydatatype = 4;                             //type 4 is key state
     uint16_t datasize = 0;                                  //how much data in bytes we are sending
-    uint32_t timestamp = SDL_GetTicks64();                  //SDL ticks used as a way of ordering packets
+    uint64_t timestamp = SDL_GetTicks64();                  //SDL ticks used as a way of ordering packets
     char packetbuffer[255];                                 //enough for 64 entities and packet over head
     memset(packetbuffer, '\0', sizeof(packetbuffer));
 
@@ -492,7 +492,7 @@ void LocalClient::ProcessEntityData(char *packetbuffer) {
     int bufpos = 0;
     uint8_t binarydatatype = 0;
     uint16_t datasize = 0;               //size of the data to process
-    uint32_t timestamp = 0;             //SDL ticks used as a way of ordering packets
+    uint64_t timestamp = 0;             //SDL ticks used as a way of ordering packets
     uint16_t entcount = 0;              //how many entities data are in this packet
     uint16_t entaddress = 0;
     float yaw = 0;                        //entities rotation

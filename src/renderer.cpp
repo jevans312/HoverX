@@ -7,20 +7,13 @@
 //extern level mylvl;    //the one true world
 extern LocalClient LC;
 
-//draw everything
+//draw level
 void DrawWorld() {
-    DrawSky();
-    SetCamera();
-    DrawLevel();
-    DrawEntities();
-
-    //tell gl to draw
-    glFlush();  //should this only go here? //JAE 8/23/21 - Word has it this screws with driver parallesim?
-
-    //output all errors during rendering
-    GLenum errorcode;
-    while( (errorcode = glGetError()) != GL_NO_ERROR ) {
-        cout << "renderer::DrawWorld() GL error: " << gluErrorString(errorcode) << '\n';
+    if(LC.DrawWorld) {
+        DrawSky();
+        SetCamera();
+        DrawLevel();
+        DrawEntities();
     }
 }
 
@@ -56,18 +49,16 @@ void DrawSky() {
 
 //should be conditional on wether a player is loaded
 void SetCamera() {
-    int entcam = 0;
-    if(LC.EntityAddress != -1) entcam = LC.EntityAddress;
+    const int entcam = LC.EntityAddress;
 
-    if(LC.lvl.Ent[entcam].isUsed) {
+    if(entcam != -1 && LC.lvl.Ent[entcam].isUsed) {
         vector2d const entPos = LC.lvl.Ent[entcam].pos.c;
         vector2d const v (-sinf(LC.lvl.Ent[entcam].Yaw), -cosf(LC.lvl.Ent[entcam].Yaw));
 
-        gluLookAt(entPos.x + v.x*5, entPos.y + v.y*5,   entPos.z + 2,
-                  entPos.x,         entPos.y,           entPos.z + 1,
+        gluLookAt(entPos.x + (v.x*5),	entPos.y + (v.y*5),		entPos.z + 2,
+                  entPos.x,				entPos.y,				entPos.z + 1,
                   0,0,1);
-    }
-    else {
+    } else {
         cout << "SetCamera::Invalid Entity:" << IntToStr(entcam)
              <<  " LC.EntityAddress:" << IntToStr(LC.EntityAddress) <<'\n';
 
@@ -76,7 +67,7 @@ void SetCamera() {
             cout << "SetCamera::Unloading level" <<  '\n';
             LC.lvl.Unload();
         } else {
-            //This is probably a messed up state..
+            //This is probably in an unrecoverable state...
             cout << "SetCamera::Setting LC.DrawWorld = false" << '\n';
             LC.DrawWorld = false;
         }

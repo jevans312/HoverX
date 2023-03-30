@@ -48,7 +48,7 @@ public:
     MSGClass MessageBuffer[MAXMSGS];
     LocalClientList Clients[MAXCLIENTS];
     int EntityAddress;
-    uint32_t LastTimestamp;     //this should prob be reset someplace ;p
+    uint64_t LastTimestamp;                               //this should prob be reset someplace ;p
 
     //functions
     void Update();

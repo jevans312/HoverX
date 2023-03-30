@@ -22,21 +22,14 @@
 
 using namespace std;
 
-//move into ui code
-string hostMSGbuffer;   //hold incomplete string to be pushed to the send buffer
-// !!!!!!!!!!!!!!!
-
-
-//my vars
-//float number = 0;
-Uint8*  keys = NULL;
-
-level mylvl;    //the one true world
+level mylvl; //clients level
 ServerClass hxServer;
 LocalClient LC; //local client data
+//Uint8*  keys = NULL;
 //menu mymnu; //delete
 
 //game states
+//TODO: Move is stuff to client/server and MSGmode to UI
 bool isConnected = false;  //net flag
 bool isHost = false;    //net flag
 bool isConsole = false;  //use text output only; no window/gl
@@ -47,11 +40,12 @@ int DefaultTextureID;
 int DesktopTexture;
 
 //used to calculate frames per sec being drawn
-int DrawDeltaTime = 0;
-int afterdraw = 0;
-int beforedraw = 0;
+int64_t DrawDeltaTime = 0;
+uint64_t afterdraw = 0;
+uint64_t beforedraw = 0;
 
 // used by UI class //TODO: Get rid of these global
+string hostMSGbuffer; //Move to UI code
 int window_width = 640;
 int window_height = 480;
 int window_fullscreen = 0;
@@ -63,16 +57,16 @@ float my = 0;
 
 // SDL/GL/Window stuff
 SDL_Window *window;
-SDL_GLContext   glContext;
+SDL_GLContext glContext;
 
 //100 fps
 #define TICK_RATE 10
-int static TimeofLastUpdate = 0;
 
-int GetDeltaTime() {
-    int returnvalue = 0;
-    int timenow = 0;
-    timenow = SDL_GetTicks64();
+//!Warning this gives you the time difference since you lasted call this function!
+uint64_t static TimeofLastUpdate = 0;
+int64_t getDeltaTime() {
+    int64_t returnvalue = 0;
+    uint64_t timenow = SDL_GetTicks64();
 
     //get the time between the last tick and now
     returnvalue = timenow - TimeofLastUpdate;
@@ -83,24 +77,24 @@ int GetDeltaTime() {
     return returnvalue;
 }
 
-int static tickcount = 0;
+uint64_t static tickcount = 0;
 void Tick() {
-    if(tickcount == 100) {
-        //cout << "one sec of ticking, SDL_GetTicks: " << SDL_GetTicks() << '\n';
+    //Do once a second
+    if(tickcount == 1000/TICK_RATE) {
+        cout << "DrawDeltaTime: " << DrawDeltaTime << '\n';
         tickcount = 0;
     }
     tickcount++;
 
     LC.Update();
-    if(hxServer.isRunning) hxServer.Update();
+    hxServer.Update();
 }
 
-int static deltatime = 0;
-int static accumulator = 0;
-
+uint64_t static deltatime = 0;
+uint64_t static accumulator = 0;
 void Ticker() {
-    //find out how much time has pasted sence the last tick
-    deltatime = GetDeltaTime();
+     //find out how much time has pasted sence the last tick
+    deltatime = getDeltaTime();
     deltatime = deltatime + accumulator;
 
     //tick how ever many times we missed
@@ -122,17 +116,24 @@ void DrawGLScene() {
     DrawDeltaTime = afterdraw - beforedraw;
     beforedraw = SDL_GetTicks64();
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear The Screen And The Depth Buffer
     glLoadIdentity();   // Reset The View
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear The Screen And The Depth Buffer
 
     //draw world
-    if(LC.DrawWorld) DrawWorld();
+	DrawWorld();
 
     //overlay hud
     DrawHUD();
 
-    // swap buffers to display, since we're double buffered.
-    //SDL_GL_SwapBuffers();
+    //Any errors accumulate?
+    GLenum errorcode;
+    while((errorcode = glGetError()) != GL_NO_ERROR) {
+        cout << "DrawGLScene() GL error: " << gluErrorString(errorcode) << '\n';
+    }
+
+    glFlush();
+
+	//double buffered; swap buffers to display
     SDL_GL_SwapWindow(window);
     afterdraw = SDL_GetTicks64();
 }
@@ -181,20 +182,20 @@ void initGlWindow(const int width, const int height, const int fs) {
     glViewport(0, 0, width, height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();    // Reset The Projection Matrix
-    gluPerspective(45.0f,(GLfloat)width/(GLfloat)height, 1.0f, 400.0f); // Calculate The Aspect Ratio Of The Window
+    gluPerspective(45.0f,(GLfloat)width/(GLfloat)height, 1.0f, 400.0f);
     glMatrixMode(GL_MODELVIEW);
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);                   // Black Background
     glClearDepth(1.0f);                                     // Depth Buffer Setup
 
-    glDepthFunc(GL_LESS);                                 // Type Of Depth Testing
+    glDepthFunc(GL_LESS);                                   // Type Of Depth Testing
     glEnable(GL_DEPTH_TEST);                                // Enable Depth Testing
 
-    glEnable(GL_BLEND);                                    // Enable Blending
+    glEnable(GL_BLEND);                                     // Enable Blending
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);      // Enable Alpha Blending
 
     glAlphaFunc(GL_GREATER, 0.5f);                          // Set Alpha Testing
-    glEnable(GL_ALPHA_TEST);                               // Enable Alpha Testing
+    glEnable(GL_ALPHA_TEST);                                // Enable Alpha Testing
 
     glEnable(GL_TEXTURE_2D);                                // Enable Texture Mapping
     glEnable(GL_CULL_FACE);                                 // Remove Back Face rendering
@@ -280,37 +281,44 @@ void InitLocalClient() {
     }
 }
 
+//TODO: Move to client
 void GetInput() {
-        SDL_Event event;
-        while ( SDL_PollEvent(&event) ) {
-            switch(event.type) {
+    // console can hanlde its own input?
+    if(isConsole)
+        return;
+
+    SDL_Event event;
+    while ( SDL_PollEvent(&event) ) {
+        switch(event.type) {
             case SDL_QUIT:
                 done = 1;
                 break;
-            case SDL_KEYDOWN:
-                //cout << event.key.keysym.sym << " pressed" << '\n';
-                //keys[event.key.keysym.sym] = 1;
 
+            case SDL_KEYDOWN:
                 //get input this sucks bad 96 instead of 1
                 if ( (event.key.keysym.sym > 96 && event.key.keysym.sym < 123) || (event.key.keysym.sym == SDLK_SPACE) ||
-                     (event.key.keysym.sym == SDLK_BACKSPACE) || (event.key.keysym.sym == SDLK_SLASH) || (event.key.keysym.sym == SDLK_PERIOD) ||
-                     (event.key.keysym.sym >= SDLK_0 && event.key.keysym.sym <= SDLK_9) )  {     //letter input.... this is a mess
-                    if(MSGmode && event.key.keysym.sym != SDLK_BACKSPACE) {     //add char to the string
-                        hostMSGbuffer += event.key.keysym.sym;
-                    }
+                    (event.key.keysym.sym == SDLK_BACKSPACE) || (event.key.keysym.sym == SDLK_SLASH) || (event.key.keysym.sym == SDLK_PERIOD) ||
+                    (event.key.keysym.sym >= SDLK_0 && event.key.keysym.sym <= SDLK_9) )  {
+                        //add char to the string
+                        if(MSGmode && event.key.keysym.sym != SDLK_BACKSPACE) {
+                            hostMSGbuffer += event.key.keysym.sym;
+                        }
                 }
 
-                if(event.key.keysym.sym == SDLK_BACKSPACE && !hostMSGbuffer.empty() ) {    //delete char of the end of the string
+                //delete char of the end of the string
+                if(event.key.keysym.sym == SDLK_BACKSPACE && !hostMSGbuffer.empty() ) {
                     hostMSGbuffer.erase( hostMSGbuffer.size() - 1 );
                 }
 
-                if ( event.key.keysym.sym == SDLK_t && !MSGmode ) {     //enter message mode
+                //enter message mode
+                if ( event.key.keysym.sym == SDLK_t && !MSGmode ) {
                     if(!MSGmode) {
                         MSGmode = true;
                     }
                 }
 
-                if ( event.key.keysym.sym == SDLK_RETURN && MSGmode ) {    //exit message mode
+                //exit message mode
+                if ( event.key.keysym.sym == SDLK_RETURN && MSGmode ) {
                     MSGmode = false;
                     if( !hostMSGbuffer.empty() ) {
                         LC.AddTextMessage(hostMSGbuffer);
@@ -326,6 +334,7 @@ void GetInput() {
                 if (event.key.keysym.sym == SDLK_UP ) LC.Keys.jump = true;
 
                 break;
+
             case SDL_KEYUP:
                 //keys[event.key.keysym.sym] = 0;
 
@@ -337,13 +346,15 @@ void GetInput() {
                 if (event.key.keysym.sym == SDLK_UP ) LC.Keys.jump = false;
 
                 break;
+
             case SDL_MOUSEBUTTONDOWN:
                 UIMousePress( event.button.x, event.button.y );
                 break;
+
             case SDL_MOUSEBUTTONUP:
                 break;
-            }
         }
+    }
 }
 
 int main(int argc, char *argv[]) {
@@ -364,14 +375,16 @@ int main(int argc, char *argv[]) {
 
     done = 0;
     while ( ! done ) {
-        Ticker();   //update worlds
-        if(!isConsole) {
-            DrawGLScene();  //draw world
-            GetInput();
+        GetInput();
+        Ticker();
+
+        if(isConsole) {
+            //TODO: Update console here
+        } else {
+            DrawGLScene();
         }
     }
 
-    //LC.lvl.Unload();  //this should be server unload if not connected to a remote server
     hxServer.Stop();
     SDL_Quit();
     return 0;

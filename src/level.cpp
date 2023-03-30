@@ -313,6 +313,9 @@ void level::GenerateDisplayList() {
 }
 
 void level::Update() {
+	if(Loaded == false)
+		return;
+	
     CheckTimerEvents();
 
     //glide

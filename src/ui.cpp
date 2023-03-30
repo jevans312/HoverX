@@ -14,7 +14,7 @@ extern bool MSGmode;
 extern bool isConnected;
 extern bool isHost;
 extern bool done;
-extern int DrawDeltaTime;
+extern int64_t DrawDeltaTime;
 
 //0 Map list
 ButtonArray Dropdownmenus[MAX_DROPDOWNS];
@@ -84,6 +84,7 @@ void UI_AddMSG(const string& tMSG) {
 void UI_DrawDesktop() {
     glDisable(GL_LIGHTING);
     glDisable(GL_DEPTH_TEST);
+
     go2d(0.f,1.f,0.f,1.f);
     glPushMatrix();
     glBindTexture(GL_TEXTURE_2D, DesktopTexture);
@@ -98,19 +99,6 @@ void UI_DrawDesktop() {
         glTexCoord2f(0, 0);
         glVertex3f( 0, 1, 0.f );    //left top
     glEnd();
-
-/*    glBindTexture(GL_TEXTURE_2D, numberonetexture);
-    glBegin(GL_QUADS);
-        glTexCoord2f(0, 1);
-        glVertex3f( 0.4, 0.4, 0.f );    //left bottom
-        glTexCoord2f(1, 1);
-        glVertex3f( 0.6, 0.4, 0.f );    //right bottom
-        glTexCoord2f(1, 0);
-        glVertex3f( 0.6, 0.6, 0.f );    //right top
-        glTexCoord2f(0, 0);
-        glVertex3f( 0.4, 0.6, 0.f );    //left top
-    glEnd();
-*/
 
     glPopMatrix();
     leave2d();
@@ -192,10 +180,18 @@ void UI_DrawMSGs() {
         printgls(0.025, 0.150, (char*)"%s", LC.MSGDrawBuffer3.c_str());
 
         //draw fps
-        glColor3f(0, 0, 0);
+        //glColor3f(1, 1, 1);
         //cout << "DrawDeltaTime: " << DrawDeltaTime;
-        if(DrawDeltaTime < 1) DrawDeltaTime = 1;
-        printgls(0.825, 0.025, (char*)"FPS %i", 1000/DrawDeltaTime);
+        //if(DrawDeltaTime < 1) DrawDeltaTime = 1;
+
+        /*
+        string tmpStr = "0";
+        if(DrawDeltaTime != 0) {
+            tmpStr = (1000 % DrawDeltaTime);
+        }
+        cout << "tmpStr: " << tmpStr << '\n';
+        printgls(0.825, 0.025, (char*)"FPS %s", tmpStr.c_str());
+        */
         //cout << " FPS: " << (1000/DrawDeltaTime) << '\n';
 
     glPopMatrix();

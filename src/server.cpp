@@ -1142,15 +1142,19 @@ void ServerClass::SendMessages() {
 }
 
 void ServerClass::Update() {
-    //get new messages from clients; becomes ReadCommands
-    ReadMessages();
+	if(isRunning) {
+		//get new messages from clients; becomes ReadCommands
+		ReadMessages();
 
-    //use command buffer from each client to update our data
-    ProcessMessages();
+		//use command buffer from each client to update our data
+		ProcessMessages();
 
-    //update the worlds
-    for(int i = 0; i < MAXLVL; i++) if(lvl[i].Loaded) lvl[i].Update();
+		//update the worlds
+		for(int i = 0; i < MAXLVL; i++) {
+			lvl[i].Update();
+		}
 
-    //send out all the new data to the clients
-    SendMessages();
+		//send out all the new data to the clients
+		SendMessages();
+	}
 }
