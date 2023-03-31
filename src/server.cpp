@@ -350,7 +350,7 @@ int ServerClass::CreateNewRoom(int clientaddress, string mapname) {
             emptylvl = i;
         }
 
-        if(lvl[i].OwnerAddress == clientaddress) {
+        if(lvl[emptylvl].OwnerAddress == clientaddress) {
             alreadyownsroom = i;
         }
     }
@@ -489,7 +489,7 @@ void ServerClass::JoinRoom(int clientaddress, int roomtojoin) {
                 if(lvl[roomtojoin].Ent[i].ClientAddress == clientaddress) {
                     datastr += " isme=1";
                 }
-
+                
                 //position
                 datastr += " x=" + to_string(lvl[roomtojoin].Ent[i].pos.c.x);
                 datastr += " y=" + to_string(lvl[roomtojoin].Ent[i].pos.c.y);

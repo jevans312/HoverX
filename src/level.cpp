@@ -11,7 +11,7 @@
 #include "iostream"
 
 using namespace std;
-float globaltime = 0;
+
 extern bool isConsole;
 extern ServerClass hxServer;
 extern LocalClient LC;
@@ -72,8 +72,7 @@ bool level::Load(string LevelFilename)   {
         TiXmlElement *xTextures = hoverlvl.getelement(xLevel, (char*)"textures");
         texnum = hoverlvl.countchildren(xTextures);
         texlist = new int[texnum];
-
-        //only load textures if we are going  LoadGLTexture(xTextures->Attribute("skytex"));to actually use them
+        
         if(!isConsole) {
             //load sky
             temp =  xTextures->Attribute("skytex");
@@ -316,8 +315,6 @@ void level::Update() {
 	if(Loaded == false)
 		return;
 	
-    CheckTimerEvents();
-
     //glide
     //for(int i = 0; i < MAXENTITIES; i++)
     //    if(Ent[i].isUsed) Ent[i].pos.dophys(0.992, 1);
@@ -345,21 +342,25 @@ void level::Update() {
         }
     }
 
-    //update game state
-    for(int i = 0; i < MAXENTITIES; i++) {  //look for any ents that are flagged to be in a checkpoint
-        if(Ent[i].isUsed && Ent[i].SectorType == "checkpoint" && Game.GameType == 1) {
-            stringstream convert (stringstream::in | stringstream::out);
-            int checkpointnumber = -1;
+    //update race state
+    if(Game.GameType == 1) {
+        CheckTimerEvents();
+        
+        for(int i = 0; i < MAXENTITIES; i++) {  //look for any ents that are flagged to be in a checkpoint
+            if(Ent[i].isUsed && Ent[i].SectorType == "checkpoint") {
+                stringstream convert (stringstream::in | stringstream::out);
+                int checkpointnumber = -1;
 
-            //change string value to an integer
-            convert << Ent[i].SectorValue;
-            convert >> checkpointnumber;
+                //change string value to an integer
+                convert << Ent[i].SectorValue;
+                convert >> checkpointnumber;
 
-            if( Ent[i].currentcheckpoint + 1 == checkpointnumber) {     //hit a hit point 1 more than the previous
-                Ent[i].currentcheckpoint = checkpointnumber;
+                if( Ent[i].currentcheckpoint + 1 == checkpointnumber) {     //hit a hit point 1 more than the previous
+                    Ent[i].currentcheckpoint = checkpointnumber;
 
-                //-1 because 0 1 2 3 is 4 checkpoints
-                if(Ent[i].currentcheckpoint == Game.CheckpointCount - 1)    FinishedLap(Ent[i]);
+                    //-1 because 0 1 2 3 is 4 checkpoints
+                    if(Ent[i].currentcheckpoint == Game.CheckpointCount - 1)    FinishedLap(Ent[i]);
+                }
             }
         }
     }
@@ -380,10 +381,11 @@ void level::Unload() {
     }
 
     //free memory
-    delete[] lvlvert;
-    delete[] lvlline;
-    delete[] lvlpoly;
-    delete[] Ent;
+    cout << "Level::Unload: FIX ME: Leaking some memory!" << '\n';
+    //delete[] lvlvert;
+    //delete[] lvlline;
+    //delete[] lvlpoly;
+    //delete[] Ent;
 
     Loaded = false;
     MapName = "";

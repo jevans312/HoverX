@@ -16,7 +16,7 @@ class ClientList {
     string Name;                                            //How the client will be known
     MSGClass MessageBuffer[MAXMSGS];                        //storage for data from this client
     int PeerNumber;                                         //location of where this client is in the client index
-    uint64_t LastTimeStamp;                                 //last time client time received, used to keep packets in order
+    uint32_t LastTimeStamp;                                 //last time client time received, used to keep packets in order
     int LastKeepAliveTime;                                  //time when we last heard a keep alive responce from the client
     bool isConnected;                                       //is this slot filled?
     bool hasJoinedRoom;                                     //has fully joined a game room

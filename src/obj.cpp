@@ -6,7 +6,7 @@ objModel::objModel( void )    {
 }
 
 objModel::~objModel( void )   {
-	//delete [] m_vertices;
+	//TODO: clean up!
 }
 
 void skipLine(istream& is)  {
@@ -52,24 +52,36 @@ bool objModel::Load(const string& modelfile, const string& texturefile)   {
     unsigned int    FaceCount = 1;
     unsigned int    TextureCount = 1;
 
-    //return 0 if the model is alreay loaded; should be more discriptive
     if (Loaded) {
         cout << "objModel::Load: Object already has a model loaded" << '\n';
-        return 0;
+        return false;
     }
 
 	ifstream is(modelfile.c_str(), ios::in|ios::ate);
-	if (!is) cout << "objModel::Load: Empty obj file" << '\n';
+	if (!is) {
+        cout << "objModel::Load: Empty obj could not be opened!" << '\n';
+        return false;
+    }
 
-	is.tellg();                //get the file size (we started at the end)...
-	is.seekg (0, ios::beg);    //...then get back to start
+	is.tellg();             //get the file size (we are at the end of file)...
+	is.seekg(0, ios::beg);  //... get back to start
 
-    is >> ele_id;
-
+    //is >> ele_id;
     //read data in
 	while(skipCommentLine(is)) {
-        if (!(is >> ele_id)) {
-            cout << "objModel::Load: Error processing line" << '\n';
+        is >> ele_id;
+
+        if(is.failbit) {
+            cout << "objModel::Load: failbit set, specs say maybe recoverable." << '\n';
+
+            if(is.badbit) { // in case it is -1#IND00
+                cout << "objModel::Load: badbit set too! specs say its bad, quite a bitbad" << '\n';
+            }
+            is.clear();
+
+            if(is.goodbit) {
+                cout << "objModel::Load: Cleared error now goodbit is set" << '\n';
+            }
         }
 
         //TODO: Implement mtllib and usemtl
@@ -83,8 +95,6 @@ bool objModel::Load(const string& modelfile, const string& texturefile)   {
                 VertexCount++;
             }
             else cout << "objModel::Load: too many vertexs in file, will not load correctly" << '\n';
-
-            is.clear();
         }
         else if ("vt" == ele_id) {	// texture data
             is >> x >> y;
@@ -93,49 +103,34 @@ bool objModel::Load(const string& modelfile, const string& texturefile)   {
                 T[TextureCount].y = -y; //flip the y cord so the textues display correctly
                 TextureCount++;
             }
-            else cout << "objModel::Load: too many texture cordinates, will not load correctly" << '\n';
-
-            is.clear();                           // is z (i.e. w) is not available, have to clear error flag.
+            else cout << "objModel::Load: too many texture cordinates, will not load correctly" << '\n';                        // is z (i.e. w) is not available, have to clear error flag.
         }
         else if ("vn" == ele_id) {	// normal data
             is >> x >> y >> z;
-            if(!is.good()) {        // in case it is -1#IND00
-                cout << "objModel::Load: File stream != good()" << '\n';
-                x = y = z = 0.0;
-                //skipLine(is);
-            } else {
-                if(NormalCount < MAXOBJ_NORMAL) {
-                    N[NormalCount].x = x;
-                    N[NormalCount].y = y;
-                    N[NormalCount].z = z;
-                    //cout << "added normal " << NormalCount << " x" << N[NormalCount].x << " y " << N[NormalCount].y << " z " << N[NormalCount].z << '\n';
-                    NormalCount++;
-                }
-                else cout << "objModel::Load: too many normals, will not load correctly" << '\n';
+            if(NormalCount < MAXOBJ_NORMAL) {
+                N[NormalCount].x = x;
+                N[NormalCount].y = y;
+                N[NormalCount].z = z;
+                //cout << "added normal " << NormalCount << " x" << N[NormalCount].x << " y " << N[NormalCount].y << " z " << N[NormalCount].z << '\n';
+                NormalCount++;
             }
-
-            is.clear();
+            else cout << "objModel::Load: too many normals, will not load correctly" << '\n';
         }
         else if ("f" == ele_id) {	//	face data
             char c;
-
             if(VertexCount < MAXOBJ_FACE) {
-                is >> F[FaceCount].v1 >> c >> F[FaceCount].vt1 >> c >> F[FaceCount].vn1 >>
+                is >>   F[FaceCount].v1 >> c >> F[FaceCount].vt1 >> c >> F[FaceCount].vn1 >>
                         F[FaceCount].v2 >> c >> F[FaceCount].vt2 >> c >> F[FaceCount].vn2 >>
                         F[FaceCount].v3 >> c >> F[FaceCount].vt3 >> c >> F[FaceCount].vn3;
                         FaceCount++;
             }
             else cout << "objModel::Load: too many polys in file, it will not load correctly" << '\n';
-
-            is.clear();
         }
         else {
-            cout << "objModel::Load: Ignored property \'" << ele_id << "\'" << '\n';
+            cout << "objModel::Load: Property type \'" << ele_id << "\' not implemented" << '\n';
             skipLine(is);
         }
-	} //end of while
-
-	//close file
+	}
     is.close();
 
     //load texture
@@ -146,11 +141,13 @@ bool objModel::Load(const string& modelfile, const string& texturefile)   {
 	glNewList(DisplayList, GL_COMPILE);
 
     //setup materials for the mesh
+    /*
     GLfloat AMB_Material[] = {0.5, 0.5, 0.5, 1.0};
     GLfloat DIF_Material[] = {0.5, 0.5, 0.5, 1.0};
 
     glMaterialfv(GL_FRONT, GL_AMBIENT, AMB_Material);
     glMaterialfv(GL_FRONT, GL_DIFFUSE, DIF_Material);
+    */
 
     //bind texture to mesh
     glBindTexture(GL_TEXTURE_2D, TextureID);
@@ -158,20 +155,17 @@ bool objModel::Load(const string& modelfile, const string& texturefile)   {
     //draw triangles vertex by vertex
     glBegin(GL_TRIANGLES);
         for (uint i=1; i < FaceCount; i++) {
-            //set vert 1 xyz of face i
-            glNormal3f(N[F[i].vn1].x, N[F[i].vn1].y, N[F[i].vn1].z);
-            glTexCoord2f(T[F[i].vt1].x, T[F[i].vt1].y);
-            glVertex3f(V[F[i].v1].x, V[F[i].v1].y, V[F[i].v1].z);
+            glNormal3f(     N[F[i].vn1].x,  N[F[i].vn1].y,  N[F[i].vn1].z);
+            glTexCoord2f(   T[F[i].vt1].x,  T[F[i].vt1].y);
+            glVertex3f(     V[F[i].v1].x,   V[F[i].v1].y,   V[F[i].v1].z);
 
-            //set vert 2 xyz of face i
-            glNormal3f(N[F[i].vn2].x, N[F[i].vn2].y, N[F[i].vn2].z);
-            glTexCoord2f(T[F[i].vt2].x, T[F[i].vt2].y);
-            glVertex3f(V[F[i].v2].x, V[F[i].v2].y, V[F[i].v2].z);
+            glNormal3f(     N[F[i].vn2].x,  N[F[i].vn2].y,  N[F[i].vn2].z);
+            glTexCoord2f(   T[F[i].vt2].x,  T[F[i].vt2].y);
+            glVertex3f(     V[F[i].v2].x,   V[F[i].v2].y,   V[F[i].v2].z);
 
-            //set vert 3 xyz of face i
-            glNormal3f(N[F[i].vn3].x, N[F[i].vn3].y, N[F[i].vn3].z);
-            glTexCoord2f(T[F[i].vt3].x, T[F[i].vt3].y);
-            glVertex3f(V[F[i].v3].x, V[F[i].v3].y, V[F[i].v3].z);
+            glNormal3f(     N[F[i].vn3].x,  N[F[i].vn3].y,  N[F[i].vn3].z);
+            glTexCoord2f(   T[F[i].vt3].x,  T[F[i].vt3].y);
+            glVertex3f(     V[F[i].v3].x,   V[F[i].v3].y,   V[F[i].v3].z);
         }
     glEnd();
 	glEndList();
@@ -186,4 +180,5 @@ void objModel::Unload() {
     glDeleteLists(DisplayList, 1);
     TextureID = 0;
     Loaded = false;
+    Clear();
 }

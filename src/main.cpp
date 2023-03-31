@@ -25,17 +25,22 @@ using namespace std;
 level mylvl; //clients level
 ServerClass hxServer;
 LocalClient LC; //local client data
-//Uint8*  keys = NULL;
-//menu mymnu; //delete
 
 //game states
 //TODO: Move is stuff to client/server and MSGmode to UI
-bool isConnected = false;  //net flag
-bool isHost = false;    //net flag
-bool isConsole = false;  //use text output only; no window/gl
-bool MSGmode = false;   //game state for typing a message or command
-bool done;               //MOST MAIN LOOP!!
+bool isConnected = false;   //net flag
+bool isHost = false;        //net flag
+bool isConsole = false;     //use text output only; no window/gl
+bool MSGmode = false;       //game state for typing a message or command
+bool done;                  //main loop control
 
+//TODO: move to client render code
+// SDL/GL/Window stuff
+SDL_Window *window;
+SDL_GLContext glContext;
+int window_width = 640;
+int window_height = 480;
+int window_fullscreen = 0;
 int DefaultTextureID;
 int DesktopTexture;
 
@@ -46,18 +51,12 @@ uint64_t beforedraw = 0;
 
 // used by UI class //TODO: Get rid of these global
 string hostMSGbuffer; //Move to UI code
-int window_width = 640;
-int window_height = 480;
-int window_fullscreen = 0;
 
 int mouse_x = 320;
 int mouse_y = 240;
 float mx = 0;
 float my = 0;
 
-// SDL/GL/Window stuff
-SDL_Window *window;
-SDL_GLContext glContext;
 
 //100 fps
 #define TICK_RATE 10

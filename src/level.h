@@ -15,19 +15,25 @@ string PrettyPrintTime(int milliseconds);
 
 class StartPoints {
     public:
-    short unsigned int  Count;                      //number of start points loaded
-    vector2d            Position[MAXPLAYERS];       //max of 8 players
-    float               Direction[MAXPLAYERS];      //the way the ship is pointed
-    int                 isUsed[MAXPLAYERS];         //is this position used and by whom; -1 signifise empty
+        short unsigned int  Count;                      //number of start points loaded
+        vector2d            Position[MAXPLAYERS];       //max of 8 players
+        float               Direction[MAXPLAYERS];      //the way the ship is pointed
+        int                 isUsed[MAXPLAYERS];         
 
-    StartPoints() {     //constructor
-        Clear();
-    }
+        StartPoints() { 
+            Clear();
+        }
 
-    void Clear() {
-        Count = 0;
-        for(int i = 0; i < 7; i++) isUsed[i] = -1;
-    }
+        ~StartPoints() {
+            Clear();
+        }
+
+        void Clear() {
+            Count = 0;
+            for(int i = 0; i < MAXPLAYERS; i++) {
+                isUsed[i] = -1;
+            }
+        }
 };
 
 class GameClass {
@@ -63,12 +69,12 @@ public:
 class level {
 public:
     string MapName; //just for referance
-    bool Loaded;
+    bool Loaded = false;
     int gridtexid;  //sky texture
     int vertnum, linenum, polynum;
     int linestage, tlili;   //for adding lines
-    int OwnerAddress;   //which client ownes this room
-    int EntityCount;
+    int OwnerAddress = -1;   //which client ownes this room
+    int EntityCount = 0;
     short unsigned int CheckPointCount;
     vector2d *lvlvert;
     line2d *lvlline;
