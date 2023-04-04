@@ -1,7 +1,7 @@
 CXX := g++
 LD := g++
 FLAGS := -g
-#FLAGS := -march=native -O3
+#FLAGS := -march=native -O3 -g
 EXTRA_CFLAGS := -m64 -std=c++11 -Wall -Wextra -Wpedantic
 INC := -I/usr/include
 LIB := -lm -ldl -lSDL2 -lSDL2_image -lGL -lGLU -lGLEW -ltinyxml -lenet

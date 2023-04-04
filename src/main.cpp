@@ -124,7 +124,7 @@ void DrawGLScene() {
     //overlay hud
     DrawHUD();
 
-    //Any errors accumulate?
+    //Any errors accumulate? //Note: glGetError causes a full pipeline sync!
     GLenum errorcode;
     while((errorcode = glGetError()) != GL_NO_ERROR) {
         cout << "DrawGLScene() GL error: " << gluErrorString(errorcode) << '\n';
@@ -399,8 +399,6 @@ string IntToIpAddress(unsigned int ip) {
     bytes[3] = (ip >> 24) & 0xFF;
     sprintf(ips, "%d.%d.%d.%d", bytes[3], bytes[2], bytes[1], bytes[0]);
     return ips;
-    //return (IntToStr(bytes[3]) + "." + IntToStr(bytes[2]) + "." +
-    //        IntToStr(bytes[1]) + "." + IntToStr(bytes[0]));
 }
 
 string BoolToStr(const bool b) {

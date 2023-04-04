@@ -95,9 +95,9 @@ public:
     ServerClass() {
         isRunning = false;
         isAcceptingRemoteClients = false;
-        //Address = NULL;
-        Host = NULL;
-        Peer = NULL;
+        //Address = 0;
+        Host = nullptr;
+        Peer = nullptr;
     };
 
     ~ServerClass() {};

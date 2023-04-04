@@ -13,7 +13,7 @@ bool Entity::Add(int entaddress) {
         ID = entaddress;
     }
     else {
-        cout << "Entity::Add: over writing an entity with and ID already assigned" << endl;
+        cout << "Entity::Add: over writing an entity with and ID already assigned" << '\n';
     }
 
     string modelfile = "models/" + ModelFile + ".obj";
@@ -21,12 +21,12 @@ bool Entity::Add(int entaddress) {
 
     //check if files exist
     if(FileExists(modelfile.c_str()) == false) {
-        cout << "Entity::Add: model's model not found: \"" << modelfile.c_str() << endl;
+        cout << "Entity::Add: model's model not found: \"" << modelfile.c_str() << '\n';
         Clear();
         return false;
     }
     if(FileExists(texturefile.c_str()) == false) {
-        cout << "Entity::Add: model's texture not found \"" << texturefile.c_str() << "\"" << endl;
+        cout << "Entity::Add: model's texture not found \"" << texturefile.c_str() << "\"" << '\n';
         Clear();
         return false;
     }
@@ -52,7 +52,7 @@ void Entity::Remove() {
     if(hxServer.isAcceptingRemoteClients) {
         ID = tempid;
         ReplicateRemove = true;
-        cout << "entity being set to be removed" << endl;
+        cout << "entity being set to be removed" << '\n';
     }
 }
 
@@ -92,11 +92,12 @@ void Entity::Clear() {
 }
 
 void Entity::ApplyForces(float divstep) {
-    float accel = 0.003;
-    float jumppower = 0.05;
-    float steerspeed = 0.025;
-    float gravity = 0.001;
-    float minzvel = -0.04;
+    const float accel       = 0.003f;
+    const float drag        = 0.992f;
+    const float jumppower   = 0.050f;
+    const float steerspeed  = 0.025f;
+    const float gravity     = 0.001f;
+    const float minzvel     = -0.040f;
 
     //only apply controls to clients
     if(ClientAddress == -1) return;
@@ -104,7 +105,7 @@ void Entity::ApplyForces(float divstep) {
     pos.o.z = pos.c.z;
 
     //gliding physics
-    pos.dophys(0.992, 1);
+    pos.dophys(drag, 1);
 
     //get a vector of heading and speed
     vector2d v (sinf(Yaw), cosf(Yaw));

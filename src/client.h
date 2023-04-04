@@ -77,8 +77,8 @@ public:
         isConnected = false;
         isConnectedToRemoteServer = false;
         DrawWorld = false;
-        ServerPeer = NULL;
-        ClientHost = NULL;
+        ServerPeer = nullptr;
+        ClientHost = nullptr;
         KeyFlags = 0;
         MSGDrawBuffer0 = "";
         MSGDrawBuffer1 = "";

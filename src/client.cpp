@@ -169,13 +169,13 @@ bool LocalClient::ExecuteCommand(const string &command, const string &arg) {
         //client should never unload the level in a local game, set the server do it
         //JAE 3/31/23 - Sure about that?
         if(lvl.Loaded) {
-            if(isConnectedToRemoteServer) {
-                //cout << "LocalClient::ExecuteCommand: Unloading level with local server, idea bad?" << '\n';
+            //if(isConnectedToRemoteServer) {
+                cout << "LocalClient::ExecuteCommand: Unloading level with local server, idea bad?" << '\n';
                 lvl.Unload();
                 AddTextMessage("/leftroom");
                 EntityAddress = -1;
                 DrawWorld = false;
-            }
+            //}
         }
     }
     else if (command == "disconnected" ) {  //needs to implemented on the server

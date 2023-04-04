@@ -4,10 +4,14 @@
 
 class physpoint {
 public:
-    vector2d c,o;
+    vector2d c; //current
+    vector2d o; //old
+
     float rad;
 
-    physpoint() {}
+    physpoint() {
+        
+    }
 
     physpoint(vector2d C, vector2d O)   {
         c = C;  //current

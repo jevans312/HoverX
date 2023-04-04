@@ -333,7 +333,8 @@ void ServerClass::AddKeepAlive(int clientaddress) {
 //let a client create a new world
 int ServerClass::CreateNewRoom(int clientaddress, string mapname) {
     int emptylvl = -1;
-    int alreadyownsroom = -1;
+
+    cout << "CreateNewRoom clientaddress: " << clientaddress << '\n';
 
     //check to see if you already a in a room or own a room
     if(Clients[clientaddress].RoomAddress != -1) {
@@ -344,22 +345,21 @@ int ServerClass::CreateNewRoom(int clientaddress, string mapname) {
         return -1;
     }
 
-    //find space to create lvl
-    for(int i = MAXLVL; i >= 0; i--) {
-        if(lvl[i].Loaded == false) {
-            emptylvl = i;
-        }
-
-        if(lvl[emptylvl].OwnerAddress == clientaddress) {
-            alreadyownsroom = i;
+    //Does user already have a room open
+    for(int i = 0; i < MAXLVL; i++) {
+        if(lvl[i].OwnerAddress == clientaddress) {
+            const string tmpstr = "Already owner of room #" + IntToStr((i+1));
+            AddClientTextMessage(tmpstr, clientaddress);
+            return -1;
         }
     }
 
-    //fail if this client already owns a room
-    if(alreadyownsroom != -1) {
-        const string tmpstr = "Already owner of room #" + IntToStr(alreadyownsroom);
-        AddClientTextMessage(tmpstr, clientaddress);
-        return -1;
+    //find space to create lvl
+    for(int i = 0; i < MAXLVL; i++) {
+        if(lvl[i].Loaded == false) {
+            emptylvl = i;
+            i = MAXLVL;
+        }
     }
 
     //fail if no empty room
@@ -491,8 +491,10 @@ void ServerClass::JoinRoom(int clientaddress, int roomtojoin) {
                 }
                 
                 //position
-                datastr += " x=" + to_string(lvl[roomtojoin].Ent[i].pos.c.x);
-                datastr += " y=" + to_string(lvl[roomtojoin].Ent[i].pos.c.y);
+                datastr += " x=";
+                datastr += lvl[roomtojoin].Ent[i].pos.c.x;
+                datastr += " y=";
+                datastr += lvl[roomtojoin].Ent[i].pos.c.y;
 
                 //model
                 datastr += " md=" + lvl[roomtojoin].Ent[i].ModelFile;
