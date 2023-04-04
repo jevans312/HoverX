@@ -5,7 +5,7 @@
 #include "level.h"
 #include "ui.h"
 #include "enet/enet.h"
-#include "iostream"
+#include "string.h"
 
 class LocalClientList {
 public:
@@ -77,8 +77,8 @@ public:
         isConnected = false;
         isConnectedToRemoteServer = false;
         DrawWorld = false;
-        ServerPeer = nullptr;
-        ClientHost = nullptr;
+        ServerPeer = NULL;
+        ClientHost = NULL;
         KeyFlags = 0;
         MSGDrawBuffer0 = "";
         MSGDrawBuffer1 = "";

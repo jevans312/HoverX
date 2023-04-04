@@ -1,5 +1,5 @@
 #include <SDL2/SDL.h>
-//#include <sstream>
+#include <sstream>
 #include "stdio.h"
 #include "string.h"
 #include "client.h"
@@ -25,7 +25,7 @@ void LocalClient::Update() {
         //if(Keys.left)   lvl.Ent[EntityAddress].Yaw -= 0.025;
         //lvl.Ent[EntityAddress].onground = 0; lvl.Ent[EntityAddress].antionground = 0;   //reset ground info
 
-        float accel = 0.003;
+        const float accel = 0.003;
         //float jumppower = 0.05;
         //float steerspeed = 0.025;
         //float gravity = 0.001;
@@ -680,8 +680,9 @@ void LocalClient::HandleNewPacket(ENetEvent localevent) {
     char packetbuffer[1080];    //1kB of buffer
     char textmessagedata[MAXMSGLENTH];
 
-    for( int tempi = 0 ; tempi < 1080; tempi++) packetbuffer[tempi] = '\0'; //clear char array
-    for( int tempi = 0 ; tempi < MAXMSGLENTH; tempi++) textmessagedata[tempi] = '\0'; //clear char array
+    //clear arrays
+    memset(packetbuffer, '\0', sizeof(packetbuffer));
+    memset(textmessagedata, '\0', sizeof(textmessagedata));
 
     memmove(packetbuffer, localevent.packet->data, localevent.packet->dataLength);
     //cout << "client: processing \"" << packetbuffer << "\"" << endl;

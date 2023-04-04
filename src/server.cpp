@@ -145,7 +145,7 @@ void ServerClass::BroadcastTxtMessage(string localmsg) {
 void ServerClass::BroadcastRoomInfo() {
     string datastr = "";
     char chartowrite[127];
-    for(int i = 0; i < 27; i++) chartowrite[i] = '\0';
+    memset(chartowrite, '\0', sizeof(chartowrite));
 
     datastr = "/datastr /room";
 
@@ -178,7 +178,7 @@ void ServerClass::BroadcastRoomInfo() {
 void ServerClass::EntityAddRemove() {
     string datastr = "";
     char chartowrite[127];
-    for(int i = 0; i < 27; i++) chartowrite[i] = '\0';
+    memset(chartowrite, '\0', sizeof(chartowrite));
 
     for(int j = 0; j < MAXLVL; j++) {
         datastr = "/datastr ";
@@ -231,7 +231,7 @@ void ServerClass::BroadcastEntityData(int clientaddress) {
     char packetbuffer[1080];   //enough for 64 entities and packet over head
     unsigned int bufpos = 0;
 
-    for( int tempi = 0 ; tempi < 1080 ; tempi++) packetbuffer[tempi] = '\0'; //clear char array
+    memset(packetbuffer, '\0', sizeof(packetbuffer));
 
     if(!Clients[clientaddress].hasJoinedRoom) return;
 
@@ -326,7 +326,6 @@ void ServerClass::AddKeepAlive(int clientaddress) {
     //some random byte just to have a payload; 54
     memmove(&Clients[clientaddress].MessageBuffer[emptymsgaddress].Payload, &fiftyfour,
             Clients[clientaddress].MessageBuffer[emptymsgaddress].PayloadSize);
-
 }
 
 
@@ -876,7 +875,7 @@ void ServerClass::HandleNewPacket(ENetEvent localevent) {
     char packetbuffer[1023];    //1kB of buffer
     char textmessagedata[MAXMSGLENTH];
     char charprettyip[16];
-    for( int i = 0 ; i < 16 ; ++i) charprettyip[i] = 0; //clear string
+    memset(charprettyip, '\0', sizeof(charprettyip));
     string stringprettyip = "";
 
     //figure out who this packet is from
@@ -893,8 +892,9 @@ void ServerClass::HandleNewPacket(ENetEvent localevent) {
 
     //process the new packet
     if(peernumber != -1) {
-        for( int tempi = 0 ; tempi < 1023; tempi++) packetbuffer[tempi] = '\0'; //clear char array
-        for( int tempi = 0 ; tempi < MAXMSGLENTH; tempi++) textmessagedata[tempi] = '\0'; //clear char array
+        //clear arrays
+        memset(packetbuffer, '\0', sizeof(packetbuffer));
+        memset(textmessagedata, '\0', sizeof(textmessagedata));
 
         memmove(packetbuffer, localevent.packet->data, localevent.packet->dataLength);
         //cout << "server: processing packet \"" << packetbuffer << "\"" << endl;
@@ -1074,7 +1074,7 @@ void ServerClass::SendMessages() {
                 msgcount = 0;
             }
             else {  //this is a network client and the data need to be serialized
-                for( int tempi = 0 ; tempi < 1023 ; tempi++) packetbuffer[tempi] = '\0'; //clear char array
+                memset(packetbuffer, '\0', sizeof(packetbuffer)); //clear array
                 bufpos = 0;
 
                 for(int j = 0; j < MAXMSGS; j++) {

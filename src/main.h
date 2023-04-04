@@ -3,8 +3,10 @@
 #define main_h
 
 //#include "SDL2/SDL.h"
-#include "iostream"
+#include <iostream>
 #include <sstream>
+#include <cstring>
+#include <string>
 
 #define ENGINEVERSION "build_6"     //going by build number untill we have a version 0.5 or something like that
 #define MAXLVL 7
@@ -30,14 +32,14 @@ public:
     void Clear() {
         ClientAddress = -1;
         Type = 0;
-        for( int i = 0 ; i < MAXMSGLENTH ; ++i) Payload[i] = '\0';
+        memset(Payload, '\0', sizeof(Payload));
         PayloadSize = 0;
     }
 
     MSGClass() {
         ClientAddress = -1;
         Type = 0;
-        for( int i = 0 ; i < MAXMSGLENTH ; ++i) Payload[i] = '\0';
+        memset(Payload, '\0', sizeof(Payload));
         PayloadSize = 0;
     };
 };

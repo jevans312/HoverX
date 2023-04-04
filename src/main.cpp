@@ -125,12 +125,14 @@ void DrawGLScene() {
     DrawHUD();
 
     //Any errors accumulate? //Note: glGetError causes a full pipeline sync!
+    /*
     GLenum errorcode;
     while((errorcode = glGetError()) != GL_NO_ERROR) {
         cout << "DrawGLScene() GL error: " << gluErrorString(errorcode) << '\n';
     }
 
     glFlush();
+    */
 
 	//double buffered; swap buffers to display
     SDL_GL_SwapWindow(window);
