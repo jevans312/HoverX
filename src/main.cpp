@@ -116,7 +116,7 @@ void DrawGLScene() {
     beforedraw = SDL_GetTicks64();
 
     glLoadIdentity();   // Reset The View
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear The Screen And The Depth Buffer
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // Clear The Screen And The Depth Buffer
 
     //draw world
 	DrawWorld();
@@ -192,8 +192,10 @@ void initGlWindow(const int width, const int height, const int fs) {
     glDepthFunc(GL_LESS);                                   // Type Of Depth Testing
     glEnable(GL_DEPTH_TEST);                                // Enable Depth Testing
 
+    //WARNING! Memory bandwith is often doubled with blending enabled!
     glEnable(GL_BLEND);                                     // Enable Blending
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);      // Enable Alpha Blending
+    //WARNING! Find out how to keep this disabled most of the time!
 
     glAlphaFunc(GL_GREATER, 0.5f);                          // Set Alpha Testing
     glEnable(GL_ALPHA_TEST);                                // Enable Alpha Testing
@@ -409,6 +411,26 @@ string BoolToStr(const bool b) {
     } else {
         return "False";
     }
+}
+
+void skipLine(istream& is)  {
+    char next;
+	is >> std::noskipws;
+    while( (is >> next) && ('\n' != next) );
+}
+
+//	skip a comment line
+bool skipCommentLine(istream& is)   {
+	char next;
+	while( is >> std::skipws >> next )
+    {
+		is.putback(next);
+		if ('#' == next)
+			skipLine(is);
+		else
+			return true;
+    }
+    return false;
 }
 
 bool FileExists( const char* FileName ) {    //returns true if file exist

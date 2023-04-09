@@ -1,31 +1,36 @@
 Build Instruction:
-Run make in src
-CMake not quite working 100% yet
+Run "make" in src folder
+CMake not quite working
 
 Dependancies:
-SDL2, SDL2_image, tinyxml, enet (dev versions if you are compiling)
-All of these are installable on ubuntu with apt-get
+-SDL2 - Crossplatform window creation, input etc
+-SDL2_image - Image file loading
+-tinyxml - XML parsing
+-ENet - Relaible packets on UDP
+All available on ubuntu with apt-get, dev versions if you are compiling
 
-Major Bugs:
+Bugs:
+-Crash when /createroom on a file that doesn't exist
 -Fullscreen is broken
--I haven't compiled hover cad in some time... need to make a Makefile
+-HoverCad doesn't have a functional Makefile
 
 Controls:
-Arrow left and right are turning; forward is jump
-left shift is the gas
-spacebar is the brake
+-Arrow left/right turn
+-Arrow up jump
+-Left shift gas
+-Spacebar brake
 
 Singleplayer:
-make a new room; menu->Sectors->New and pick a map and wait for it to load!
+-New room; menu->Sectors->New and pick a map and wait for it to load!
 
 Multiplayer:
 the host will need to do a /host 1 to allow connections to him
 the connecting players will need to /connect "the host ip address here"
 
 Levels:
-alley: old school remake of a hover race track
-sumo: demo of a sumo wrestling game mode; not impleamented yet
-classic 8: cool map made by Lee!
+alley - old school remake of a hover race track
+sumo - demo of a sumo wrestling game mode; not impleamented yet
+classic 8 - cool map made by Lee!
 
 Commands:
 /createroom mapname.xml     //maps should be in levels folder
@@ -37,4 +42,4 @@ Commands:
 /exit and /quit
 
 Settings:
-edit the settings.xml file to set the resolution and user name; everything else is ignored
+settings.xml only resolution and user name are read

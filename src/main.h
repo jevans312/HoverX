@@ -91,6 +91,8 @@ public:
 
 string IntToIpAddress(unsigned int ip);
 string BoolToStr(const bool b);
+void skipLine(istream& is);
+bool skipCommentLine(istream& is);
 bool FileExists(const char* FileName);    //returns true if file exist
 int FindKeyByName(KeyValue *kv, string keytofind);     //return the location of the data we are looking for or -1 on fail
 void ParseTKV(string worldstr, TypeKeyValue *TKV);     //turn world string into type key and value

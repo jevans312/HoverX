@@ -11,20 +11,21 @@ using namespace std;
 //Info on each one of our clients to be replecated across the network
 class ClientList {
     public:
-    ENetPeer *Peer;                                         //access to the ENet peer
-    string PrettyIP;                                        //127.0.0.1 format
-    string Name;                                            //How the client will be known
-    MSGClass MessageBuffer[MAXMSGS];                        //storage for data from this client
-    int PeerNumber;                                         //location of where this client is in the client index
-    uint32_t LastTimeStamp;                                 //last time client time received, used to keep packets in order
-    int LastKeepAliveTime;                                  //time when we last heard a keep alive responce from the client
-    bool isConnected;                                       //is this slot filled?
-    bool hasJoinedRoom;                                     //has fully joined a game room
-    KeyState Keys;                                          //which keys are down/up
-    int RoomAddress;                                        //clients room -1 is lobby
+        string Name;                        //How the client will be known
+        KeyState Keys;                      //which keys are down/up
+        bool isConnected;                   //is this slot filled?
+        bool hasJoinedRoom;                 //has fully joined a game room
+        int RoomAddress;                    //clients room -1 is lobby
+
+        int PeerNumber;                     //location of where this client is in the client index
+        ENetPeer *Peer;                     //access to the ENet peer
+        string PrettyIP;                    //127.0.0.1 format
+        MSGClass MessageBuffer[MAXMSGS];    //storage for data from this client
+        uint32_t LastTimeStamp;             //last time client time received, used to keep packets in order
+        uint32_t LastKeepAliveTime;         //time when we last heard a keep alive responce from the client
 
     void Clear() {  //reset all the data
-        Peer = NULL;
+        Peer = 0;
         PrettyIP.clear();
         Name = "unamed";
         PeerNumber = -1;
@@ -36,18 +37,11 @@ class ClientList {
     }
 
     ClientList() {
-        Peer = NULL;
-        PrettyIP.clear(); //clear string
-        Name = "unamed";
-        PeerNumber = -1;
-        LastTimeStamp = 0;
-        LastKeepAliveTime = 0;
-        isConnected = false;
-        hasJoinedRoom = false;
-        RoomAddress = -1;
+        Clear();
     };
+
     ~ClientList() {
-        //destroy
+        Clear();
     };
 };
 
@@ -66,6 +60,7 @@ public:
     bool Start(bool AllowRemoteConnections, const string ip = "127.0.0.1");
     void Stop();
     void Update(); //reseive and send data and update world
+    void Clear();
 
     //private?
     void CheckNetEvents();
@@ -93,14 +88,12 @@ public:
     void SendMessages();
 
     ServerClass() {
-        isRunning = false;
-        isAcceptingRemoteClients = false;
-        //Address = 0;
-        Host = NULL;
-        Peer = NULL;
+        Clear();
     };
 
-    ~ServerClass() {};
+    ~ServerClass() {
+        Clear();
+    };
 };
 
 #endif

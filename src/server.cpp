@@ -71,6 +71,15 @@ void ServerClass::Stop() {
     cout << "Server: Stopped" << '\n';
 }
 
+void ServerClass::Clear() {
+    isRunning = false;
+    isAcceptingRemoteClients = false;
+    Address.host = ENET_HOST_ANY;
+    Address.port = 41414;
+    Host = ENET_HOST_ANY;
+    Peer = 0;
+}
+
 //messages that will go out to the clients
 int ServerClass::AddClientTextMessage(string newtextmessage, int clientaddress) {
     int emptymsgaddress = -1;
@@ -1082,7 +1091,7 @@ void ServerClass::SendMessages() {
                     if(Clients[i].MessageBuffer[j].Type != 0) {
                         //buffer format: type 1 byte | size of data in 1 byte | data
 
-                        for( int tempi = 0 ; tempi < MAXMSGLENTH ; tempi++) textmessagedata[tempi] = '\0'; //clear char array
+                        memset(textmessagedata, '\0', sizeof(textmessagedata));
                         textmessagesize = 0;
                         messagetype = 0;
 

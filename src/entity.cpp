@@ -59,9 +59,9 @@ void Entity::Remove() {
 void Entity::Clear() {
     isUsed = false;
     isNetworked = true;
-    Pitch = 0.0;
-    Yaw = 0.0;
-    Roll = 0.0;
+    Pitch = 0.0f;
+    Yaw = 0.0f;
+    Roll = 0.0f;
     ClientAddress = -1;
     ID = -1;
 

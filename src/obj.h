@@ -9,6 +9,7 @@
 
 #include "glness.h"
 #include "glex.h"
+#include "main.h"
 
 using namespace std;
 

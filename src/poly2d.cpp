@@ -3,7 +3,7 @@
 #include "stdio.h"
 #include "iostream"
 #include "glness.h"
-#include "SDL2/SDL.h"
+//#include "SDL2/SDL.h"
 
 
 extern float crossz(vector2d a, vector2d b);
@@ -210,9 +210,12 @@ void poly2d::getcentre()
     }
 }
 
-
-float dx,dy,dx2,dy2;
 void poly2d::draw() {   //TODO fix this
+    float dx = 0.0f;
+    float dy = 0.0f;
+    float dx2 = 0.0f;
+    float dy2 = 0.0f;
+
     // first attempt at lighting
     GLfloat mat_amb_diff[] = {0.8, 0.8, 0.8, 1.0};
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, mat_amb_diff);
@@ -320,14 +323,17 @@ void poly2d::draw() {   //TODO fix this
                     dy = l[i].l->p2->y;
                 }
                 glBegin(GL_QUADS);
-                glTexCoord2f(0.0f, 1);
-                glVertex3f( dx, dy, rangei->low);
-                glTexCoord2f(l[i].l->len/5,1);  //TODO scaleme
-                glVertex3f( dx2, dy2, rangei->low);
-                glTexCoord2f(l[i].l->len/5, 0.0f);  //TODO scaleme
-                glVertex3f( dx2, dy2, rangei->high);
-                glTexCoord2f(0, 0.0f);
-                glVertex3f( dx, dy, rangei->high);
+                    glTexCoord2f(0.0f, 1.0f);
+                    glVertex3f( dx, dy, rangei->low);
+
+                    glTexCoord2f(l[i].l->len/5, 1.0f);  //TODO scaleme
+                    glVertex3f( dx2, dy2, rangei->low);
+                    
+                    glTexCoord2f(l[i].l->len/5, 0.0f);  //TODO scaleme
+                    glVertex3f( dx2, dy2, rangei->high);
+                    
+                    glTexCoord2f(0.0f, 0.0f);
+                    glVertex3f( dx, dy, rangei->high);
                 glEnd();
             }
         }

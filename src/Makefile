@@ -1,7 +1,7 @@
-CXX := g++
-LD := g++
+CXX := clang++-14
+LD := clang++-14
 FLAGS := -g
-#FLAGS := -march=native -O3 -g
+#FLAGS := -march=native -O3 -flto
 EXTRA_CFLAGS := -m64 -std=c++11 -Wall -Wextra -Wpedantic
 INC := -I/usr/include
 LIB := -lm -ldl -lSDL2 -lSDL2_image -lGL -lGLU -lGLEW -ltinyxml -lenet
@@ -9,7 +9,7 @@ LIB := -lm -ldl -lSDL2 -lSDL2_image -lGL -lGLU -lGLEW -ltinyxml -lenet
 TARGET := HoverX
 all: ${TARGET}
 	@mv ./HoverX ../
-	@echo Build complete: HoverX executable is in the root director so it can find neccesary assets
+	@echo Build complete: ../HoverX 
 
 # SOURCE FILES
 SRCS := main.cpp client.cpp entity.cpp glex.cpp level.cpp line2d.cpp obj.cpp \
@@ -19,7 +19,7 @@ OBJS := $(addsuffix .o,$(basename ${SRCS}))
 
 # OUTPUT
 ${TARGET}: ${OBJS}
-	${LD} -o $@ ${FLAGS} ${OBJS} ${LIB}
+	${LD} -o $@ ${FLAGS} -fuse-ld=lld ${OBJS} ${LIB}
 
 # RULES
 %.o : %.cpp

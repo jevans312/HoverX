@@ -9,26 +9,6 @@ objModel::~objModel( void )   {
 	//TODO: clean up!
 }
 
-void skipLine(istream& is)  {
-    char next;
-	is >> std::noskipws;
-    while( (is >> next) && ('\n' != next) );
-}
-
-//	skip a comment line
-bool skipCommentLine(istream& is)   {
-	char next;
-	while( is >> std::skipws >> next )
-    {
-		is.putback(next);
-		if ('#' == next)
-			skipLine(is);
-		else
-			return true;
-    }
-    return false;
-}
-
 void objModel::Clear() {
     TextureID = 0;
 }
@@ -71,16 +51,16 @@ bool objModel::Load(const string& modelfile, const string& texturefile)   {
 	while(skipCommentLine(is)) {
         is >> ele_id;
 
-        if(is.failbit) {
-            cout << "objModel::Load: failbit set, specs say maybe recoverable." << '\n';
+        if(is.fail()) {
+            cout << "objModel::Load->fail(): Maybe recoverable." << '\n';
 
-            if(is.badbit) { // in case it is -1#IND00
-                cout << "objModel::Load: badbit set too! specs say its bad, quite a bitbad" << '\n';
+            if(is.bad()) { // in case it is -1#IND00
+                cout << "objModel::Load->bad() Set also! May not be recoverable." << '\n';
             }
             is.clear();
 
-            if(is.goodbit) {
-                cout << "objModel::Load: Cleared error now goodbit is set" << '\n';
+            if(is.good()) {
+                cout << "objModel::Load: Cleared error. good() is set" << '\n';
             }
         }
 
