@@ -5,8 +5,11 @@ CMake not quite working
 Dependancies:
 -SDL2 - Crossplatform window creation, input etc
 -SDL2_image - Image file loading
+-GLEW - Deals with the mess that is OpenGLs extentions and versions
 -tinyxml - XML parsing
 -ENet - Relaible packets on UDP
+-clang-14 - Compiler; works with just about any compiler but you would have to change the make file
+-lld - Linker; same deal as compiler.
 All available on ubuntu with apt-get, dev versions if you are compiling
 
 Bugs:
