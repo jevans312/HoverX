@@ -442,7 +442,6 @@ bool FileExists( const char* FileName ) {    //returns true if file exist
         return true;
     }
 
-    fclose( fp );
     return false;
 }
 
