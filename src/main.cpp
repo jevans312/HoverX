@@ -80,7 +80,7 @@ uint64_t static tickcount = 0;
 void Tick() {
     //Do once a second
     if(tickcount == 1000/TICK_RATE) {
-        cout << "DrawDeltaTime: " << DrawDeltaTime << '\n';
+        cout << "Frame time: " << DrawDeltaTime << "ms" << '\n';
         tickcount = 0;
     }
     tickcount++;
@@ -89,30 +89,22 @@ void Tick() {
     hxServer.Update();
 }
 
-uint64_t static deltatime = 0;
 uint64_t static accumulator = 0;
 void Ticker() {
-     //find out how much time has pasted sence the last tick
-    deltatime = getDeltaTime();
-    deltatime = deltatime + accumulator;
+     //accumulate the time since the last tick
+    accumulator += getDeltaTime();
 
     //tick how ever many times we missed
-    while(deltatime >= TICK_RATE) {
-        deltatime = deltatime - TICK_RATE;
+    while(accumulator >= TICK_RATE) {
+        accumulator = accumulator - TICK_RATE;
         Tick();
     }
-
-    //accumulate how much time we have lost this go around and add it to the next go
-    accumulator = deltatime;
-
-    //wait whats left of delta time and we will tick right on time
-    if(accumulator > TICK_RATE) accumulator = TICK_RATE; //dont want to wait negitive time
-    SDL_Delay(TICK_RATE - accumulator);
+    
+    //JAE: 7/4/25 - Fixed sleep time between updates for maximum precision
+    SDL_Delay(1);
 }
 
 void DrawGLScene() {
-    //fps counter
-    DrawDeltaTime = afterdraw - beforedraw;
     beforedraw = SDL_GetTicks64();
 
     glLoadIdentity();   // Reset The View
@@ -124,19 +116,12 @@ void DrawGLScene() {
     //overlay hud
     DrawHUD();
 
-    //Any errors accumulate? //Note: glGetError causes a full pipeline sync!
-    /*
-    GLenum errorcode;
-    while((errorcode = glGetError()) != GL_NO_ERROR) {
-        cout << "DrawGLScene() GL error: " << gluErrorString(errorcode) << '\n';
-    }
-
-    glFlush();
-    */
-
-	//double buffered; swap buffers to display
+    //swap buffers/vsync
     SDL_GL_SwapWindow(window);
+    
+    //fps counter
     afterdraw = SDL_GetTicks64();
+    DrawDeltaTime = afterdraw - beforedraw;
 }
 
 void initGlWindow(const int width, const int height, const int fs) {
@@ -158,7 +143,8 @@ void initGlWindow(const int width, const int height, const int fs) {
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 2);
 
-    //SDL_GL_SetSwapInterval(1);  is supposed to enable vsync but just in case
+    // double buffering and vsync; I feel this is ideal for our game
+    SDL_GL_SetSwapInterval(1);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
     //TODO: SDL_RESIZABLE and SDL_WINDOW_FULLSCREEN
@@ -379,13 +365,8 @@ int main(int argc, char *argv[]) {
     done = 0;
     while ( ! done ) {
         GetInput();
-        Ticker();
-
-        if(isConsole) {
-            //TODO: Update console here
-        } else {
-            DrawGLScene();
-        }
+        Ticker(); //World updates at precise TICK_RATE.
+        DrawGLScene();
     }
 
     hxServer.Stop();

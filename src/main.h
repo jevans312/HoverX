@@ -88,7 +88,6 @@ public:
 };
 
 //helper functions
-
 string IntToIpAddress(unsigned int ip);
 string BoolToStr(const bool b);
 void skipLine(istream& is);
