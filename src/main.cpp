@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
+#include <signal.h>
 #include "SDL2/SDL.h"
 #include "enet/enet.h"
 
@@ -75,14 +76,16 @@ int64_t getDeltaTime() {
     return returnvalue;
 }
 
-uint64_t static tickcount = 0;
+//uint64_t static tickcount = 0;
 void Tick() {
-    //Do once a second
-    if(tickcount == 1000/TICK_RATE) {
+    /*
+    //Do once every 5 seconds
+    if(tickcount == 5000/TICK_RATE) {
         cout << "Frame time: " << DrawDeltaTime << "ms" << '\n';
         tickcount = 0;
     }
     tickcount++;
+    */
 
     LC.Update();
     hxServer.Update();
@@ -147,8 +150,7 @@ void initGlWindow(const int width, const int height, const int fs) {
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
     //TODO: SDL_RESIZABLE and SDL_WINDOW_FULLSCREEN
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)  cout << "SDL_INIT_VIDEO Failed: " << SDL_GetError() << '\n';
-    if(fs) cout << "initGlWindow: fullscreen has not been implemented" << '\n';
+    if(fs) cout << "Warning: Fullscreen has not been implemented" << '\n';
     SDL_WindowFlags windowFlags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
     window = SDL_CreateWindow("HoverX", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, windowFlags);
     glContext = SDL_GL_CreateContext(window);
@@ -209,25 +211,30 @@ void initGlWindow(const int width, const int height, const int fs) {
 
 void InitLocalClient() {
     cout << "====== HoverX ======" << '\n';
-    if (SDL_Init(SDL_INIT_TIMER) < 0) {
-        cout << "InitLocalClient: SDL_INIT_TIMER Failed: " << SDL_GetError() << '\n';
+    cout << "Client: " << VERSION << '\n';
+
+    //Setup SDL
+    if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO) < 0) {
+        cout << "SDL Error: " << SDL_GetError() << '\n';
+    } else {
+        cout << "SDL: " << SDL_MAJOR_VERSION << "." << SDL_MINOR_VERSION << "." << SDL_PATCHLEVEL << '\n';
     }
 
     //set up networking
     enet_initialize();
-    //cout << "ENet: " << ENET_VERSION_MAJOR << "."
-    //     << ENET_VERSION_MINOR <<  "." << ENET_VERSION_PATCH << '\n';
-
+    cout << "ENet: " << ENET_VERSION_MAJOR << "." << ENET_VERSION_MINOR <<  "." << ENET_VERSION_PATCH << '\n';
     LC.ClientHost = enet_host_create (NULL, 1,  MAXCHANNELS, 0, 0);
     if (LC.ClientHost == NULL) {
-        cout <<  "InitLocalClient: could not create net client" << '\n';
+        cout <<  "ENET: could not create net client" << '\n';
     } else {
         isConnected = true;
     }
 
+    //TinyXML
+    cout << "TinyXML: " << TIXML_MAJOR_VERSION << "." << TIXML_MINOR_VERSION << "." << TIXML_PATCH_VERSION << '\n';
+
     //Display related initializations
     if(isConsole ==  false) {
-        cout << "Client: Local" << '\n';
         //load settings
         if(FileExists((char*)"settings.xml")) {
             xmlfile settings;
@@ -239,9 +246,8 @@ void InitLocalClient() {
             TiXmlElement *xUser = settings.getelement(xGame, (char*)"user");
             LC.Username = xUser->Attribute("name");
             settings.endxml();
-            cout << "Settings.xml: Loaded" << '\n';
         } else {
-            cout << "Settings.xml: No file" << '\n';
+            cout << "Settings: settings.xml not found" << '\n';
             LC.Username = "unnamed";
         }
 
@@ -266,6 +272,9 @@ void InitLocalClient() {
 
         //Show "desktop"
         LC.DrawWorld = false;
+    } else {
+        cout << '\n' << "====== OpenGL ======" << '\n';
+        cout << "Console mode: Graphics disabled" << '\n';
     }
 }
 
@@ -345,7 +354,15 @@ void GetInput() {
     }
 }
 
+void signalHandler(int signum) {
+    cout << "Signal " << signum << " received. Exiting gracefully..." << '\n';
+    done = 1; // Exit the main loop
+}
+
 int main(int argc, char *argv[]) {
+    //Listen for Ctrl+C to exit gracefully
+    signal(SIGINT, signalHandler);
+
     //get commandline options
     for(int i = 1; i < argc; i++) {
         string argstr = argv[i];

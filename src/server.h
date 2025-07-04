@@ -45,11 +45,12 @@ class ClientList {
     };
 };
 
+//TODO: JAE - 7/4/25 Most of the public variables should be private accessable only through functions
 class ServerClass {
 public:
     level *lvl;
     bool isRunning;
-    bool isAcceptingRemoteClients;  //private?
+    bool isAcceptingRemoteClients;
     ENetAddress Address;
     ENetHost *Host;
     ENetPeer *Peer;

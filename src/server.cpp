@@ -668,8 +668,8 @@ void ServerClass::HandleDataString(string datastr, int clientaddress) {
                 char version[23];
                 strcpy(version, TKV[i].KV[versionaddress].sValue.c_str());
 
-                if(version != ENGINEVERSION) {
-                    cout << "ServerClass::HandleDataString: old client c=" << version << " s=" << ENGINEVERSION << endl;
+                if(version != VERSION) {
+                    cout << "ServerClass::HandleDataString: old client c=" << version << " s=" << VERSION << endl;
                     DisconnectClient(clientaddress);
                 }
             }

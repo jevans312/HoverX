@@ -145,11 +145,6 @@ void LocalClient::SendClientInfo() {
     datastr = "/clstr /user n=";
     datastr += Username;
 
-    /*
-    datastr += " v=";
-    datastr += ENGINEVERSION;
-    */
-
     //cout << "LocalClient::SendClientInfo: " << datastr << endl;
     AddTextMessage(datastr);
 }

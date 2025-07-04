@@ -8,7 +8,7 @@
 #include <cstring>
 #include <string>
 
-#define ENGINEVERSION "build_6"     //going by build number untill we have a version 0.5 or something like that
+#define VERSION "7.4.25"
 #define MAXLVL 7
 #define MAXLAPS 64
 #define MAXPLAYERS 7    //max of 8 players
