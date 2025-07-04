@@ -1,11 +1,13 @@
-#ifndef client_h
-#define client_h
+#ifndef CLIENT_H
+#define CLIENT_H
 
+#include <string>
+#include "enet/enet.h"
 #include "main.h"
 #include "level.h"
 #include "ui.h"
-#include "enet/enet.h"
-#include "string.h"
+
+using std::string;
 
 class LocalClientList {
 public:
@@ -19,7 +21,7 @@ public:
 
     LocalClientList() {
         Clear();
-    };
+    }
 };
 
 class LocalClient {
@@ -40,7 +42,7 @@ public:
     ENetPeer *ServerPeer;
     ENetHost *ClientHost;
     unsigned int KeyFlags;
-    string MSGDrawBuffer0;  //text messages drawn to the screen; prob should be part of the ui code
+    string MSGDrawBuffer0;
     string MSGDrawBuffer1;
     string MSGDrawBuffer2;
     string MSGDrawBuffer3;
@@ -48,13 +50,11 @@ public:
     MSGClass MessageBuffer[MAXMSGS];
     LocalClientList Clients[MAXCLIENTS];
     int EntityAddress;
-    uint64_t LastTimestamp;                               //this should prob be reset someplace ;p
+    uint64_t LastTimestamp;
 
     //functions
     void Update();
     void ProcessMessages();
-
-    //private?
     bool NetServerConnect(string IPAddressString);
     void RemoteDisconnect();
     void CheckNetEvents();
@@ -87,7 +87,7 @@ public:
         MSGSendBuffer = "";
         EntityAddress = -1;
         LastTimestamp = 0;
-    };
+    }
 };
 
 #endif

@@ -1,17 +1,18 @@
+#include <list>
+#include <string>
+#include <iostream>
+
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
-    #include <windows.h>
+#include <windows.h>
 #endif
 
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
-#include "string.h"
 
 #include "glness.h"
 #include "glex.h"
 
-#include <list>
-#include <iostream>
 using namespace std;
 
 extern int DefaultTextureID;

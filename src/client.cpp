@@ -1,7 +1,9 @@
-#include <SDL2/SDL.h>
+#include <iostream>
+#include <string>
 #include <sstream>
-#include "stdio.h"
-#include "string.h"
+#include <cstring>
+#include <SDL2/SDL.h>
+
 #include "client.h"
 #include "server.h"
 #include "level.h"

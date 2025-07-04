@@ -7,14 +7,30 @@
 #include "level.h"
 #include "ui.h"
 
-//extern level mylvl;
-//extern ServerClass hxServer;
-//extern bool ingame;
-//extern bool isConnected;
-//extern bool isHost;
 extern LocalClient LC;
 
-bool ServerClass::Start(bool AllowRemoteConnections, const string ip) {
+ServerClass::ServerClass() {
+    lvl = nullptr;
+    isRunning = false;
+    isAcceptingRemoteClients = false;
+    Host = nullptr;
+    Peer = nullptr;
+    Address.host = ENET_HOST_ANY;
+    Address.port = 41414;
+    for (int i = 0; i < MAXCLIENTS; ++i) {
+        Clients[i].Clear();
+    }
+    // memset(MessageBuffer, 0, sizeof(MessageBuffer));
+}
+
+ServerClass::~ServerClass() {
+    if (lvl) {
+        delete[] lvl;
+        lvl = nullptr;
+    }
+}
+
+bool ServerClass::Start(bool AllowRemoteConnections, const std::string& ip) {
     if(isRunning) {
         Stop();
     }
@@ -81,7 +97,7 @@ void ServerClass::Clear() {
 }
 
 //messages that will go out to the clients
-int ServerClass::AddClientTextMessage(string newtextmessage, int clientaddress) {
+int ServerClass::AddClientTextMessage(const std::string& newtextmessage, int clientaddress) {
     int emptymsgaddress = -1;
 
     //find a empty message slot
@@ -111,7 +127,7 @@ int ServerClass::AddClientTextMessage(string newtextmessage, int clientaddress) 
 }
 
 //messages that go to the server
-int ServerClass::AddServerTextMessage(string newtextmessage, int clientaddress) {
+int ServerClass::AddServerTextMessage(const std::string& newtextmessage, int clientaddress) {
     int emptymsgaddress = -1;
 
     //find a empty message slot
@@ -141,7 +157,7 @@ int ServerClass::AddServerTextMessage(string newtextmessage, int clientaddress) 
     return emptymsgaddress;
 }
 
-void ServerClass::BroadcastTxtMessage(string localmsg) {
+void ServerClass::BroadcastTxtMessage(const std::string& localmsg) {
     //find all connected and add text message to them
     for(int i = 0; i < MAXCLIENTS; i++) {
         if(Clients[i].isConnected) {  //no connection here
@@ -339,7 +355,7 @@ void ServerClass::AddKeepAlive(int clientaddress) {
 
 
 //let a client create a new world
-int ServerClass::CreateNewRoom(int clientaddress, string mapname) {
+int ServerClass::CreateNewRoom(int clientaddress, const std::string& mapname) {
     int emptylvl = -1;
 
     cout << "CreateNewRoom clientaddress: " << clientaddress << '\n';
@@ -644,7 +660,7 @@ void ServerClass::CheckNetEvents() {
 
 }
 
-void ServerClass::HandleDataString(string datastr, int clientaddress) {
+void ServerClass::HandleDataString(const std::string& datastr, int clientaddress) {
     TypeKeyValue TKV[63];
     //if(!Clients[clientaddress].hasJoinedRoom) return;
 
@@ -1168,4 +1184,27 @@ void ServerClass::Update() {
 		//send out all the new data to the clients
 		SendMessages();
 	}
+}
+
+void ClientList::Clear() {
+    Name = "unnamed";
+    isConnected = false;
+    hasJoinedRoom = false;
+    RoomAddress = -1;
+    PeerNumber = -1;
+    Peer = nullptr;
+    PrettyIP = "";
+    LastTimeStamp = 0;
+    LastKeepAliveTime = 0;
+    // Not sure if I need the below
+    // memset(&Keys, 0, sizeof(Keys));
+    // for(int i = 0; i < MAXMSGS; ++i) MessageBuffer[i].Clear();
+}
+
+ClientList::ClientList() {
+    Clear();
+}
+
+ClientList::~ClientList() {
+    
 }

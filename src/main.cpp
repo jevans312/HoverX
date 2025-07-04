@@ -1,7 +1,8 @@
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
 #include <iostream>
 #include <signal.h>
+
 #include "SDL2/SDL.h"
 #include "enet/enet.h"
 
