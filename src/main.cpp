@@ -5,7 +5,6 @@
 #include "enet/enet.h"
 
 #include "main.h"
-//#include "math.h"
 #include "level.h"
 #include "tinerxml.h"
 #include "glness.h"
