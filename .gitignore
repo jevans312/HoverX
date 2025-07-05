@@ -2,3 +2,6 @@ HoverX
 src/*.o
 src/hx-cppcheck-build-dir/
 src/hx.cppcheck
+make-n-run.sh
+.vscode/launch.json
+.vscode/settings.json

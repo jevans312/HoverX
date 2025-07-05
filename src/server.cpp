@@ -17,17 +17,19 @@ ServerClass::ServerClass() {
     Peer = nullptr;
     Address.host = ENET_HOST_ANY;
     Address.port = 41414;
+    memset(MessageBuffer, 0, sizeof(MessageBuffer));
     for (int i = 0; i < MAXCLIENTS; ++i) {
         Clients[i].Clear();
     }
-    // memset(MessageBuffer, 0, sizeof(MessageBuffer));
 }
 
 ServerClass::~ServerClass() {
+    /*
     if (lvl) {
         delete[] lvl;
         lvl = nullptr;
     }
+    */
 }
 
 bool ServerClass::Start(bool AllowRemoteConnections, const std::string& ip) {
@@ -599,7 +601,10 @@ bool ServerClass::ExecuteCommand(const string &command, const string &arg, int c
         }
 
         int laps = atoi( arg.c_str() );
-        if(laps < 1 && laps > MAXLAPS) laps = 5;
+        if(laps < 1 || laps > MAXLAPS) {
+            AddClientTextMessage("Laps must be between 1 and " + IntToStr(MAXLAPS), clientaddress);
+            return false;
+        }
 
         lvl[targetlvl].Game.RaceLaps = laps;
 
@@ -1196,9 +1201,10 @@ void ClientList::Clear() {
     PrettyIP = "";
     LastTimeStamp = 0;
     LastKeepAliveTime = 0;
-    // Not sure if I need the below
-    // memset(&Keys, 0, sizeof(Keys));
-    // for(int i = 0; i < MAXMSGS; ++i) MessageBuffer[i].Clear();
+    memset(&Keys, 0, sizeof(Keys));
+    for(int i = 0; i < MAXMSGS; ++i) {
+        MessageBuffer[i].Clear();
+    }
 }
 
 ClientList::ClientList() {

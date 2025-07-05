@@ -1,5 +1,5 @@
 Build Instruction:
-Run "make" in src folder
+Run "make" in src folder. Run HoverX from the root directory, not from the src dir.
 CMake not quite working
 
 Dependancies: All of these require the dev version usually libName-dev in apt-get

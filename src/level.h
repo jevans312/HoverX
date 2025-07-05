@@ -25,7 +25,7 @@ class StartPoints {
         }
 
         ~StartPoints() {
-            Clear();
+            
         }
 
         void Clear() {
