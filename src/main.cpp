@@ -77,16 +77,14 @@ int64_t getDeltaTime() {
     return returnvalue;
 }
 
-//uint64_t static tickcount = 0;
+uint64_t static tickcount = 0;
 void Tick() {
-    /*
     //Do once every 5 seconds
     if(tickcount == 5000/TICK_RATE) {
         cout << "Frame time: " << DrawDeltaTime << "ms" << '\n';
         tickcount = 0;
     }
     tickcount++;
-    */
 
     LC.Update();
     hxServer.Update();
@@ -144,7 +142,7 @@ void initGlWindow(const int width, const int height, const int fs) {
 
     // antialiasing
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 2);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 
     // double buffering and vsync; I feel this is ideal for our game
     SDL_GL_SetSwapInterval(1);
@@ -355,8 +353,21 @@ void GetInput() {
     }
 }
 
+//signal handler for POSIX signals
+//TODO: Handle pause and resume
 void signalHandler(int signum) {
-    cout << "Signal " << signum << " received. Exiting gracefully..." << '\n';
+    if(signum == 1 || signum == 2 || signum == 9 || signum == 10 || signum == 15) {
+        cout << "HoverX: Received POSIX terminate signal #" << signum << '\n';
+    } else if(signum >= 3 && signum <= 8) {
+        cout << "HoverX: Received POSIX Dump signal #" << signum << '\n';
+    } else if(signum == 18) { //Continue
+        cout << "HoverX: Received POSIX Continue signal #" << signum << '\n';
+    } else if(signum == 19) { //Pause
+        cout << "HoverX: Received POSIX Stop signal #" << signum << '\n';
+    } else {
+        cout << "HoverX: Received unkonwn POSIX signal #" << '\n';
+    }
+
     done = 1; // Exit the main loop
 }
 
