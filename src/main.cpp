@@ -53,15 +53,6 @@ uint64_t beforedraw = 0;
 // used by UI class //TODO: Get rid of these global
 string hostMSGbuffer; //Move to UI code
 
-int mouse_x = 320;
-int mouse_y = 240;
-float mx = 0;
-float my = 0;
-
-
-//100 fps
-#define TICK_RATE 10
-
 //!Warning this gives you the time difference since you lasted call this function!
 uint64_t static TimeofLastUpdate = 0;
 int64_t getDeltaTime() {

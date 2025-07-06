@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include "iostream"
 #include "main.h"
-#include "glness.h"
 #include "entity.h"
 #include "line2d.h"
 #include "poly2d.h"

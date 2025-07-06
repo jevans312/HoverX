@@ -1,91 +1,46 @@
-#ifndef ui_h
-#define ui_h
+#pragma once
 
-#include "glex.h"
-#include "glness.h"
-#include "font.h"
 #include <string>
-#include <iostream>
-using namespace std;
 
-#define MAX_BUTTONS 23
-#define MAX_DROPDOWNS 23
-#define MAX_TEXTURES 23
+// Constants
+constexpr int MAX_BUTTONS = 23;
+constexpr int MAX_DROPDOWNS = 23;
+constexpr int MAX_TEXTURES = 23;
 
-//classes
-/*
-class UITexture {
-    public:
-
-    string Name[MAX_TEXTURES];
-    int X;
-    int Y;
-    int Address[MAX_TEXTURES];
-    int Count;
-
-    //functions
-    void LoadUITexture(string filename, string name);
-
-    UITexture ( void ) {
-        Count = 0;
-    }
-
-};
-*/
-
+// UIButton class
 class UIButton {
-    public:
-
-    //variables
-    //top left
-    float tl_x;
-    float tl_y;
-
-    //bottom right
-    float br_x;
-    float br_y;
-
-    string label;
-    string command;
-    string arg;
-
+public:
+    float tl_x, tl_y; // Top left
+    float br_x, br_y; // Bottom right
+    std::string label;
+    std::string command;
+    std::string arg;
     bool Draw;
 
-    //functions
-    UIButton( void )    {
-        tl_x = 0;
-        tl_y = 0;
-        br_x = 0;
-        br_y = 0;
-        label = "";
-        command = "";
-        arg = "";
-        Draw = false;
-    }
+    UIButton() :
+        tl_x(0), tl_y(0), br_x(0), br_y(0),
+        label(""), command(""), arg(""), Draw(false) {}
 };
 
-class ButtonArray {     //this should prob be called a button list
-    public:
-    short unsigned int Buttons[15];   //16 max buttons per array
+// ButtonArray class (should probably be called ButtonList)
+class ButtonArray {
+public:
+    unsigned short Buttons[15]; // 16 max buttons per array
     int ButtonCount;
-    string Name;
+    std::string Name;
     bool Draw;
 
-    ButtonArray( void )    {
-        Name = "";
-        ButtonCount = 0;
-        Draw = false;
-    }
+    ButtonArray() : ButtonCount(0), Name(""), Draw(false) {}
 };
 
-//variables
-extern int window_width;    //window size
+// Global variables
+extern int window_width;
 extern int window_height;
 extern int DesktopTexture;
 
-//functions
-void UI_AddMSG(const string& tMSG);
-int UIAddButton(float x, float y, const string &name, const string &command, const string &arg);
+// UI functions
+void UI_AddMSG(const std::string& tMSG);
+int UIAddButton(float x, float y, const std::string &name, const std::string &command, const std::string &arg);
 
 void CreateMapDropdown();
 void CreateMainMenu();
@@ -99,10 +54,8 @@ void DisplaySectorsListDropdown(bool tDraw);
 
 void UI_DrawButtons();
 void UI_Setup();
-void UI_DrawMSGs();         //draw command line, messages from users and the system, and frames per second for some reason
-void UI_DrawDesktop();      //background image
+void UI_DrawMSGs();
+void UI_DrawDesktop();
 void UI_DrawLapTimes();
-void UI_DrawUserList();     //list of other users while in the lobby
-void UIMousePress( float mousex, float mousey );
-
-#endif
+void UI_DrawUserList();
+void UIMousePress(float mousex, float mousey);

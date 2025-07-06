@@ -24,7 +24,7 @@ struct texidS {
 list<texidS> texlist;
 list<texidS>::iterator i;
 
-int LoadGLTexture(char*filename)  {
+int LoadGLTexture(const char* filename)  {
     string fns = filename;
     for(i = texlist.begin(); i != texlist.end(); i++) {
         if((*i).texname == fns) {
@@ -78,7 +78,7 @@ void go2d(float x1, float x2,float y1, float y2) {
     glPushMatrix();
     glLoadIdentity();    // Reset The Projection Matrix
 
-    glOrtho(x1,x2,y1,y2,-1.f,1.f);
+    glOrtho(x1, x2, y1, y2, -1.0f, 1.0f);
     //glOrtho(-1,1,-1,1,-1,1);
 
     glMatrixMode(GL_MODELVIEW);

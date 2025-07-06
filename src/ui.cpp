@@ -1,4 +1,5 @@
 #include "ui.h"
+#include "font.h"
 #include "server.h"
 #include "client.h"
 #include "level.h"
@@ -85,7 +86,7 @@ void UI_DrawDesktop() {
     glDisable(GL_LIGHTING);
     glDisable(GL_DEPTH_TEST);
 
-    go2d(0.f,1.f,0.f,1.f);
+    go2d(0.0f, 1.0f, 0.0f, 1.0f);
     glPushMatrix();
     glBindTexture(GL_TEXTURE_2D, DesktopTexture);
 
@@ -115,15 +116,15 @@ void UI_DrawUserList() {
     glDisable(GL_LIGHTING);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_TEXTURE_2D);
-    go2d(0.f,1.f,0.f,1.f);
+    go2d(0.0f, 1.0f, 0.0f, 1.0f);
     glPushMatrix();
-        glColor4f(.32, .55, .64, 0.5);     //set drawing color to hxgreen and 50% alpha
+        glColor4f(0.32, 0.55, 0.64, 0.5);     //set drawing color to hxgreen and 50% alpha
 
         glBegin(GL_QUADS);
-            glVertex3f( 0.70, 0.15, 0.f );    //left bottom
-            glVertex3f( 0.95, 0.15, 0.f );    //right bottom
-            glVertex3f( 0.95, 0.90, 0.f );    //right top
-            glVertex3f( 0.70, 0.90, 0.f );    //left top
+            glVertex3f( 0.70, 0.15, 0.0f );    //left bottom
+            glVertex3f( 0.95, 0.15, 0.0f );    //right bottom
+            glVertex3f( 0.95, 0.90, 0.0f );    //right top
+            glVertex3f( 0.70, 0.90, 0.0f );    //left top
         glEnd();
 
         glEnable(GL_TEXTURE_2D);    //enable texturing for fonts
@@ -296,8 +297,9 @@ int UIAddButton(float x, float y, const string &name, const string &command, con
 void UI_DrawButtons() {
     glDisable(GL_LIGHTING);
     glDisable(GL_DEPTH_TEST);
-    glDisable(GL_TEXTURE_2D);
     glDisable(GL_CULL_FACE);
+    
+    glDisable(GL_TEXTURE_2D);
     go2d(0.f,1.f,0.f,1.f);
     glPushMatrix();
         //glTranslatef(0.0, 0.0 , 0);     //move everything for the fonts to be in the right place

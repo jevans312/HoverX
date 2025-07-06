@@ -1,34 +1,28 @@
-//define all uniersal data and such in this include
-#ifndef MAIN_H
-#define MAIN_H
+#pragma once
 
-//#include "SDL2/SDL.h"
-#include <iostream>
 #include <sstream>
 #include <cstring>
 #include <string>
 
 // Version and game constants
-#define VERSION "7.4.25"
-#define MAXLVL 7
-#define MAXLAPS 64
-#define MAXPLAYERS 7    //max of 8 players
-#define MAXCLIENTS 7
-#define MAXCHANNELS 2
-#define MAXENTITIES 63
-#define MAXMSGS 15
-#define MAXMSGLENTH 255
-
-using namespace std;
-
+constexpr const char* VERSION = "7.4.25";
+constexpr int MAXLVL = 7;
+constexpr int MAXLAPS = 64;
+constexpr int MAXPLAYERS = 7;    // max of 8 players
+constexpr int MAXCLIENTS = 7;
+constexpr int MAXCHANNELS = 2;
+constexpr int MAXENTITIES = 63;
+constexpr int MAXMSGS = 15;
+constexpr int MAXMSGLENTH = 255;
+constexpr int TICK_RATE = 10; // 100 ticks per second
 
 // Storage for individual messages
 class MSGClass {
 public:
-    int ClientAddress;  //who this message is from
+    int ClientAddress;  // who this message is from
     int Type;
     char Payload[MAXMSGLENTH];
-    unsigned int PayloadSize;    //in bytes
+    unsigned int PayloadSize;    // in bytes
 
     void Clear() {
         ClientAddress = -1;
@@ -37,9 +31,7 @@ public:
         PayloadSize = 0;
     }
 
-    MSGClass() {
-        Clear();
-    }
+    MSGClass() { Clear(); }
 };
 
 // Holds all keyboard status
@@ -67,24 +59,24 @@ public:
 class TypeKeyValue {
 public:
     std::string Type;
-    KeyValue KV[31];    //max of 32 key/value pairs
+    KeyValue KV[31];    // max of 32 key/value pairs
 
     TypeKeyValue() : Type("") {}
 };
 
 // Helper functions
 std::string IntToIpAddress(unsigned int ip);
-std::string BoolToStr(const bool b);
+std::string BoolToStr(bool b);
 void skipLine(std::istream& is);
 bool skipCommentLine(std::istream& is);
-bool FileExists(const char* FileName);    //returns true if file exist
-int FindKeyByName(KeyValue *kv, std::string keytofind);     //return the location of the data we are looking for or -1 on fail
-void ParseTKV(std::string worldstr, TypeKeyValue *TKV);     //turn world string into type key and value
-template <typename ROFL>
+bool FileExists(const char* FileName);
+int FindKeyByName(KeyValue* kv, std::string keytofind);
+void ParseTKV(std::string worldstr, TypeKeyValue* TKV);
 
-std::string IntToStr(ROFL tmp)  {
+// Template function for integer to string conversion
+template <typename T>
+std::string IntToStr(T tmp) {
     std::ostringstream out;
     out << tmp;
     return out.str();
 }
-#endif
