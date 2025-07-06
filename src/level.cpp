@@ -73,7 +73,7 @@ bool level::Load(string LevelFilename)   {
         texnum = hoverlvl.countchildren(xTextures);
         texlist = new int[texnum];
         
-        if(!isConsole) {
+        if(!LC.isConsoleMode()) {
             //load sky
             temp =  xTextures->Attribute("skytex");
             gridtexid = LoadGLTexture((char*)temp);

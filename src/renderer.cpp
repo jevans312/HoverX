@@ -12,11 +12,9 @@ extern LocalClient LC;
 //Initialize OpenGL
 void InitGL() {
     GLenum err = glewInit();
-    cout << '\n' << "====== OpenGL ======" << '\n';
-    cout << "Vendor: " << glGetString(GL_VENDOR) << '\n';
-    cout << "Renderer: " << glGetString(GL_RENDERER) << '\n';
-    cout << "Version: " << glGetString(GL_VERSION) << '\n';
-    cout << "GLEW: " << ((GLEW_OK ==  err)?glewGetString(GLEW_VERSION):glewGetErrorString(err)) << '\n';
+    cout << "OpenGL: " << glGetString(GL_VERSION) << '\n';
+    cout << "OpenGL Hardware: " << glGetString(GL_RENDERER) << '\n';
+    cout << "OpenGL GLEW: " << ((GLEW_OK ==  err)?glewGetString(GLEW_VERSION):glewGetErrorString(err)) << '\n';
 
     glViewport(0, 0, LC.window_width, LC.window_height);
     glMatrixMode(GL_PROJECTION);
@@ -60,10 +58,13 @@ void InitGL() {
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, Ambiant_Light);
 }
 
-uint64_t afterDrawTime = 0;
-uint64_t beforeDrawTime = 0;
 void DrawScene() {
-    beforeDrawTime = SDL_GetTicks64();
+    if(LC.isConsoleMode()) {
+        //console mode does not draw anything
+        return;
+    }
+
+    LC.beforeDrawTime = SDL_GetTicks64();
 
     glLoadIdentity();   // Reset The View
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // Clear The Screen And The Depth Buffer
@@ -78,8 +79,7 @@ void DrawScene() {
     SDL_GL_SwapWindow(LC.window);
     
     //fps counter
-    afterDrawTime = SDL_GetTicks64();
-    LC.frameTime = afterDrawTime - beforeDrawTime;
+    LC.afterDrawTime = SDL_GetTicks64();
 }
 
 //draw level

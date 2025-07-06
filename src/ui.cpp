@@ -9,13 +9,13 @@ extern ServerClass hxServer;
 extern LocalClient LC;
 
 //game states
-extern string hostMSGbuffer;
+//extern string hostMSGbuffer;
 //extern bool ingame;
-extern bool MSGmode;
-extern bool isConnected;
-extern bool isHost;
-extern bool done;
-extern int64_t DrawDeltaTime;
+//extern bool MSGmode;
+//extern bool isConnected;
+//extern bool isHost;
+//extern bool done;
+//extern int64_t DrawDeltaTime;
 
 //0 Map list
 ButtonArray Dropdownmenus[MAX_DROPDOWNS];
@@ -88,7 +88,7 @@ void UI_DrawDesktop() {
 
     go2d(0.0f, 1.0f, 0.0f, 1.0f);
     glPushMatrix();
-    glBindTexture(GL_TEXTURE_2D, DesktopTexture);
+    glBindTexture(GL_TEXTURE_2D, LC.DesktopTexture);
 
     glBegin(GL_QUADS);
         glTexCoord2f(0, 1);
@@ -157,7 +157,7 @@ void UI_DrawMSGs() {
     glPushMatrix();
         //glTranslatef(0.025, 0.025 , 0);     //move everything
 
-        if(MSGmode) {   //draw a box to indicate message mode
+        if(LC.MSGmode) {   //draw a box to indicate message mode
             glColor3f(0.5, 0.5, 0.5);     //set drawing color to gray
 
             glBegin(GL_QUADS);
@@ -172,7 +172,7 @@ void UI_DrawMSGs() {
         glEnable(GL_TEXTURE_2D);    //enable texturing for fonts
 
         //draw message line
-        if(MSGmode) printgls(0.025, 0.050, (char*)"%s", hostMSGbuffer.c_str());
+        if(LC.MSGmode) printgls(0.025, 0.050, (char*)"%s", LC.hostMSGbuffer.c_str());
 
         //draw messages
         printgls(0.025, 0.075, (char*)"%s", LC.MSGDrawBuffer0.c_str());
@@ -182,18 +182,8 @@ void UI_DrawMSGs() {
 
         //draw fps
         //glColor3f(1, 1, 1);
-        //cout << "DrawDeltaTime: " << DrawDeltaTime;
-        //if(DrawDeltaTime < 1) DrawDeltaTime = 1;
-
-        /*
-        string tmpStr = "0";
-        if(DrawDeltaTime != 0) {
-            tmpStr = (1000 % DrawDeltaTime);
-        }
-        cout << "tmpStr: " << tmpStr << '\n';
-        printgls(0.825, 0.025, (char*)"FPS %s", tmpStr.c_str());
-        */
-        //cout << " FPS: " << (1000/DrawDeltaTime) << '\n';
+        //float fps = 1000.0f/LC.frameTime;
+        //printgls(0.0, 0.975, (char*)"%f", fps);
 
     glPopMatrix();
     leave2d();

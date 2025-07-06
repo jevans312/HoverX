@@ -1,12 +1,16 @@
 #include <string>
+#include <iostream>
 
 #include <SDL2/SDL.h>
+#include "enet/enet.h"
 
-//#include "main.h"
+#include "sdl.h"
+#include "renderer.h"
 #include "ui.h"
+#include "font.h"
 #include "client.h"
 #include "server.h"
-//#include "level.h"
+#include "tinerxml.h"
 
 extern ButtonArray Dropdownmenus[MAX_DROPDOWNS];
 extern UIButton ButtonList[MAX_BUTTONS];
@@ -14,6 +18,88 @@ extern UIButton ButtonList[MAX_BUTTONS];
 extern bool done;
 extern ServerClass hxServer;
 //extern level mylvl;    //the one true world
+
+void LocalClient::StopClient() {
+    cout << "LocalClient::StopClient: Stop command received" << endl;
+    done = true;
+}
+
+bool LocalClient::InitLocalClient(bool consoleMode) {
+    if(_clientInitialized) {
+        cout << "LocalClient::InitLocalClient: Client is already initialized" << endl;
+        return false;
+    } else {
+        cout << "Initializing HoverX " << VERSION << "..." << '\n';
+    }
+
+    if(consoleMode) {
+        _consoleMode = true;
+
+        cout << "HoverX: Graphical interface disabled" << '\n';
+    } else {
+        _consoleMode = false;
+
+        // Load settings
+        LoadSettings();
+
+        // SDL
+        InitSDL();
+
+        // OpenGL
+        InitGL();
+
+        //2D drawing stuff
+        initsimplefont((char*)"img/font.tga");
+        UI_Setup();
+
+        //default texture to load when one is missing
+        DefaultTextureID = LoadGLTexture((char*)"img/default.png");
+        if (DefaultTextureID ==  0) {
+            cout << "InitGL: Could not load default texture img/default.png" << '\n';
+        }
+
+        //Background image of the window
+        DesktopTexture = LoadGLTexture((char*)"img/desktop.jpg");
+        if (DesktopTexture ==  0) {
+            cout << "InitGL: Could not load img/desktop.jpg" << '\n';
+        }
+
+        // ENET networking
+        cout << "ENet: " << ENET_VERSION_MAJOR << "." << ENET_VERSION_MINOR <<  "." << ENET_VERSION_PATCH << '\n';
+        enet_initialize();
+        ClientHost = enet_host_create (NULL, 1,  MAXCHANNELS, 0, 0);
+        if (ClientHost == NULL) {
+            cout <<  "ENet: Client network host could not be created" << '\n';
+        } else {
+            isConnected = true;
+            cout << "ENet: Client network host created successfully" << '\n';
+        }
+
+        //Show "desktop"
+        DrawWorld = false;
+    }
+
+    cout << "HoverX initialized successfully" << '\n';
+    _clientInitialized = true;
+    return true;
+}
+
+void LocalClient::LoadSettings() {
+    if(FileExists((char*)"settings.xml")) {
+        xmlfile settings;
+        TiXmlElement *xGame = settings.getxmlfirstelement((char*)"settings.xml");
+        TiXmlElement *xGraphics = settings.getelement(xGame, (char*)"graphics");
+        window_width = (int)atoi(xGraphics->Attribute("w"));
+        window_height = (int)atoi(xGraphics->Attribute("h"));
+        window_fullscreen = (int)atoi(xGraphics->Attribute("fullscreen"));
+        TiXmlElement *xUser = settings.getelement(xGame, (char*)"user");
+        Username = xUser->Attribute("name");
+        settings.endxml();
+    } else {
+        cout << "Settings: settings.xml not found" << '\n';
+        Username = "unnamed";
+    }
+}
 
 void LocalClient::Update() {
     //get net data here

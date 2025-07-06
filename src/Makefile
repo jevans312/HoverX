@@ -12,7 +12,7 @@ all: ${TARGET}
 	@echo Build complete: ../HoverX 
 
 # SOURCE FILES
-SRCS := main.cpp client.cpp entity.cpp glex.cpp level.cpp line2d.cpp obj.cpp \
+SRCS := main.cpp sdl.cpp client.cpp entity.cpp glex.cpp level.cpp line2d.cpp obj.cpp \
 	poly2d.cpp renderer.cpp server.cpp font.cpp tinerxml.cpp ui.cpp
 
 OBJS := $(addsuffix .o,$(basename ${SRCS}))
@@ -27,6 +27,7 @@ ${TARGET}: ${OBJS}
 
 
 main.o: main.cpp
+sdl.o: sdl.cpp
 client.o: client.cpp
 entity.o: entity.cpp
 glex.o: glex.cpp

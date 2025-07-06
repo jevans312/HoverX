@@ -2,9 +2,11 @@
 #include "main.h"
 #include "math.h"
 #include "server.h"
+#include "client.h"
 
 extern bool isConsole;
 extern ServerClass hxServer;
+extern LocalClient LC;
 
 //Add an entity into the world using predefined data
 //returns true on success
@@ -32,7 +34,7 @@ bool Entity::Add(int entaddress) {
     }
 
     //load model data
-    if(isConsole == false)
+    if(LC.isConsoleMode() == false)
         Model.Load(modelfile, texturefile);
 
     //flag replecation to clients

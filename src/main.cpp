@@ -1,17 +1,7 @@
-#include <cstdlib>
-#include <cstdio>
-#include <iostream>
 #include <signal.h>
 
-#include "SDL2/SDL.h"
-#include "enet/enet.h"
-
 #include "main.h"
-#include "level.h"
-#include "tinerxml.h"
-//#include "glness.h"
-#include "font.h"
-#include "ui.h"
+#include "sdl.h"
 #include "renderer.h"
 #include "server.h"
 #include "client.h"
@@ -23,7 +13,7 @@
 
 using namespace std;
 
-level mylvl; //clients level
+//level mylvl; //clients level
 ServerClass hxServer;
 LocalClient LC; //local client data
 
@@ -31,16 +21,8 @@ LocalClient LC; //local client data
 //TODO: Move is stuff to client/server and MSGmode to UI
 bool isConnected = false;   //net flag
 bool isHost = false;        //net flag
-bool isConsole = false;     //use text output only; no window/gl
 bool MSGmode = false;       //game state for typing a message or command
 bool done;                  //main loop control
-
-//TODO: move to client render code
-int DefaultTextureID;
-int DesktopTexture;
-
-// used by UI class //TODO: Get rid of these global
-string hostMSGbuffer; //Move to UI code
 
 //!Warning this gives you the time difference since you lasted call this function!
 uint64_t static TimeofLastUpdate = 0;
@@ -59,9 +41,10 @@ int64_t getDeltaTime() {
 
 uint64_t static tickcount = 0;
 void Tick() {
-    //Do once every 5 seconds
-    if(tickcount == 5000/TICK_RATE) {
-        cout << "Frame time: " << LC.frameTime << "ms" << '\n';
+    //Update ever 1 second
+    if(tickcount == 1000/TICK_RATE) {
+        //cout << "FPS: " << LC.frameTime << "ms" << '\n';
+        LC.frameTime = LC.afterDrawTime - LC.beforeDrawTime;
         tickcount = 0;
     }
     tickcount++;
@@ -83,183 +66,6 @@ void Ticker() {
     
     //JAE: 7/4/25 - Fixed sleep time between updates for maximum precision
     SDL_Delay(1);
-}
-
-void InitSDL() {
-    if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO) < 0) {
-        cout << "SDL Error: " << SDL_GetError() << '\n';
-    } else {
-        cout << "SDL: " << SDL_MAJOR_VERSION << "." << SDL_MINOR_VERSION << "." << SDL_PATCHLEVEL << '\n';
-    }
-
-    // gl version
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-
-    // data and buffer sizes
-    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-
-    // antialiasing
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
-
-    // double buffering and vsync; I feel this is ideal for our game
-    SDL_GL_SetSwapInterval(1);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
-    //TODO: SDL_RESIZABLE and SDL_WINDOW_FULLSCREEN
-    SDL_WindowFlags windowFlags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
-    LC.window = SDL_CreateWindow("HoverX", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, LC.window_width, LC.window_height, windowFlags);
-    LC.glContext = SDL_GL_CreateContext(LC.window);
-    SDL_GL_MakeCurrent(LC.window, LC.glContext);
-}
-
-void InitLocalClient() {
-    cout << "====== HoverX ======" << '\n';
-    cout << "Client: " << VERSION << '\n';
-
-    //set up networking
-    enet_initialize();
-    cout << "ENet: " << ENET_VERSION_MAJOR << "." << ENET_VERSION_MINOR <<  "." << ENET_VERSION_PATCH << '\n';
-    LC.ClientHost = enet_host_create (NULL, 1,  MAXCHANNELS, 0, 0);
-    if (LC.ClientHost == NULL) {
-        cout <<  "ENET: could not create net client" << '\n';
-    } else {
-        isConnected = true;
-    }
-
-    //TinyXML
-    cout << "TinyXML: " << TIXML_MAJOR_VERSION << "." << TIXML_MINOR_VERSION << "." << TIXML_PATCH_VERSION << '\n';
-
-    //Display related initializations
-    if(isConsole ==  false) {
-        //load settings
-        if(FileExists((char*)"settings.xml")) {
-            xmlfile settings;
-            TiXmlElement *xGame = settings.getxmlfirstelement((char*)"settings.xml");
-            TiXmlElement *xGraphics = settings.getelement(xGame, (char*)"graphics");
-            LC.window_width = (int)atoi(xGraphics->Attribute("w"));
-            LC.window_height = (int)atoi(xGraphics->Attribute("h"));
-            LC.window_fullscreen = (int)atoi(xGraphics->Attribute("fullscreen"));
-            TiXmlElement *xUser = settings.getelement(xGame, (char*)"user");
-            LC.Username = xUser->Attribute("name");
-            settings.endxml();
-        } else {
-            cout << "Settings: settings.xml not found" << '\n';
-            LC.Username = "unnamed";
-        }
-        
-        // SDL
-        InitSDL();
-
-        // OpenGL
-        InitGL();
-
-        //2D drawing stuff
-        initsimplefont((char*)"img/font.tga");
-        UI_Setup();
-
-        //default texture to load when one is missing
-        DefaultTextureID = LoadGLTexture((char*)"img/default.png");
-        if (DefaultTextureID ==  0) {
-            cout << "InitGL: Could not load default texture img/default.png" << '\n';
-        }
-
-        //Background image of the window
-        DesktopTexture = LoadGLTexture((char*)"img/desktop.jpg");
-        if (DesktopTexture ==  0) {
-            cout << "InitGL: Could not load img/desktop.jpg" << '\n';
-        }
-
-        //Show "desktop"
-        LC.DrawWorld = false;
-    } else {
-        cout << '\n' << "====== OpenGL ======" << '\n';
-        cout << "Console mode: Graphics disabled" << '\n';
-    }
-}
-
-//TODO: Move to client
-void GetInput() {
-    // console can hanlde its own input?
-    if(isConsole)
-        return;
-
-    SDL_Event event;
-    while ( SDL_PollEvent(&event) ) {
-        switch(event.type) {
-            case SDL_QUIT:
-                done = 1;
-                break;
-
-            case SDL_KEYDOWN:
-                //get input this sucks bad 96 instead of 1
-                if ( (event.key.keysym.sym > 96 && event.key.keysym.sym < 123) || (event.key.keysym.sym == SDLK_SPACE) ||
-                    (event.key.keysym.sym == SDLK_BACKSPACE) || (event.key.keysym.sym == SDLK_SLASH) || (event.key.keysym.sym == SDLK_PERIOD) ||
-                    (event.key.keysym.sym >= SDLK_0 && event.key.keysym.sym <= SDLK_9) )  {
-                        //add char to the string
-                        if(MSGmode && event.key.keysym.sym != SDLK_BACKSPACE) {
-                            hostMSGbuffer += event.key.keysym.sym;
-                        }
-                }
-
-                //delete char of the end of the string
-                if(event.key.keysym.sym == SDLK_BACKSPACE && !hostMSGbuffer.empty() ) {
-                    hostMSGbuffer.erase( hostMSGbuffer.size() - 1 );
-                }
-
-                //enter message mode
-                if ( event.key.keysym.sym == SDLK_t && !MSGmode ) {
-                    if(!MSGmode) {
-                        MSGmode = true;
-                    }
-                }
-
-                //exit message mode
-                if ( event.key.keysym.sym == SDLK_RETURN && MSGmode ) {
-                    MSGmode = false;
-                    if( !hostMSGbuffer.empty() ) {
-                        LC.AddTextMessage(hostMSGbuffer);
-                    }
-                    hostMSGbuffer = "";
-                }
-
-                //standard controls
-                if (event.key.keysym.sym == SDLK_LSHIFT ) LC.Keys.accel = true;
-                if (event.key.keysym.sym == SDLK_SPACE ) LC.Keys.brake = true;
-                if (event.key.keysym.sym == SDLK_LEFT ) LC.Keys.left = true;
-                if (event.key.keysym.sym == SDLK_RIGHT ) LC.Keys.right = true;
-                if (event.key.keysym.sym == SDLK_UP ) LC.Keys.jump = true;
-
-                break;
-
-            case SDL_KEYUP:
-                //keys[event.key.keysym.sym] = 0;
-
-                //standard controls
-                if (event.key.keysym.sym == SDLK_LSHIFT ) LC.Keys.accel = false;
-                if (event.key.keysym.sym == SDLK_SPACE ) LC.Keys.brake = false;
-                if (event.key.keysym.sym == SDLK_LEFT ) LC.Keys.left = false;
-                if (event.key.keysym.sym == SDLK_RIGHT ) LC.Keys.right = false;
-                if (event.key.keysym.sym == SDLK_UP ) LC.Keys.jump = false;
-
-                break;
-
-            case SDL_MOUSEBUTTONDOWN:
-                UIMousePress( event.button.x, event.button.y );
-                break;
-
-            case SDL_MOUSEBUTTONUP:
-                break;
-        }
-    }
 }
 
 //signal handler for POSIX signals
@@ -285,24 +91,26 @@ int main(int argc, char *argv[]) {
     signal(SIGINT, signalHandler);
 
     //get commandline options
+    bool consoleArgStr = false;
     for(int i = 1; i < argc; i++) {
         string argstr = argv[i];
 
         if(argstr == "console") {
-            isConsole = true;
+            consoleArgStr = true;
         }
     }
 
     //Setup client and create if not in cosole mode
-    InitLocalClient();
+    LC.InitLocalClient(consoleArgStr);
 
     //turn the server on; allow remote connections if in console mode
-    hxServer.Start(isConsole);
+    hxServer.Start(consoleArgStr);
 
     done = 0;
     while ( ! done ) {
-        GetInput();
-        Ticker(); //World updates at precise TICK_RATE.
+        //JAE 7/5/25 - Move input and draw to client update functions
+        GetSDLInput();
+        Ticker(); //Update the client and server
         DrawScene();
     }
 

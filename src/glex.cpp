@@ -10,12 +10,13 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
 
+#include "client.h"
 #include "glness.h"
 #include "glex.h"
 
 using namespace std;
 
-extern int DefaultTextureID;
+extern LocalClient LC;
 
 struct texidS {
     int id;
@@ -62,7 +63,7 @@ int LoadGLTexture(const char* filename)  {
     else {
         cout << "LoadGLTexture: Could not load texture: " << filename
              << "; Using default.png in it's place" << '\n';
-        newid = DefaultTextureID;
+        newid = LC.DefaultTextureID;
     }
 
     //release the SDL object

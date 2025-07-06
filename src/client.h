@@ -23,9 +23,10 @@ public:
 
 // Main client class for handling network and game state.
 class LocalClient {
-    private:
+    private: 
+        bool _clientInitialized = false; // Client initialization state
+        bool _consoleMode = true;
         
-
     public:
         level lvl;  // Client level data
 
@@ -45,6 +46,10 @@ class LocalClient {
         unsigned int window_width = 640;
         unsigned int window_height = 480;
         unsigned int window_fullscreen = 0;
+        int DefaultTextureID;
+        int DesktopTexture;
+        uint64_t afterDrawTime = 0;
+        uint64_t beforeDrawTime = 0;
         uint64_t frameTime = 0;
 
         // Network and data buffers
@@ -54,12 +59,22 @@ class LocalClient {
         ENetHost* ClientHost = nullptr;
         std::string MSGDrawBuffer0, MSGDrawBuffer1, MSGDrawBuffer2, MSGDrawBuffer3;
         std::string MSGSendBuffer;
+        std::string hostMSGbuffer;
         MSGClass MessageBuffer[MAXMSGS];
         LocalClientList Clients[MAXCLIENTS];
         uint64_t LastTimestamp = 0;
 
-        // Functions
+        // Client Info
+        bool isConsoleMode() { return _consoleMode; }
+        bool isClientInitialized() { return _clientInitialized; }
+
+        // Client functions
+        bool InitLocalClient(bool consoleMode = false);
         void Update();
+        void LoadSettings();
+        void StopClient();
+
+        // Networking
         void ProcessMessages();
         bool NetServerConnect(const std::string& IPAddressString);
         void RemoteDisconnect();
