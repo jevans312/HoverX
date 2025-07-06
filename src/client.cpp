@@ -1,12 +1,12 @@
-#include <iostream>
 #include <string>
-#include <sstream>
-#include <cstring>
+
 #include <SDL2/SDL.h>
 
+//#include "main.h"
+#include "ui.h"
 #include "client.h"
 #include "server.h"
-#include "level.h"
+//#include "level.h"
 
 extern ButtonArray Dropdownmenus[MAX_DROPDOWNS];
 extern UIButton ButtonList[MAX_BUTTONS];
@@ -62,7 +62,7 @@ void LocalClient::Update() {
     if(isConnectedToRemoteServer) SendMessages();
 }
 
-void LocalClient::AddTextMessage(string newtextmessage) {
+void LocalClient::AddTextMessage(const std::string& newtextmessage) {
     int emptymsgaddress = -1;
 
     //find a empty message slot
@@ -151,7 +151,7 @@ void LocalClient::SendClientInfo() {
     AddTextMessage(datastr);
 }
 
-bool LocalClient::ExecuteCommand(const string &command, const string &arg) {
+bool LocalClient::ExecuteCommand(const std::string& command, const string& arg) {
     if (command == "connectionaccepted" ) {
         UI_AddMSG("connected: " + arg);
         //isConnected = true; should always be connected do i need this in LC?
@@ -348,7 +348,7 @@ void LocalClient::ProcessMessages() {
     }
 }
 
-void LocalClient::HandleDataString(string worldstr) {
+void LocalClient::HandleDataString(const std::string& worldstr) {
     TypeKeyValue TKV[63];
     //turn the world string into something we can use
     ParseTKV(worldstr, TKV);
@@ -580,7 +580,7 @@ void LocalClient::HandleTextMessage(int messageaddress) {
     }
 }
 
-bool LocalClient::NetServerConnect(string IPAddressString) {
+bool LocalClient::NetServerConnect(const std::string& IPAddressString) {
     ENetAddress AddresToConnect;
     ENetEvent event;
 

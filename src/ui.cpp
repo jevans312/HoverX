@@ -202,15 +202,15 @@ void UI_DrawMSGs() {
     glEnable(GL_LIGHTING);
 }
 
-void UIMousePress( float mousex, float mousey ) {
+void UIMousePress(float mousex, float mousey ) {
     float mouse_x = 0;
     float mouse_y = 0;
     int ButtonToExecute = -1;
     //convert mouse data to something i can use
 
     //normalize data first
-    mousex = mousex/window_width;
-    mousey = mousey/window_height;
+    mousex = mousex/LC.window_width;
+    mousey = mousey/LC.window_height;
 
     //convert cordinates to match the gui system
     mouse_x = mousex;

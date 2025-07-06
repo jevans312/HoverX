@@ -9,7 +9,7 @@
 #include "main.h"
 #include "level.h"
 #include "tinerxml.h"
-#include "glness.h"
+//#include "glness.h"
 #include "font.h"
 #include "ui.h"
 #include "renderer.h"
@@ -36,19 +36,8 @@ bool MSGmode = false;       //game state for typing a message or command
 bool done;                  //main loop control
 
 //TODO: move to client render code
-// SDL/GL/Window stuff
-SDL_Window *window;
-SDL_GLContext glContext;
-int window_width = 640;
-int window_height = 480;
-int window_fullscreen = 0;
 int DefaultTextureID;
 int DesktopTexture;
-
-//used to calculate frames per sec being drawn
-int64_t DrawDeltaTime = 0;
-uint64_t afterdraw = 0;
-uint64_t beforedraw = 0;
 
 // used by UI class //TODO: Get rid of these global
 string hostMSGbuffer; //Move to UI code
@@ -72,7 +61,7 @@ uint64_t static tickcount = 0;
 void Tick() {
     //Do once every 5 seconds
     if(tickcount == 5000/TICK_RATE) {
-        cout << "Frame time: " << DrawDeltaTime << "ms" << '\n';
+        cout << "Frame time: " << LC.frameTime << "ms" << '\n';
         tickcount = 0;
     }
     tickcount++;
@@ -96,27 +85,13 @@ void Ticker() {
     SDL_Delay(1);
 }
 
-void DrawGLScene() {
-    beforedraw = SDL_GetTicks64();
+void InitSDL() {
+    if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO) < 0) {
+        cout << "SDL Error: " << SDL_GetError() << '\n';
+    } else {
+        cout << "SDL: " << SDL_MAJOR_VERSION << "." << SDL_MINOR_VERSION << "." << SDL_PATCHLEVEL << '\n';
+    }
 
-    glLoadIdentity();   // Reset The View
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // Clear The Screen And The Depth Buffer
-
-    //draw world
-	DrawWorld();
-
-    //overlay hud
-    DrawHUD();
-
-    //swap buffers/vsync
-    SDL_GL_SwapWindow(window);
-    
-    //fps counter
-    afterdraw = SDL_GetTicks64();
-    DrawDeltaTime = afterdraw - beforedraw;
-}
-
-void initGlWindow(const int width, const int height, const int fs) {
     // gl version
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -140,75 +115,15 @@ void initGlWindow(const int width, const int height, const int fs) {
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
     //TODO: SDL_RESIZABLE and SDL_WINDOW_FULLSCREEN
-    if(fs) cout << "Warning: Fullscreen has not been implemented" << '\n';
     SDL_WindowFlags windowFlags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
-    window = SDL_CreateWindow("HoverX", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, windowFlags);
-    glContext = SDL_GL_CreateContext(window);
-    SDL_GL_MakeCurrent(window, glContext);
-    SDL_GL_SetSwapInterval(1); //Enable vsync
-
-    //output openGL info
-    GLenum err = glewInit();
-    cout << '\n';
-    cout << "====== OpenGL ======" << '\n';
-    cout << "Vendor: " << glGetString(GL_VENDOR) << '\n';
-    cout << "Renderer: " << glGetString(GL_RENDERER) << '\n';
-    cout << "Version: " << glGetString(GL_VERSION) << '\n';
-    cout << "GLEW: " << ((GLEW_OK ==  err)?glewGetString(GLEW_VERSION):glewGetErrorString(err)) << '\n';
-    if(!GLEW_VERSION_3_0) cout << "OpenGL 3.0: Not supported" << '\n';
-
-    glViewport(0, 0, width, height);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();    // Reset The Projection Matrix
-    gluPerspective(45.0f,(GLfloat)width/(GLfloat)height, 1.0f, 400.0f);
-    glMatrixMode(GL_MODELVIEW);
-
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);                   // Black Background
-    glClearDepth(1.0f);                                     // Depth Buffer Setup
-
-    glDepthFunc(GL_LESS);                                   // Type Of Depth Testing
-    glEnable(GL_DEPTH_TEST);                                // Enable Depth Testing
-
-    //WARNING! Memory bandwith is often doubled with blending enabled!
-    glEnable(GL_BLEND);                                     // Enable Blending
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);      // Enable Alpha Blending
-    //WARNING! Find out how to keep this disabled most of the time!
-
-    glAlphaFunc(GL_GREATER, 0.5f);                          // Set Alpha Testing
-    glEnable(GL_ALPHA_TEST);                                // Enable Alpha Testing
-
-    glEnable(GL_TEXTURE_2D);                                // Enable Texture Mapping
-    glEnable(GL_CULL_FACE);                                 // Remove Back Face rendering
-    glCullFace(GL_BACK);
-
-    glShadeModel(GL_SMOOTH);                                // Select Smooth Shading
-    glDisable(GL_DITHER);                                   // TODO: What does this do?
-    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);      // Set Perspective Calculations To Most Accurate
-
-    //lighting
-    glEnable(GL_LIGHTING);
-    GLfloat White_Light[] = {0.4, 0.4, 0.4, 0.0};
-    GLfloat Light_Position[] = {0.0, 0.0, 1.0};
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, White_Light);
-    glLightfv(GL_LIGHT0, GL_POSITION, Light_Position);
-    glEnable(GL_LIGHT0);
-
-    GLfloat Ambiant_Light[] = {0.7, 0.7, 0.7, 0.0};
-    //glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
-    //glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, Ambiant_Light);
+    LC.window = SDL_CreateWindow("HoverX", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, LC.window_width, LC.window_height, windowFlags);
+    LC.glContext = SDL_GL_CreateContext(LC.window);
+    SDL_GL_MakeCurrent(LC.window, LC.glContext);
 }
 
 void InitLocalClient() {
     cout << "====== HoverX ======" << '\n';
     cout << "Client: " << VERSION << '\n';
-
-    //Setup SDL
-    if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO) < 0) {
-        cout << "SDL Error: " << SDL_GetError() << '\n';
-    } else {
-        cout << "SDL: " << SDL_MAJOR_VERSION << "." << SDL_MINOR_VERSION << "." << SDL_PATCHLEVEL << '\n';
-    }
 
     //set up networking
     enet_initialize();
@@ -230,9 +145,9 @@ void InitLocalClient() {
             xmlfile settings;
             TiXmlElement *xGame = settings.getxmlfirstelement((char*)"settings.xml");
             TiXmlElement *xGraphics = settings.getelement(xGame, (char*)"graphics");
-            window_width = (int)atoi(xGraphics->Attribute("w"));
-            window_height = (int)atoi(xGraphics->Attribute("h"));
-            window_fullscreen = (int)atoi(xGraphics->Attribute("fullscreen"));
+            LC.window_width = (int)atoi(xGraphics->Attribute("w"));
+            LC.window_height = (int)atoi(xGraphics->Attribute("h"));
+            LC.window_fullscreen = (int)atoi(xGraphics->Attribute("fullscreen"));
             TiXmlElement *xUser = settings.getelement(xGame, (char*)"user");
             LC.Username = xUser->Attribute("name");
             settings.endxml();
@@ -240,9 +155,12 @@ void InitLocalClient() {
             cout << "Settings: settings.xml not found" << '\n';
             LC.Username = "unnamed";
         }
+        
+        // SDL
+        InitSDL();
 
-        //open window and setup OpenGL
-        initGlWindow(window_width, window_height, window_fullscreen);
+        // OpenGL
+        InitGL();
 
         //2D drawing stuff
         initsimplefont((char*)"img/font.tga");
@@ -348,15 +266,15 @@ void GetInput() {
 //TODO: Handle pause and resume
 void signalHandler(int signum) {
     if(signum == 1 || signum == 2 || signum == 9 || signum == 10 || signum == 15) {
-        cout << "HoverX: Received POSIX terminate signal #" << signum << '\n';
+        cout << "HoverX: Received POSIX terminate signal type #" << signum << '\n';
     } else if(signum >= 3 && signum <= 8) {
-        cout << "HoverX: Received POSIX Dump signal #" << signum << '\n';
+        cout << "HoverX: Received POSIX Dump signal type #" << signum << '\n';
     } else if(signum == 18) { //Continue
-        cout << "HoverX: Received POSIX Continue signal #" << signum << '\n';
+        cout << "HoverX: Received POSIX Continue signal type #" << signum << '\n';
     } else if(signum == 19) { //Pause
-        cout << "HoverX: Received POSIX Stop signal #" << signum << '\n';
+        cout << "HoverX: Received POSIX Stop signal type #" << signum << '\n';
     } else {
-        cout << "HoverX: Received unkonwn POSIX signal #" << '\n';
+        cout << "HoverX: Received unkonwn POSIX signal type #" << '\n';
     }
 
     done = 1; // Exit the main loop
@@ -385,7 +303,7 @@ int main(int argc, char *argv[]) {
     while ( ! done ) {
         GetInput();
         Ticker(); //World updates at precise TICK_RATE.
-        DrawGLScene();
+        DrawScene();
     }
 
     hxServer.Stop();

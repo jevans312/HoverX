@@ -1,3 +1,5 @@
+#include "SDL2/SDL.h"
+
 #include "renderer.h"
 #include "level.h"
 #include "font.h"
@@ -7,6 +9,79 @@
 //extern level mylvl;    //the one true world
 extern LocalClient LC;
 
+//Initialize OpenGL
+void InitGL() {
+    GLenum err = glewInit();
+    cout << '\n' << "====== OpenGL ======" << '\n';
+    cout << "Vendor: " << glGetString(GL_VENDOR) << '\n';
+    cout << "Renderer: " << glGetString(GL_RENDERER) << '\n';
+    cout << "Version: " << glGetString(GL_VERSION) << '\n';
+    cout << "GLEW: " << ((GLEW_OK ==  err)?glewGetString(GLEW_VERSION):glewGetErrorString(err)) << '\n';
+
+    glViewport(0, 0, LC.window_width, LC.window_height);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();    // Reset The Projection Matrix
+    gluPerspective(45.0f, (GLfloat)LC.window_width/(GLfloat)LC.window_height, 1.0f, 400.0f);
+    glMatrixMode(GL_MODELVIEW);
+
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);                   // Black Background
+    glClearDepth(1.0f);                                     // Depth Buffer Setup
+
+    glDepthFunc(GL_LESS);                                   // Type Of Depth Testing
+    glEnable(GL_DEPTH_TEST);                                // Enable Depth Testing
+
+    //WARNING! Memory bandwith is often doubled with blending enabled!
+    glEnable(GL_BLEND);                                     // Enable Blending
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);      // Enable Alpha Blending
+    //WARNING! Find out how to keep this disabled most of the time!
+
+    glAlphaFunc(GL_GREATER, 0.5f);                          // Set Alpha Testing
+    glEnable(GL_ALPHA_TEST);                                // Enable Alpha Testing
+
+    glEnable(GL_TEXTURE_2D);                                // Enable Texture Mapping
+    glEnable(GL_CULL_FACE);                                 // Remove Back Face rendering
+    glCullFace(GL_BACK);
+
+    glShadeModel(GL_SMOOTH);                                // Select Smooth Shading
+    glDisable(GL_DITHER);                                   // TODO: What does this do?
+    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);      // Set Perspective Calculations To Most Accurate
+
+    //lighting
+    GLfloat White_Light[] = {0.4, 0.4, 0.4, 0.0};
+    GLfloat Light_Position[] = {0.0, 0.0, 1.0};
+    glEnable(GL_LIGHTING);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, White_Light);
+    glLightfv(GL_LIGHT0, GL_POSITION, Light_Position);
+    glEnable(GL_LIGHT0);
+
+    GLfloat Ambiant_Light[] = {0.7, 0.7, 0.7, 0.0};
+    //glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
+    //glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, Ambiant_Light);
+}
+
+uint64_t afterDrawTime = 0;
+uint64_t beforeDrawTime = 0;
+void DrawScene() {
+    beforeDrawTime = SDL_GetTicks64();
+
+    glLoadIdentity();   // Reset The View
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // Clear The Screen And The Depth Buffer
+
+    //draw world
+	DrawWorld();
+
+    //overlay hud
+    DrawHUD();
+
+    //swap buffers/vsync
+    SDL_GL_SwapWindow(LC.window);
+    
+    //fps counter
+    afterDrawTime = SDL_GetTicks64();
+    LC.frameTime = afterDrawTime - beforeDrawTime;
+}
+
 //draw level
 void DrawWorld() {
     if(LC.DrawWorld) {
@@ -15,6 +90,22 @@ void DrawWorld() {
         DrawLevel();
         DrawEntities();
     }
+}
+
+// 2D HUD overlay
+void DrawHUD() {
+    //draw desktop if not in game
+    if(LC.DrawWorld) {
+        UI_DrawLapTimes();
+    } else {
+        UI_DrawDesktop();
+    }
+
+    //draw messages
+    UI_DrawMSGs();
+
+    //draw buttons and such
+    UI_DrawButtons();
 }
 
 //Draw the sky box
@@ -102,19 +193,4 @@ void DrawEntities() {
             glPopMatrix();
         }
     }
-}
-
-void DrawHUD() {
-    //draw desktop if not in game
-    if(LC.DrawWorld) {
-        UI_DrawLapTimes();
-    } else {
-        UI_DrawDesktop();
-    }
-
-    //draw messages
-    UI_DrawMSGs();
-
-    //draw buttons and such
-    UI_DrawButtons();
 }
