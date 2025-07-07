@@ -1,57 +1,41 @@
-#ifndef level_h
-#define level_h
+#pragma once
 
-#include <stdlib.h>
-#include <stdio.h>
-#include "iostream"
-#include "main.h"
-#include "entity.h"
-#include "line2d.h"
+#include <string>
+
 #include "poly2d.h"
 
-//helper fuctions
-string PrettyPrintTime(int milliseconds);
+// Helper function
+std::string PrettyPrintTime(int milliseconds);
 
 class StartPoints {
-    public:
-        short unsigned int  Count;                      //number of start points loaded
-        vector2d            Position[MAXPLAYERS];       //max of 8 players
-        float               Direction[MAXPLAYERS];      //the way the ship is pointed
-        int                 isUsed[MAXPLAYERS];         
+public:
+    short unsigned int Count = 0;                      // Number of start points loaded
+    vector2d Position[MAXPLAYERS];                     // Max of 8 players
+    float Direction[MAXPLAYERS];                       // The way the ship is pointed
+    int isUsed[MAXPLAYERS];                            // Usage flags
 
-        StartPoints() { 
-            Clear();
+    StartPoints() { Clear(); }
+    void Clear() {
+        Count = 0;
+        for (int i = 0; i < MAXPLAYERS; i++) {
+            isUsed[i] = -1;
         }
-
-        ~StartPoints() {
-            
-        }
-
-        void Clear() {
-            Count = 0;
-            for(int i = 0; i < MAXPLAYERS; i++) {
-                isUsed[i] = -1;
-            }
-        }
+    }
 };
 
 class GameClass {
 public:
-    int GameType;           //0 is limbo; 1 is race 2; 3 is sumo
-    int RaceLaps;           //how many lap in a race
-    int CurrentLap;         //what lap the player is on
-    int RaceWinner;         //what ent won the race
-    int CheckpointCount;    //number of checkpoints in this level
-    uint64_t StartGameOffset;    //when the timer was turned on
-    uint64_t StartGameTime;      //when the game is suppost to start
-    uint64_t StartGameTimer;     //how long till the race starts
-    uint64_t GameTimeOffset;     //subtract this from SDL_GetTicks(); to get the game time
+    int GameType = -1;           // 0: limbo, 1: race, 2: sumo
+    int RaceLaps = 5;            // Number of laps in a race
+    int CurrentLap = 1;          // Current lap
+    int RaceWinner = -1;         // Entity that won the race
+    int CheckpointCount = -1;    // Number of checkpoints in this level
+    uint64_t StartGameOffset = -1;
+    uint64_t StartGameTime = -1;
+    uint64_t StartGameTimer = -1;
+    uint64_t GameTimeOffset = 0;
 
-
-    GameClass() {
-        Clear();
-    }
-
+    GameClass() { Clear(); }
     void Clear() {
         GameType = -1;
         RaceLaps = 5;
@@ -67,43 +51,35 @@ public:
 
 class level {
 public:
-    string MapName; //just for referance
+    std::string MapName;             // For reference
     bool Loaded = false;
-    int gridtexid;  //sky texture
-    int vertnum, linenum, polynum;
-    int linestage, tlili;   //for adding lines
-    int OwnerAddress = -1;   //which client ownes this room
+    int gridtexid = 0;               // Sky texture
+    int vertnum = 0, linenum = 0, polynum = 0;
+    int linestage = 0, tlili = 0;    // For adding lines
+    int OwnerAddress = -1;           // Which client owns this room
     int EntityCount = 0;
-    short unsigned int CheckPointCount;
-    vector2d *lvlvert;
-    line2d *lvlline;
-    poly2d *lvlpoly;
-    vector2d *tlvlvert;
-    line2d *tlvlline;
-    Entity *Ent;
-    GameClass Game; //game data
+    short unsigned int CheckPointCount = 0;
+    vector2d* lvlvert = nullptr;
+    line2d* lvlline = nullptr;
+    poly2d* lvlpoly = nullptr;
+    vector2d* tlvlvert = nullptr;
+    line2d* tlvlline = nullptr;
+    Entity* Ent = nullptr;
+    GameClass Game;
     StartPoints SpawnPoint;
-    GLuint  DisplayList;    //address where the levels drawing list will be
+    GLuint DisplayList = 0;          // Address of the level's drawing list
 
-    //functions
+    // Functions
     int GetGameTime();
     bool StartGame(uint8_t GameType);
     void AddPlayerEntity(int clientaddress);
-    void Add3dobject(vector2d pos, string modelfile, string texturefile);
-    void FinishedLap(Entity &ent);
+    void Add3dobject(vector2d pos, const std::string& modelfile, const std::string& texturefile);
+    void FinishedLap(Entity& ent);
     void CheckTimerEvents();
-    bool Load(string LevelFilename);
+    bool Load(const std::string& LevelFilename);
     void Unload();
     void Update();
     void GenerateDisplayList();
 
-    level() {
-        Loaded = false;
-        MapName = "";
-        OwnerAddress = -1;
-        EntityCount = 0;
-    }
+    level() = default;
 };
-
-//level *lvl; //how the level will be referenced through out the engine
-#endif

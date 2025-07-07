@@ -1,11 +1,12 @@
+#include <iostream>
+
+#include "glex.h"
 #include "ui.h"
 #include "font.h"
-#include "server.h"
 #include "client.h"
-#include "level.h"
 
-extern level mylvl;    //the one true world
-extern ServerClass hxServer;
+//extern level mylvl;    //the one true world
+//extern ServerClass hxServer;
 extern LocalClient LC;
 
 //game states

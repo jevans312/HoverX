@@ -1,5 +1,8 @@
+#include <iostream>
+
 #include "SDL2/SDL.h"
 
+#include "glness.h"
 #include "renderer.h"
 #include "level.h"
 #include "font.h"

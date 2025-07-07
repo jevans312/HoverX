@@ -8,6 +8,7 @@
 #include "renderer.h"
 #include "ui.h"
 #include "font.h"
+#include "glex.h"
 #include "client.h"
 #include "server.h"
 #include "tinerxml.h"

@@ -1,65 +1,41 @@
-#ifndef obj_h
-#define obj_h
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <iostream>
-#include <fstream>
-#include <string>
+#pragma once
 
 #include "glness.h"
-#include "glex.h"
-#include "main.h"
 
-using namespace std;
-
-//max 3d object stuff
-#define MAXOBJ_VERTEX 5000
-#define MAXOBJ_FACE 5000
-#define MAXOBJ_NORMAL 5000
-#define MAXOBJ_TEXTURE 5000
-
+// Maximum 3D object limits
+constexpr int MAXOBJ_VERTEX  = 5000;
+constexpr int MAXOBJ_FACE    = 5000;
+constexpr int MAXOBJ_NORMAL  = 5000;
+constexpr int MAXOBJ_TEXTURE = 5000;
 
 struct Triangle {
-       unsigned short int v1;
-       unsigned short int v2;
-       unsigned short int v3;
-       unsigned short int vt1;
-       unsigned short int vt2;
-       unsigned short int vt3;
-       unsigned short int vn1;
-       unsigned short int vn2;
-       unsigned short int vn3;
+    unsigned short v1, v2, v3;
+    unsigned short vt1, vt2, vt3;
+    unsigned short vn1, vn2, vn3;
 };
 
 struct Vertex {
-      float x;
-      float y;
-      float z;
+    float x, y, z;
 };
 
 struct Vertex2D {
-    float x;
-    float y;
+    float x, y;
 };
 
 class objModel {
 public:
-	bool Load(const string& modelfile, const string& texturefile);
-	void Unload();
-	//void SetTexture(const string& texturefile);
-	void Draw(void);
-	void Clear();
+    objModel();
+    ~objModel();
 
-    objModel( void );
-	~objModel( void );
-public:
-    bool       Loaded;
-    GLuint     DisplayList;    //holds all the data and commands for rendering
-    int        TextureID;                              //holds texture id
+    bool Load(const std::string& modelfile, const std::string& texturefile);
+    void Unload();
+    void Draw();
+    void Clear();
+
+    bool   Loaded = false;
+    GLuint DisplayList = 0; // Holds all the data and commands for rendering
+    int    TextureID = 0;   // Holds texture id
 
 private:
-
+    // Add private members here if needed
 };
-
-#endif

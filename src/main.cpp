@@ -43,8 +43,8 @@ uint64_t static tickcount = 0;
 void Tick() {
     //Update ever 1 second
     if(tickcount == 1000/TICK_RATE) {
-        //cout << "FPS: " << LC.frameTime << "ms" << '\n';
         LC.frameTime = LC.afterDrawTime - LC.beforeDrawTime;
+        cout << "Frame time: " << LC.frameTime << "ms" << '\n';
         tickcount = 0;
     }
     tickcount++;
@@ -59,13 +59,17 @@ void Ticker() {
     accumulator += getDeltaTime();
 
     //tick how ever many times we missed
+    bool sleepThisTime = true;
     while(accumulator >= TICK_RATE) {
-        accumulator = accumulator - TICK_RATE;
         Tick();
+        accumulator = accumulator - TICK_RATE;
+        sleepThisTime = false; //we ticked so we want to draw asap
     }
     
     //JAE: 7/4/25 - Fixed sleep time between updates for maximum precision
-    SDL_Delay(1);
+    if(sleepThisTime) {
+        SDL_Delay(1);
+    }
 }
 
 //signal handler for POSIX signals

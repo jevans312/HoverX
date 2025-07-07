@@ -1,14 +1,12 @@
 #include <sstream>
-#include "level.h"
-#include "main.h"
-#include "line2d.h"
-#include "tinerxml.h"
-#include "glex.h"
-#include "font.h"
+
 #include "SDL2/SDL.h"
+
+#include "level.h"
+#include "glex.h"
+#include "tinerxml.h"
 #include "client.h"
 #include "server.h"
-#include "iostream"
 
 using namespace std;
 
@@ -37,7 +35,7 @@ string PrettyPrintTime(int milliseconds) {
 }
 
 
-bool level::Load(string LevelFilename)   {
+bool level::Load(const std::string& LevelFilename)   {
     //add the dir location to the string
     string filewithlocal = "levels/" + LevelFilename;
 
@@ -381,7 +379,7 @@ void level::Unload() {
     }
 
     //free memory
-    cout << "Level::Unload: FIX ME: Leaking some memory!" << '\n';
+    //cout << "Level::Unload: FIX ME: Leaking some memory!" << '\n';
     //delete[] lvlvert;
     //delete[] lvlline;
     //delete[] lvlpoly;
@@ -444,7 +442,7 @@ void level::AddPlayerEntity(int clientaddress) {
     }
 }
 
-void level::Add3dobject(vector2d pos , string modelfile, string texturefile) {
+void level::Add3dobject(vector2d pos , const std::string& modelfile, const std::string& texturefile) {
     int entaddress = -1;
 
     //find an unused entity

@@ -1,4 +1,12 @@
+#include <iostream>
+#include <string>
+#include <fstream>
+
+#include "main.h"
+#include "glex.h"
 #include "obj.h"
+
+using namespace std;
 
 objModel::objModel( void )    {
     TextureID = 0;
@@ -18,7 +26,7 @@ void objModel::Clear() {
 //then draws into a display list. I know this should be 2 or 3
 //functions but this seems most efficent.
 //TODO: return bool value on load
-bool objModel::Load(const string& modelfile, const string& texturefile)   {
+bool objModel::Load(const std::string& modelfile, const std::string& texturefile)   {
     string ele_id;
     float x, y, z;
 
