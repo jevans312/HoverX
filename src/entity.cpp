@@ -1,10 +1,9 @@
+#include <iostream>
+
 #include "entity.h"
-#include "main.h"
-#include "math.h"
 #include "server.h"
 #include "client.h"
 
-extern bool isConsole;
 extern ServerClass hxServer;
 extern LocalClient LC;
 

@@ -1,11 +1,11 @@
+#include <iostream>
+
 #include <enet/enet.h>
 #include <SDL2/SDL.h>
-#include "string.h"
+
 #include "main.h"
 #include "server.h"
 #include "client.h"
-#include "level.h"
-#include "ui.h"
 
 extern LocalClient LC;
 

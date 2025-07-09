@@ -1,10 +1,8 @@
 #pragma once
 
-#include <string>
-#include <iostream>
-#include "main.h"
-#include "level.h"
 #include "enet/enet.h"
+
+#include <string>
 
 // Forward declarations
 class level;

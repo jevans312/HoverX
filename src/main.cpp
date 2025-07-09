@@ -1,4 +1,5 @@
 #include <signal.h>
+#include <iostream>
 
 #include "main.h"
 #include "sdl.h"
