@@ -7,6 +7,8 @@
 #include "server.h"
 #include "client.h"
 
+using namespace std;
+
 extern LocalClient LC;
 
 ServerClass::ServerClass() {

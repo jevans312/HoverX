@@ -1,91 +1,57 @@
-#ifndef poly2d_h
-#define poly2d_h
-
-#include "entity.h"
-#include "math.h"
-//#include "vector2d.h"//shouldnt be necessary
-#include "line2d.h"//shouldnt be necessary
-#include "physpoint.h"
-//#include "player.h"
+#pragma once
 
 #include <list>
+#include <string>
 
-using namespace std;
+#include "entity.h"
+#include "line2d.h"
 
 class wallrangeT {
 public:
-    float low, high;
+    float low = 0.0f, high = 0.0f;
 };
-
 
 class lc {
 public:
-    line2d* l;
-    bool flipped;
-    list<wallrangeT> range;
-    float low, high;
+    line2d* l = nullptr;
+    bool flipped = false;
+    std::list<wallrangeT> range;
+    float low = 0.0f, high = 0.0f;
+    int ltexid = -1;
+    bool alone = false;
 
-    int ltexid;
+    lc() = default;
+    ~lc() = default;
 
     void checkagainst(lc& other);
-
-    bool alone;
-
-    // A default constructor
-    lc() {};
-
-
-    ~lc() {
-        //delete l;
-        range.clear();
-    };
 };
 
 class poly2d {
 public:
     vector2d centre;
-    int lnum;
-    lc* l;
-    float floor, roof;
-    int floortex, rooftex;
-    float furthestpointdist;//TODO check playeris within this distance!
+    int lnum = 0;
+    lc* l = nullptr;
+    float floor = 0.0f, roof = 0.0f;
+    int floortex = -1, rooftex = -1;
+    float furthestpointdist = 0.0f; // TODO: check player is within this distance!
 
-    string sectortype;
-    string sectorvalue;
+    std::string sectortype;
+    std::string sectorvalue;
 
-    //do away with this
-    bool ischeckpoint;
-    int checkpointid;
-    bool isfinish;
-    bool isfuelzone;
-    bool isspeedzone;
+    // Sector flags
+    bool ischeckpoint = false;
+    int checkpointid = -1;
+    bool isfinish = false;
+    bool isfuelzone = false;
+    bool isspeedzone = false;
 
-
-    // A default constructor
-    poly2d() {
-        sectortype = "";
-        sectortype = "";
-
-        //do away with this
-        ischeckpoint=0;
-        isfinish=0;
-        isfuelzone=0;
-        isspeedzone=0;
-        checkpointid = -1;
-    };
-
-
-    ~poly2d() {
-        delete[] l;
-    };
+    poly2d() = default;
+    ~poly2d() { delete[] l; }
 
     void draw();
     int pnpoly(float x, float y);
-    void docolwall(Entity &ent);
-    void docolfloor(Entity &ent);
+    void docolwall(Entity& ent);
+    void docolfloor(Entity& ent);
     void getcentre();
     void sortflipped();
-
 };
-
-#endif

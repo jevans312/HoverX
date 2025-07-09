@@ -1,41 +1,21 @@
-#ifndef line2d_h
-#define line2d_h
+#pragma once
 
-#include "math.h"
-#include "vector2d.h"//shouldnt be necessary
+#include "vector2d.h"
 #include "physpoint.h"
 
-
-class line2d
-{
+class line2d {
 public:
-    vector2d* p1;
-    vector2d* p2;
-    float len;
-
-    int sectionnum;
-
-   // bool frozen;
+    vector2d* p1 = nullptr;
+    vector2d* p2 = nullptr;
+    float len = 0.0f;
+    int sectionnum = 0;
     vector2d dir;
 
+    // Constructors
+    line2d() = default;
 
-    // A default constructor
-    line2d()
-    {
-        sectionnum = 0;
-    }
-    ;
-
-    // This is our constructor that allows us to initialize our data upon creating an instance
-    //line2d(physpoint& P1, physpoint &P2){}
-
-    void setup(vector2d& P1, vector2d &P2);
-    bool docol(physpoint &player, float walltop = -10000);
-
-
+    // Member functions
+    void setup(vector2d& P1, vector2d& P2);
+    bool docol(physpoint& player, float walltop = -10000.0f);
     vector2d getperp();
-
-
 };
-
-#endif

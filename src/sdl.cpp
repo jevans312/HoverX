@@ -6,6 +6,8 @@
 #include "ui.h"
 #include "client.h"
 
+using namespace std;
+
 extern LocalClient LC;
 
 void InitSDL() {

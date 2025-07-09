@@ -11,7 +11,7 @@ void xmlfile::endxml()
     delete xmlDoc;
 }
 
-TiXmlElement* xmlfile::getxmlfirstelement(char* xmlfile)
+TiXmlElement* xmlfile::getxmlfirstelement(const char* xmlfile)
 {
     xmlDoc = new TiXmlDocument(xmlfile);
     if (!xmlDoc->LoadFile())
@@ -30,7 +30,7 @@ TiXmlElement* xmlfile::getxmlfirstelement(char* xmlfile)
     return xGame;
 }
 
-TiXmlElement* xmlfile::getelement(TiXmlElement* from, char* name)
+TiXmlElement* xmlfile::getelement(TiXmlElement* from, const char* name)
 {
     TiXmlElement *element = from->FirstChildElement(name);
     if (!element)

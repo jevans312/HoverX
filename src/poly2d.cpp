@@ -1,10 +1,7 @@
 #include "poly2d.h"
-#include "math.h"
-#include "stdio.h"
-#include "iostream"
 #include "glness.h"
-//#include "SDL2/SDL.h"
 
+using namespace std;
 
 extern float crossz(vector2d a, vector2d b);
 list<wallrangeT>::iterator rangei;//WARNING!! this is prob actauly fine, but it should probably *not* be shared!

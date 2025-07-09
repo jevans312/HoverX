@@ -4,10 +4,10 @@
 
 #include "glness.h"
 #include "renderer.h"
-#include "level.h"
-#include "font.h"
 #include "ui.h"
 #include "client.h"
+
+using namespace std;
 
 //extern level mylvl;    //the one true world
 extern LocalClient LC;

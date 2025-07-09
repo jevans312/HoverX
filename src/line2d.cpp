@@ -1,7 +1,7 @@
+#include "math.h" //TODO: remove this - just a few functions used from here
+
 #include "line2d.h"
-#include "math.h"
-#include "stdio.h"
-#include "iostream"
+
 using namespace std;
 
 float crossz(vector2d a, vector2d b) {

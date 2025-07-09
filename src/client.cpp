@@ -13,6 +13,8 @@
 #include "server.h"
 #include "tinerxml.h"
 
+using namespace std;
+
 extern ButtonArray Dropdownmenus[MAX_DROPDOWNS];
 extern UIButton ButtonList[MAX_BUTTONS];
 

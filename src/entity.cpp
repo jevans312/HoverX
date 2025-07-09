@@ -7,6 +7,8 @@
 extern ServerClass hxServer;
 extern LocalClient LC;
 
+using namespace std;
+
 //Add an entity into the world using predefined data
 //returns true on success
 bool Entity::Add(int entaddress) {

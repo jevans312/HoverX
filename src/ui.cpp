@@ -5,6 +5,8 @@
 #include "font.h"
 #include "client.h"
 
+using namespace std;
+
 //extern level mylvl;    //the one true world
 //extern ServerClass hxServer;
 extern LocalClient LC;
