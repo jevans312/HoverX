@@ -314,7 +314,7 @@ bool LocalClient::ExecuteCommand(const std::string& command, const string& arg) 
     }
     else if (command == "exit" || command == "quit") {
         if(isConnectedToRemoteServer)  AddTextMessage("/disconnect");
-        done = true;
+        StopClient();
     }
     else if (command == "mapmenu" ) {   //turn the map menu on or off
         if(Dropdownmenus[0].Draw == true) { //close all dropdowns

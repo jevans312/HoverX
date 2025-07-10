@@ -2,7 +2,7 @@ CXX := clang++-19
 LD := clang++-19
 FLAGS := -g
 #FLAGS := -march=native -O3 -ffast-math -flto
-EXTRA_CFLAGS := -m64 -std=c++11 -Wall -Wextra -Wpedantic
+EXTRA_CFLAGS := -m64 -std=c++20 -Wall -Wextra -Wpedantic
 INC := -I/usr/include
 LIB := -lm -ldl -lSDL2 -lSDL2_image -lGL -lGLU -lGLEW -ltinyxml -lenet
 
