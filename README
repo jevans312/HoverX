@@ -11,7 +11,8 @@ Dependancies: All of these require the dev version usually libName-dev in apt-ge
 -ENet - Relaible packets on UDP
 -clang-19 - Compiler; works with just about any compiler but you would have to change the make file
 -lld - Linker; same deal as compiler.
-All available on ubuntu with apt-get, dev versions if you are compiling
+The following example should install all the dependancies on ubuntu: 
+"sudo apt install clang-19 libenet-dev libsdl2-dev libsdl2-image-dev libglew-dev libtinyxml-dev lld-19"
 
 Bugs:
 -Crash when /createroom on a file that doesn't exist
@@ -47,3 +48,4 @@ Commands:
 
 Settings:
 settings.xml only resolution and user name are read
+
