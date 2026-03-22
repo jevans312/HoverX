@@ -1,6 +1,5 @@
 #include <iostream>
-
-#include "SDL2/SDL.h"
+#include <SDL2/SDL.h>
 
 #include "glness.h"
 #include "renderer.h"

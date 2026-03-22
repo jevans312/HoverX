@@ -1,6 +1,5 @@
 #include <sstream>
-
-#include "SDL2/SDL.h"
+#include <SDL2/SDL.h>
 
 #include "level.h"
 #include "glex.h"

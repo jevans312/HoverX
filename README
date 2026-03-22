@@ -1,6 +1,6 @@
 Build Instruction:
-Run "make" in src folder. Run HoverX from the root directory, not from the src dir.
-CMake not quite working
+Have basic build tools installed:
+sudo apt install -y build-essential git make gawk flex bison libgmp-dev libmpfr-dev libmpc-dev python3 binutils perl libisl-dev libzstd-dev tar gzip bzip2
 
 Dependancies: All of these require the dev version usually libName-dev in apt-get
 -SDL2 - Crossplatform window creation, input etc
@@ -9,10 +9,13 @@ Dependancies: All of these require the dev version usually libName-dev in apt-ge
 -GLEW - Deals with the mess that is OpenGLs extentions and versions
 -tinyxml - XML parsing
 -ENet - Relaible packets on UDP
--clang-19 - Compiler; works with just about any compiler but you would have to change the make file
--lld - Linker; same deal as compiler.
+-Compiler; works with just about any compiler but you would have to change the make file
+-Linker; same deal as compiler, use lld typically
 The following example should install all the dependancies on ubuntu: 
-"sudo apt install clang-19 libenet-dev libsdl2-dev libsdl2-image-dev libglew-dev libtinyxml-dev lld-19"
+sudo apt install libenet-dev libsdl2-dev libsdl2-image-dev libglew-dev libtinyxml-dev lld
+
+Run "make" in src folder. Run HoverX from the root directory, not from the src dir.
+CMake not quite working
 
 Bugs:
 -Crash when /createroom on a file that doesn't exist

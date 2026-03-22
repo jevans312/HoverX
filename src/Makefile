@@ -1,5 +1,5 @@
-CXX := clang++-19
-LD := clang++-19
+CXX := g++
+LD := g++
 FLAGS := -g
 #FLAGS := -march=native -O3 -ffast-math -flto
 EXTRA_CFLAGS := -m64 -std=c++20 -Wall -Wextra -Wpedantic

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "enet/enet.h"
-
+#include <enet/enet.h>
 #include <string>
+#include <array>
 
 // Forward declarations
 class level;
@@ -70,6 +70,6 @@ public:
     ENetAddress Address;
     ENetHost *Host;
     ENetPeer *Peer;
-    MSGClass MessageBuffer[127];
-    ClientList Clients[MAXCLIENTS];
+    std::array<MSGClass, 127> MessageBuffer;
+    std::array<ClientList, MAXCLIENTS> Clients;
 };

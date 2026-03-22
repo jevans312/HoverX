@@ -1,8 +1,5 @@
 #include <iostream>
 
-#include <enet/enet.h>
-#include <SDL2/SDL.h>
-
 #include "main.h"
 #include "server.h"
 #include "client.h"
@@ -19,8 +16,10 @@ ServerClass::ServerClass() {
     Peer = nullptr;
     Address.host = ENET_HOST_ANY;
     Address.port = 41414;
-    memset(MessageBuffer, 0, sizeof(MessageBuffer));
-    for (int i = 0; i < MAXCLIENTS; ++i) {
+    for (size_t i = 0; i < MessageBuffer.size(); ++i) {
+        MessageBuffer[i].Clear();
+    }
+    for (size_t i = 0; i < Clients.size(); ++i) {
         Clients[i].Clear();
     }
 }
@@ -1203,7 +1202,7 @@ void ClientList::Clear() {
     PrettyIP = "";
     LastTimeStamp = 0;
     LastKeepAliveTime = 0;
-    memset(&Keys, 0, sizeof(Keys));
+    Keys.Clear();
     for(int i = 0; i < MAXMSGS; ++i) {
         MessageBuffer[i].Clear();
     }
@@ -1214,5 +1213,5 @@ ClientList::ClientList() {
 }
 
 ClientList::~ClientList() {
-    
+    Clear();
 }

@@ -19,19 +19,25 @@ constexpr int TICK_RATE = 10; // 100 ticks per second
 // Storage for individual messages
 class MSGClass {
 public:
-    int ClientAddress;  // who this message is from
     int Type;
+    int ClientAddress;          // who this message is from
+    unsigned int PayloadSize;   // in bytes
     char Payload[MAXMSGLENTH];
-    unsigned int PayloadSize;    // in bytes
 
     void Clear() {
-        ClientAddress = -1;
         Type = 0;
-        std::memset(Payload, '\0', sizeof(Payload));
+        ClientAddress = -1;
         PayloadSize = 0;
+        std::memset(Payload, '\0', sizeof(Payload));
     }
 
-    MSGClass() { Clear(); }
+    MSGClass() {
+        Clear();
+    }
+
+    ~MSGClass() {
+        Clear();
+    }
 };
 
 // Holds all keyboard status
@@ -43,7 +49,21 @@ public:
     bool right;
     bool jump;
 
-    KeyState() : accel(false), brake(false), left(false), right(false), jump(false) {}
+    KeyState() {
+        Clear();
+    }
+
+    ~KeyState() {
+        // No resources to clean up, but included for completeness
+    }
+
+    void Clear() {
+        accel = false;
+        brake = false;
+        left = false;
+        right = false;
+        jump = false;
+    }
 };
 
 class KeyValue {

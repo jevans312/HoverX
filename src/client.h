@@ -1,9 +1,8 @@
 #pragma once
 
 #include <string>
-
-#include "SDL2/SDL.h"
-#include "enet/enet.h"
+#include <SDL2/SDL.h>
+#include <enet/enet.h>
 
 #include "level.h"
 

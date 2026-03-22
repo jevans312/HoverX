@@ -1,8 +1,7 @@
 #include <string>
 #include <iostream>
-
 #include <SDL2/SDL.h>
-#include "enet/enet.h"
+#include <enet/enet.h>
 
 #include "sdl.h"
 #include "renderer.h"
