@@ -2,6 +2,7 @@
 #include <iostream>
 #include <SDL2/SDL.h>
 #include <enet/enet.h>
+#include <tinyxml2.h>
 
 #include "sdl.h"
 #include "renderer.h"
@@ -10,7 +11,6 @@
 #include "glex.h"
 #include "client.h"
 #include "server.h"
-#include "tinerxml.h"
 
 using namespace std;
 
@@ -88,15 +88,31 @@ bool LocalClient::InitLocalClient(bool consoleMode) {
 
 void LocalClient::LoadSettings() {
     if(FileExists((char*)"settings.xml")) {
-        xmlfile settings;
-        tinyxml2::XMLElement *xGame = settings.getxmlfirstelement((char*)"settings.xml");
-        tinyxml2::XMLElement *xGraphics = settings.getelement(xGame, (char*)"graphics");
-        window_width = (int)atoi(xGraphics->Attribute("w"));
-        window_height = (int)atoi(xGraphics->Attribute("h"));
-        window_fullscreen = (int)atoi(xGraphics->Attribute("fullscreen"));
-        tinyxml2::XMLElement *xUser = settings.getelement(xGame, (char*)"user");
-        Username = xUser->Attribute("name");
-        settings.endxml();
+        tinyxml2::XMLDocument xmlDoc;
+        if (xmlDoc.LoadFile("settings.xml") != tinyxml2::XML_SUCCESS) {
+            cout << "Settings: Could not load settings.xml" << '\n';
+            Username = "unnamed";
+            return;
+        }
+
+        tinyxml2::XMLElement *xGame = xmlDoc.FirstChildElement("root");
+        if (!xGame) {
+            cout << "Settings: Could not find root element in settings.xml" << '\n';
+            Username = "unnamed";
+            return;
+        }
+
+        tinyxml2::XMLElement *xGraphics = xGame->FirstChildElement("graphics");
+        if (xGraphics) {
+            window_width = (int)atoi(xGraphics->Attribute("w"));
+            window_height = (int)atoi(xGraphics->Attribute("h"));
+            window_fullscreen = (int)atoi(xGraphics->Attribute("fullscreen"));
+        }
+
+        tinyxml2::XMLElement *xUser = xGame->FirstChildElement("user");
+        if (xUser) {
+            Username = xUser->Attribute("name");
+        }
     } else {
         cout << "Settings: settings.xml not found" << '\n';
         Username = "unnamed";

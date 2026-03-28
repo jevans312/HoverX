@@ -13,7 +13,7 @@ all: ${TARGET}
 
 # SOURCE FILES
 SRCS := main.cpp sdl.cpp client.cpp entity.cpp glex.cpp level.cpp line2d.cpp obj.cpp \
-	poly2d.cpp renderer.cpp server.cpp font.cpp tinerxml.cpp ui.cpp
+	poly2d.cpp renderer.cpp server.cpp font.cpp ui.cpp
 
 OBJS := $(addsuffix .o,$(basename ${SRCS}))
 
@@ -38,7 +38,6 @@ poly2d.o: poly2d.cpp
 renderer.o: renderer.cpp
 server.o: server.cpp
 font.o: font.cpp
-tinerxml.o: tinerxml.cpp
 ui.o: ui.cpp
 
 clean:

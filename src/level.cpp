@@ -1,10 +1,10 @@
 #include <sstream>
 #include <iostream>
 #include <SDL2/SDL.h>
+#include <tinyxml2.h>
 
 #include "level.h"
 #include "glex.h"
-#include "tinerxml.h"
 #include "client.h"
 #include "server.h"
 
@@ -13,6 +13,17 @@ using namespace std;
 extern bool isConsole;
 extern ServerClass hxServer;
 extern LocalClient LC;
+
+// Helper function to count child elements
+static int countchildren(tinyxml2::XMLElement* of) {
+    int numchildren = 0;
+    tinyxml2::XMLElement *child = of->FirstChildElement();
+    while( child ) {
+        numchildren++;
+        child = child->NextSiblingElement();
+    }
+    return numchildren;
+}
 
 //return 01:23.321 on input of ms time from engine
 string PrettyPrintTime(int milliseconds) {
@@ -63,12 +74,26 @@ bool level::Load(const std::string& LevelFilename)   {
     SpawnPoint.Count = 0;
     SpawnPoint.Clear();
 
-    xmlfile hoverlvl;
-    tinyxml2::XMLElement *xLevel = hoverlvl.getxmlfirstelement((char*)filewithlocal.c_str());
+    tinyxml2::XMLDocument xmlDoc;
+    if (xmlDoc.LoadFile(filewithlocal.c_str()) != tinyxml2::XML_SUCCESS) {
+        cout << "level::Load: Could not load file " << filewithlocal << endl;
+        return false;
+    }
+
+    tinyxml2::XMLElement *xLevel = xmlDoc.FirstChildElement("root");
+    if (!xLevel) {
+        cout << "level::Load: Could not find root element in " << filewithlocal << endl;
+        return false;
+    }
+
     {
         //this has to be defined for poly code
-        tinyxml2::XMLElement *xTextures = hoverlvl.getelement(xLevel, (char*)"textures");
-        texnum = hoverlvl.countchildren(xTextures);
+        tinyxml2::XMLElement *xTextures = xLevel->FirstChildElement("textures");
+        if (!xTextures) {
+            cout << "level::Load: Could not find textures element" << endl;
+            return false;
+        }
+        texnum = countchildren(xTextures);
         texlist = new int[texnum];
         
         if(!LC.isConsoleMode()) {
@@ -77,7 +102,7 @@ bool level::Load(const std::string& LevelFilename)   {
             gridtexid = LoadGLTexture((char*)temp);
 
             //load texture list
-            texnum = hoverlvl.countchildren(xTextures);
+            texnum = countchildren(xTextures);
             texlist = new int[texnum];  //this has to be defined
             texnum = 0;
             tinyxml2::XMLElement *xTexturei = xTextures->FirstChildElement();
@@ -92,8 +117,13 @@ bool level::Load(const std::string& LevelFilename)   {
         }
 
         //load verts
-        tinyxml2::XMLElement *xVerts = hoverlvl.getelement(xLevel, (char*)"verts");
-        vertnum = hoverlvl.countchildren(xVerts);
+        tinyxml2::XMLElement *xVerts = xLevel->FirstChildElement("verts");
+        if (!xVerts) {
+            cout << "level::Load: Could not find verts element" << endl;
+            delete[] texlist;
+            return false;
+        }
+        vertnum = countchildren(xVerts);
         lvlvert = new vector2d[vertnum];
         vertnum = 0;
 
@@ -144,8 +174,13 @@ bool level::Load(const std::string& LevelFilename)   {
         }
 
         //load line data
-        tinyxml2::XMLElement *xLines = hoverlvl.getelement(xLevel, (char*)"lines");
-        linenum = hoverlvl.countchildren(xLines);
+        tinyxml2::XMLElement *xLines = xLevel->FirstChildElement("lines");
+        if (!xLines) {
+            cout << "level::Load: Could not find lines element" << endl;
+            delete[] texlist;
+            return false;
+        }
+        linenum = countchildren(xLines);
         lvlline = new line2d[linenum];
         linenum = 0;
 
@@ -159,14 +194,19 @@ bool level::Load(const std::string& LevelFilename)   {
         }
 
         //load polys
-        tinyxml2::XMLElement *xPolys = hoverlvl.getelement(xLevel, (char*)"polys");
-        polynum = hoverlvl.countchildren(xPolys);
+        tinyxml2::XMLElement *xPolys = xLevel->FirstChildElement("polys");
+        if (!xPolys) {
+            cout << "level::Load: Could not find polys element" << endl;
+            delete[] texlist;
+            return false;
+        }
+        polynum = countchildren(xPolys);
         lvlpoly = new poly2d[polynum];
         polynum = 0;
         tinyxml2::XMLElement *xPolyi = xPolys->FirstChildElement();
         int checktex = 0;
         while( xPolyi ) {
-            lvlpoly[polynum].lnum = hoverlvl.countchildren(xPolyi);
+            lvlpoly[polynum].lnum = countchildren(xPolyi);
             lvlpoly[polynum].l = new lc[lvlpoly[polynum].lnum];
             lvlpoly[polynum].floor = atof(xPolyi->Attribute("floor"))*WHYSCALE;
             lvlpoly[polynum].roof = atof(xPolyi->Attribute("roof"))*WHYSCALE;
@@ -227,7 +267,6 @@ bool level::Load(const std::string& LevelFilename)   {
 
         delete[] texlist;
     }
-    hoverlvl.endxml();
 
     //Set the height of the floor and ceiling
     for (int pid = 0; pid <polynum;pid++)

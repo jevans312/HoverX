@@ -1,18 +1,44 @@
 #include "hovercad.h"
+#include <tinyxml2.h>
+
+// Helper function to count child elements
+static int countchildren(tinyxml2::XMLElement* of) {
+    int numchildren = 0;
+    tinyxml2::XMLElement *child = of->FirstChildElement();
+    while( child ) {
+        numchildren++;
+        child = child->NextSiblingElement();
+    }
+    return numchildren;
+}
 
 ////////////////////////////////////
 ///// LOADING///////////////
 /////////////////////////////////
 int loadxmlfile(char*filename)
 {
-    xmlfile hoverlvl;
-    TiXmlElement *xLevel = hoverlvl.getxmlfirstelement(filename);
+    tinyxml2::XMLDocument xmlDoc;
+    if (xmlDoc.LoadFile(filename) != tinyxml2::XML_SUCCESS) {
+        cout << "Could not load file " << filename << endl;
+        return -1;
+    }
+
+    tinyxml2::XMLElement *xLevel = xmlDoc.FirstChildElement("root");
+    if (!xLevel) {
+        cout << "Could not find root element in " << filename << endl;
+        return -1;
+    }
+
     {//these braces indicate an xml file is open
 
 
-    TiXmlElement *xTextures = hoverlvl.getelement(xLevel, "textures");//TODO editor texture pallete thing!
+    tinyxml2::XMLElement *xTextures = xLevel->FirstChildElement("textures");//TODO editor texture pallete thing!
+    if (!xTextures) {
+        cout << "Could not find textures element" << endl;
+        return -1;
+    }
 
-        TiXmlElement *xTexi = xTextures->FirstChildElement();
+        tinyxml2::XMLElement *xTexi = xTextures->FirstChildElement();
         ClearTextureList();
         char texturename[100];
         while( xTexi ) {
@@ -24,20 +50,25 @@ int loadxmlfile(char*filename)
 
 
         /*
-        TiXmlElement *xStarts = hoverlvl.getelement(xLevel, "starts");
-        TiXmlElement *xChecks = hoverlvl.getelement(xLevel, "checkpoints");
-        TiXmlElement *xFinishes = hoverlvl.getelement(xLevel, "finish");
+        tinyxml2::XMLElement *xStarts = xLevel->FirstChildElement("starts");
+        tinyxml2::XMLElement *xChecks = xLevel->FirstChildElement("checkpoints");
+        tinyxml2::XMLElement *xFinishes = xLevel->FirstChildElement("finish");
         */
 
-        TiXmlElement *xVerts = hoverlvl.getelement(xLevel, "verts");
-        TiXmlElement *xLines = hoverlvl.getelement(xLevel, "lines");
-        TiXmlElement *xPolys = hoverlvl.getelement(xLevel, "polys");
+        tinyxml2::XMLElement *xVerts = xLevel->FirstChildElement("verts");
+        tinyxml2::XMLElement *xLines = xLevel->FirstChildElement("lines");
+        tinyxml2::XMLElement *xPolys = xLevel->FirstChildElement("polys");
 
-        vert_count = hoverlvl.countchildren(xVerts);
-        line_count = hoverlvl.countchildren(xLines);
-        poly_count = hoverlvl.countchildren(xPolys);
-        TiXmlElement *xi;
-        TiXmlElement *xii;
+        if (!xVerts || !xLines || !xPolys) {
+            cout << "Could not find required elements (verts, lines, or polys)" << endl;
+            return -1;
+        }
+
+        vert_count = countchildren(xVerts);
+        line_count = countchildren(xLines);
+        poly_count = countchildren(xPolys);
+        tinyxml2::XMLElement *xi;
+        tinyxml2::XMLElement *xii;
 
         //should say verts = new vertclass[vert_count]; here
         vert tempvert;
@@ -77,7 +108,7 @@ int loadxmlfile(char*filename)
 
             poly temppoly;
             polys.push_back(temppoly);
-            polys[poly_count].sidecount =  hoverlvl.countchildren(xi);
+            polys[poly_count].sidecount = countchildren(xi);
             //alloc poly sides p = new int[sidenum] yaknow
 
             polys[poly_count].floortex = atoi(xi->Attribute("ftex"));
@@ -147,7 +178,7 @@ int loadxmlfile(char*filename)
         */
 
     }
-    hoverlvl.endxml();
+    return 0;
 }
 
 ////////////////////////////////////
