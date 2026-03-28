@@ -1,13 +1,13 @@
 #pragma once
 
-#include "tinyxml.h"
+#include "tinyxml2.h"
 
 class xmlfile {
 public:
-    TiXmlDocument* xmlDoc = nullptr;
+    tinyxml2::XMLDocument* xmlDoc = nullptr;
 
-    TiXmlElement* getxmlfirstelement(const char* xmlfile);
-    TiXmlElement* getelement(TiXmlElement* from, const char* name);
-    int countchildren(TiXmlElement* of);
+    tinyxml2::XMLElement* getxmlfirstelement(const char* xmlfile);
+    tinyxml2::XMLElement* getelement(tinyxml2::XMLElement* from, const char* name);
+    int countchildren(tinyxml2::XMLElement* of);
     void endxml();
 };

@@ -7,12 +7,12 @@ Dependancies: All of these require the dev version usually libName-dev in apt-ge
 -SDL2_image - Image file loading
 -OpenGL - The original graphics API
 -GLEW - Deals with the mess that is OpenGLs extentions and versions
--tinyxml - XML parsing
+-tinyxml2 - XML parsing
 -ENet - Relaible packets on UDP
 -Compiler; works with just about any compiler but you would have to change the make file
 -Linker; same deal as compiler, use lld typically
 The following example should install all the dependancies on ubuntu: 
-sudo apt install libenet-dev libsdl2-dev libsdl2-image-dev libglew-dev libtinyxml-dev lld
+sudo apt install libenet-dev libsdl2-dev libsdl2-image-dev libglew-dev libtinyxml2-dev lld
 
 Run "make" in src folder. Run HoverX from the root directory, not from the src dir.
 CMake not quite working

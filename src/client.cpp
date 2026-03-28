@@ -89,12 +89,12 @@ bool LocalClient::InitLocalClient(bool consoleMode) {
 void LocalClient::LoadSettings() {
     if(FileExists((char*)"settings.xml")) {
         xmlfile settings;
-        TiXmlElement *xGame = settings.getxmlfirstelement((char*)"settings.xml");
-        TiXmlElement *xGraphics = settings.getelement(xGame, (char*)"graphics");
+        tinyxml2::XMLElement *xGame = settings.getxmlfirstelement((char*)"settings.xml");
+        tinyxml2::XMLElement *xGraphics = settings.getelement(xGame, (char*)"graphics");
         window_width = (int)atoi(xGraphics->Attribute("w"));
         window_height = (int)atoi(xGraphics->Attribute("h"));
         window_fullscreen = (int)atoi(xGraphics->Attribute("fullscreen"));
-        TiXmlElement *xUser = settings.getelement(xGame, (char*)"user");
+        tinyxml2::XMLElement *xUser = settings.getelement(xGame, (char*)"user");
         Username = xUser->Attribute("name");
         settings.endxml();
     } else {

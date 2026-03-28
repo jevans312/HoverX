@@ -3,24 +3,23 @@
 #include <iostream>
 using namespace std;
 
-//TiXmlDocument     *xmlDoc;
+//tinyxml2::XMLDocument     *xmlDoc;
 
 void xmlfile::endxml()
 {
-    xmlDoc->Clear();
     delete xmlDoc;
 }
 
-TiXmlElement* xmlfile::getxmlfirstelement(char* xmlfile)
+tinyxml2::XMLElement* xmlfile::getxmlfirstelement(char* xmlfile)
 {
-    xmlDoc = new TiXmlDocument(xmlfile);
-    if (!xmlDoc->LoadFile())
+    xmlDoc = new tinyxml2::XMLDocument();
+    if (xmlDoc->LoadFile(xmlfile) != tinyxml2::XML_SUCCESS)
     {
     	cout << "couldnt find file " << xmlfile << endl;
         delete xmlDoc;
         return 0;
     }
-    TiXmlElement *xGame = xmlDoc->FirstChildElement("root");
+    tinyxml2::XMLElement *xGame = xmlDoc->FirstChildElement("root");
     if (!xGame)
     {
     	cout << "couldnt find root(must be called root) element in " << xmlfile << endl;
@@ -30,9 +29,9 @@ TiXmlElement* xmlfile::getxmlfirstelement(char* xmlfile)
     return xGame;
 }
 
-TiXmlElement* xmlfile::getelement(TiXmlElement* from, char* name)
+tinyxml2::XMLElement* xmlfile::getelement(tinyxml2::XMLElement* from, char* name)
 {
-    TiXmlElement *element = from->FirstChildElement(name);
+    tinyxml2::XMLElement *element = from->FirstChildElement(name);
     if (!element)
     {
         cout << "error! xml element " << name << " didnt load!" << endl;
@@ -43,10 +42,10 @@ TiXmlElement* xmlfile::getelement(TiXmlElement* from, char* name)
 
 }
 
-int xmlfile::countchildren(TiXmlElement* of)
+int xmlfile::countchildren(tinyxml2::XMLElement* of)
 {
     int numchildren = 0;
-    TiXmlElement *child = of->FirstChildElement();
+    tinyxml2::XMLElement *child = of->FirstChildElement();
     while( child )
     {
         numchildren++;

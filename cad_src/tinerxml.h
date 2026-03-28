@@ -1,5 +1,5 @@
 //#include "tinybind.h"
-#include "tinyxml.h"
+#include "tinyxml2.h"
 /*
 void endxml();
 
@@ -13,13 +13,13 @@ class xmlfile
 {
     public:
 //xmlfile
-TiXmlDocument     *xmlDoc;
+tinyxml2::XMLDocument     *xmlDoc;
 
-TiXmlElement* getxmlfirstelement(char* xmlfile);
+tinyxml2::XMLElement* getxmlfirstelement(char* xmlfile);
 
-TiXmlElement* getelement(TiXmlElement* from, char* name);
+tinyxml2::XMLElement* getelement(tinyxml2::XMLElement* from, char* name);
 
-int countchildren(TiXmlElement* of);
+int countchildren(tinyxml2::XMLElement* of);
 
 void endxml();
 };

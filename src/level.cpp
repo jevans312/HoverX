@@ -1,4 +1,5 @@
 #include <sstream>
+#include <iostream>
 #include <SDL2/SDL.h>
 
 #include "level.h"
@@ -63,10 +64,10 @@ bool level::Load(const std::string& LevelFilename)   {
     SpawnPoint.Clear();
 
     xmlfile hoverlvl;
-    TiXmlElement *xLevel = hoverlvl.getxmlfirstelement((char*)filewithlocal.c_str());
+    tinyxml2::XMLElement *xLevel = hoverlvl.getxmlfirstelement((char*)filewithlocal.c_str());
     {
         //this has to be defined for poly code
-        TiXmlElement *xTextures = hoverlvl.getelement(xLevel, (char*)"textures");
+        tinyxml2::XMLElement *xTextures = hoverlvl.getelement(xLevel, (char*)"textures");
         texnum = hoverlvl.countchildren(xTextures);
         texlist = new int[texnum];
         
@@ -79,7 +80,7 @@ bool level::Load(const std::string& LevelFilename)   {
             texnum = hoverlvl.countchildren(xTextures);
             texlist = new int[texnum];  //this has to be defined
             texnum = 0;
-            TiXmlElement *xTexturei = xTextures->FirstChildElement();
+            tinyxml2::XMLElement *xTexturei = xTextures->FirstChildElement();
             while( xTexturei )  {
                 //lvltexture[texturenum].floor = atof(xTexturei->Attribute("floor"))*WHYSCALE;
                 //lvltexture[texturenum].roof = atof(xTexturei->Attribute("roof"))*WHYSCALE;
@@ -91,12 +92,12 @@ bool level::Load(const std::string& LevelFilename)   {
         }
 
         //load verts
-        TiXmlElement *xVerts = hoverlvl.getelement(xLevel, (char*)"verts");
+        tinyxml2::XMLElement *xVerts = hoverlvl.getelement(xLevel, (char*)"verts");
         vertnum = hoverlvl.countchildren(xVerts);
         lvlvert = new vector2d[vertnum];
         vertnum = 0;
 
-        TiXmlElement *xVerti = xVerts->FirstChildElement();
+        tinyxml2::XMLElement *xVerti = xVerts->FirstChildElement();
         while( xVerti ) {
             if ( atoi(xVerti->Attribute("type")) == 0 ) {   //normal vert
                 lvlvert[vertnum].setpos(atof(xVerti->Attribute("x"))*WHYSCALE, atof(xVerti->Attribute("y"))*WHYSCALE);
@@ -143,12 +144,12 @@ bool level::Load(const std::string& LevelFilename)   {
         }
 
         //load line data
-        TiXmlElement *xLines = hoverlvl.getelement(xLevel, (char*)"lines");
+        tinyxml2::XMLElement *xLines = hoverlvl.getelement(xLevel, (char*)"lines");
         linenum = hoverlvl.countchildren(xLines);
         lvlline = new line2d[linenum];
         linenum = 0;
 
-        TiXmlElement *xLinei = xLines->FirstChildElement();
+        tinyxml2::XMLElement *xLinei = xLines->FirstChildElement();
         while( xLinei ) {
             //lvlline[linenum].p1 = &lvlvert[atoi(xLinei->Attribute("v1"))];
             //lvlline[linenum].p2 = &lvlvert[atoi(xLinei->Attribute("v2"))];
@@ -158,11 +159,11 @@ bool level::Load(const std::string& LevelFilename)   {
         }
 
         //load polys
-        TiXmlElement *xPolys = hoverlvl.getelement(xLevel, (char*)"polys");
+        tinyxml2::XMLElement *xPolys = hoverlvl.getelement(xLevel, (char*)"polys");
         polynum = hoverlvl.countchildren(xPolys);
         lvlpoly = new poly2d[polynum];
         polynum = 0;
-        TiXmlElement *xPolyi = xPolys->FirstChildElement();
+        tinyxml2::XMLElement *xPolyi = xPolys->FirstChildElement();
         int checktex = 0;
         while( xPolyi ) {
             lvlpoly[polynum].lnum = hoverlvl.countchildren(xPolyi);
@@ -181,7 +182,7 @@ bool level::Load(const std::string& LevelFilename)   {
             else
                 lvlpoly[polynum].rooftex = -1;
 
-            TiXmlElement *xPLinei = xPolyi->FirstChildElement();
+            tinyxml2::XMLElement *xPLinei = xPolyi->FirstChildElement();
             for(int i = 0;i<lvlpoly[polynum].lnum;i++)
             {
                 lvlpoly[polynum].l[i].l = &lvlline[atoi(xPLinei->Attribute("l"))];

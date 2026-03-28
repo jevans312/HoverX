@@ -157,43 +157,43 @@ int savexmlfile(char*filename)
 {
     char chartowrite[100];
 
-    TiXmlDocument* xmlDoc = new TiXmlDocument(filename);
-    TiXmlElement* rootnode = new TiXmlElement("root");
-    xmlDoc->LinkEndChild( rootnode );
+    tinyxml2::XMLDocument* xmlDoc = new tinyxml2::XMLDocument();
+    tinyxml2::XMLElement* rootnode = xmlDoc->NewElement("root");
+    xmlDoc->InsertEndChild( rootnode );
 
 
-    TiXmlElement *xLvl   = new TiXmlElement("lvl");
+    tinyxml2::XMLElement *xLvl   = xmlDoc->NewElement("lvl");
     xLvl->SetAttribute( "name",  "Test Level!");
-    rootnode->LinkEndChild( xLvl );
+    rootnode->InsertEndChild( xLvl );
 
 
-    TiXmlElement *xTextures = new TiXmlElement("textures");
+    tinyxml2::XMLElement *xTextures = xmlDoc->NewElement("textures");
     xTextures->SetAttribute( "skytex",  "img/skyline.jpg");
-    rootnode->LinkEndChild( xTextures);
+    rootnode->InsertEndChild( xTextures);
 
 
-    TiXmlElement *xTexi;
+    tinyxml2::XMLElement *xTexi;
 
     //save textures
     for(int i = 0; i < TextureListCount; i++) {
-        xTexi = new TiXmlElement("add");
+        xTexi = xmlDoc->NewElement("add");
         xTexi->SetAttribute( "texture", TextureList[i].c_str());
         //cout << "wrote texture #" << i << " called " << TextureList[i] << endl;
-        xTextures->LinkEndChild( xTexi);
+        xTextures->InsertEndChild( xTexi);
     }
     /*
-    TiXmlElement *xStarts = new TiXmlElement("starts");
-    TiXmlElement *xChecks = new TiXmlElement("checkpoints");
-    TiXmlElement *xFinishs = new TiXmlElement("finish");
+    tinyxml2::XMLElement *xStarts = xmlDoc->NewElement("starts");
+    tinyxml2::XMLElement *xChecks = xmlDoc->NewElement("checkpoints");
+    tinyxml2::XMLElement *xFinishs = xmlDoc->NewElement("finish");
 
-    rootnode->LinkEndChild( xStarts );
-    rootnode->LinkEndChild( xChecks );
-    rootnode->LinkEndChild( xFinishs);
-    TiXmlElement *xSCFi;
+    rootnode->InsertEndChild( xStarts );
+    rootnode->InsertEndChild( xChecks );
+    rootnode->InsertEndChild( xFinishs);
+    tinyxml2::XMLElement *xSCFi;
 
     for(int i = 0; i < vert_count; i++) {
         if(verts[i].type == 1) {
-            xSCFi   = new TiXmlElement("add");
+            xSCFi   = xmlDoc->NewElement("add");
             sprintf(chartowrite, "%f\0",verts[i].x);
             xSCFi->SetAttribute( "x",  chartowrite);
             sprintf(chartowrite, "%f\0",verts[i].y);
@@ -202,66 +202,66 @@ int savexmlfile(char*filename)
             xSCFi->SetAttribute( "z",  chartowrite);
             sprintf(chartowrite, "%f\0",0.f);
             xSCFi->SetAttribute( "dir",  chartowrite);
-            xStarts->LinkEndChild( xSCFi );
+            xStarts->InsertEndChild( xSCFi );
      }
     }
 
     for(int i = 0; i < vert_count; i++) {
      if(verts[i].type == 2) {
-        xSCFi   = new TiXmlElement("add");
+        xSCFi   = xmlDoc->NewElement("add");
         sprintf(chartowrite, "%f\0",verts[i].x);
         xSCFi->SetAttribute( "x",  chartowrite);
         sprintf(chartowrite, "%f\0",verts[i].y);
         xSCFi->SetAttribute( "y", chartowrite );
         sprintf(chartowrite, "%f\0",1.f);
         xSCFi->SetAttribute( "z",  chartowrite);
-        xChecks->LinkEndChild( xSCFi );
+        xChecks->InsertEndChild( xSCFi );
      }
     }
 
     for(int i = 0; i < vert_count; i++) {
      if(verts[i].type == 3) {
-        xSCFi   = new TiXmlElement("add");
+        xSCFi   = xmlDoc->NewElement("add");
         sprintf(chartowrite, "%f\0", verts[i].x);
         xSCFi->SetAttribute( "x",  chartowrite);
         sprintf(chartowrite, "%f\0", verts[i].y);
         xSCFi->SetAttribute( "y", chartowrite );
         sprintf(chartowrite, "%f\0",1.f);
         xSCFi->SetAttribute( "z",  chartowrite);
-        xFinishs->LinkEndChild( xSCFi );
+        xFinishs->InsertEndChild( xSCFi );
      }
     }
 
-    TiXmlElement *xFuelzones = new TiXmlElement("fuelzones");
-    rootnode->LinkEndChild( xFuelzones);
-    TiXmlElement *xFuelzonei;
+    tinyxml2::XMLElement *xFuelzones = xmlDoc->NewElement("fuelzones");
+    rootnode->InsertEndChild( xFuelzones);
+    tinyxml2::XMLElement *xFuelzonei;
     {
-        xFuelzonei = new TiXmlElement("add");
+        xFuelzonei = xmlDoc->NewElement("add");
         sprintf(chartowrite, "%f\0",-30.f);
         xFuelzonei->SetAttribute( "x",  chartowrite);
         sprintf(chartowrite, "%f\0",0.f);
         xFuelzonei->SetAttribute( "y",  chartowrite);
         sprintf(chartowrite, "%f\0",1.f);
         xFuelzonei->SetAttribute( "z",  chartowrite);
-        xFuelzones->LinkEndChild( xFuelzonei);
+        xFuelzones->InsertEndChild( xFuelzonei);
     }
 
-    TiXmlElement *xSpeedz = new TiXmlElement("speedzones");
-    rootnode->LinkEndChild( xSpeedz);
+    tinyxml2::XMLElement *xSpeedz = xmlDoc->NewElement("speedzones");
+    rootnode->InsertEndChild( xSpeedz);
     {}
     */
 
-    TiXmlElement *xVerts = new TiXmlElement("verts");
-    TiXmlElement *xLines = new TiXmlElement("lines");
-    TiXmlElement *xPolys = new TiXmlElement("polys");
-    rootnode->LinkEndChild( xVerts );
-    rootnode->LinkEndChild( xLines );
-    rootnode->LinkEndChild( xPolys );
+    tinyxml2::XMLElement *xVerts = xmlDoc->NewElement("verts");
+    tinyxml2::XMLElement *xLines = xmlDoc->NewElement("lines");
+    tinyxml2::XMLElement *xPolys = xmlDoc->NewElement("polys");
+    rootnode->InsertEndChild( xVerts );
+    rootnode->InsertEndChild( xLines );
+    rootnode->InsertEndChild( xPolys );
 
     //load the vector data
-    TiXmlElement *xVerti;
+    tinyxml2::XMLElement *xVerti;
     for(int i = 0; i < vert_count;i++) {
-            xVerti   = new TiXmlElement("v");
+            xVerti   = xmlDoc->NewElement("v");
             sprintf(chartowrite, "%f\0",verts[i].x);
             xVerti->SetAttribute( "x",  chartowrite);
             sprintf(chartowrite, "%f\0",verts[i].y);
@@ -271,27 +271,27 @@ int savexmlfile(char*filename)
                 sprintf(chartowrite, "%f\0", verts[i].VertDirection);
                 xVerti->SetAttribute( "dir", chartowrite);
             }
-            xVerts->LinkEndChild( xVerti );
+            xVerts->InsertEndChild( xVerti );
     }
 
 
-    TiXmlElement *xLinei;
+    tinyxml2::XMLElement *xLinei;
     for(int i = 0; i < line_count;i++)
     {
-        xLinei   = new TiXmlElement("l");
+        xLinei   = xmlDoc->NewElement("l");
         sprintf(chartowrite, "%i\0",lines[i].a);
         xLinei->SetAttribute( "v1", chartowrite );
         sprintf(chartowrite, "%i\0",lines[i].b);
         xLinei->SetAttribute( "v2", chartowrite );
-        xLines->LinkEndChild( xLinei );
+        xLines->InsertEndChild( xLinei );
     }
 
 
-    TiXmlElement *xPolyi;
-    TiXmlElement *xPolyii;
+    tinyxml2::XMLElement *xPolyi;
+    tinyxml2::XMLElement *xPolyii;
     for(int i = 0; i < poly_count;i++)
     {
-        xPolyi   = new TiXmlElement("p");
+        xPolyi   = xmlDoc->NewElement("p");
         sprintf(chartowrite, "%f\0",polys[i].roof);
         xPolyi->SetAttribute( "roof", chartowrite );
         sprintf(chartowrite, "%f\0",polys[i].floor);
@@ -302,20 +302,19 @@ int savexmlfile(char*filename)
         xPolyi->SetAttribute( "rtex", chartowrite );
         for(int r = 0; r < polys[i].sidecount+1;r++)
         {
-            xPolyii   = new TiXmlElement("add");
+            xPolyii   = xmlDoc->NewElement("add");
             sprintf(chartowrite, "%i\0",polys[i].p[r]);
             xPolyii->SetAttribute( "l", chartowrite );
             sprintf(chartowrite, "%i\0",polys[i].tex[r]);
             //cout << "writing file poly#" << i << " with tex " << polys[i].tex[r] << endl;
             xPolyii->SetAttribute( "tex", chartowrite );
-            xPolyi->LinkEndChild( xPolyii );
+            xPolyi->InsertEndChild( xPolyii );
         }
 
-        xPolys->LinkEndChild( xPolyi );
+        xPolys->InsertEndChild( xPolyi );
     }
 
-    xmlDoc->SaveFile();
+    xmlDoc->SaveFile(filename);
 
-    xmlDoc->Clear();
     delete xmlDoc;
 }
