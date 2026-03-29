@@ -115,7 +115,7 @@ void LocalClient::Update() {
         //if(Keys.left)   lvl.Ent[EntityAddress].Yaw -= 0.025;
         //lvl.Ent[EntityAddress].onground = 0; lvl.Ent[EntityAddress].antionground = 0;   //reset ground info
 
-        const float accel = 0.003;
+        const float accel = 0.003f;
         //float jumppower = 0.05;
         //float steerspeed = 0.025;
         //float gravity = 0.001;
@@ -127,7 +127,7 @@ void LocalClient::Update() {
         lvl.Ent[EntityAddress].pos.o.z = lvl.Ent[EntityAddress].pos.c.z;
 
         //gliding physics
-        lvl.Ent[EntityAddress].pos.dophys(0.992, 1);
+        lvl.Ent[EntityAddress].pos.dophys(0.992f, 1);
 
         //get a vector of heading and speed
         vector2d v (sinf(lvl.Ent[EntityAddress].Yaw), cosf(lvl.Ent[EntityAddress].Yaw));
@@ -137,10 +137,9 @@ void LocalClient::Update() {
         v.scalef(accel);
         v.divf(1);
 
-        if(Keys.accel) lvl.Ent[EntityAddress].pos.c+=v;
-
-        if(Keys.right)  lvl.Ent[EntityAddress].Yaw += 0.025;
-        if(Keys.left)   lvl.Ent[EntityAddress].Yaw -= 0.025;
+        if(Keys.accel) lvl.Ent[EntityAddress].pos.c += v;
+        if(Keys.right)  lvl.Ent[EntityAddress].Yaw += 0.025f;
+        if(Keys.left)   lvl.Ent[EntityAddress].Yaw -= 0.025f;
     }
 
     //handle recieved messages
@@ -151,9 +150,13 @@ void LocalClient::Update() {
 }
 
 void LocalClient::AddTextMessage(const std::string& newtextmessage) {
-    int emptymsgaddress = -1;
+    //No empty messages or messages that are too long
+    if(newtextmessage.empty() || newtextmessage.size() > MAXMSGLENTH) {
+        return;
+    }
 
     //find a empty message slot
+    int emptymsgaddress = -1;
     for(int i = 0; i < MAXMSGS; i++) {
         if(MessageBuffer[i].Type == 0) {
             emptymsgaddress = i;
@@ -171,7 +174,7 @@ void LocalClient::AddTextMessage(const std::string& newtextmessage) {
 
     if(newtextmessage != "") {
         MessageBuffer[emptymsgaddress].Type = 1;
-        MessageBuffer[emptymsgaddress].PayloadSize = strlen(newtextmessage.c_str());
+        MessageBuffer[emptymsgaddress].PayloadSize = static_cast<unsigned int>(newtextmessage.size());
         memcpy(&MessageBuffer[emptymsgaddress].Payload + 0, newtextmessage.c_str(), MessageBuffer[emptymsgaddress].PayloadSize);
 
         //cout << "client added type: " << MessageBuffer[emptymsgaddress].Type << " that is " << MessageBuffer[emptymsgaddress].PayloadSize << " bytes with a payload of \"" << MessageBuffer[emptymsgaddress].Payload << "\"" << endl;
@@ -180,7 +183,7 @@ void LocalClient::AddTextMessage(const std::string& newtextmessage) {
 }
 
 void LocalClient::BroadcastKeyState() {
-    unsigned int bufpos = 0;
+    uint16_t bufpos = 0;
     uint8_t binarydatatype = 4;                             //type 4 is key state
     uint16_t datasize = 0;                                  //how much data in bytes we are sending
     uint64_t timestamp = SDL_GetTicks64();                  //SDL ticks used as a way of ordering packets
@@ -200,7 +203,7 @@ void LocalClient::BroadcastKeyState() {
     bufpos += sizeof(Keys.accel);
     memcpy(packetbuffer + bufpos, &Keys.brake, sizeof(Keys.brake));
     bufpos += sizeof(Keys.brake);
-    memcpy(packetbuffer + bufpos, &Keys.left, sizeof(Keys.right));
+    memcpy(packetbuffer + bufpos, &Keys.left, sizeof(Keys.left));
     bufpos += sizeof(Keys.left);
     memcpy(packetbuffer + bufpos, &Keys.right, sizeof(Keys.right));
     bufpos += sizeof(Keys.right);
@@ -385,11 +388,11 @@ void LocalClient::SendKeepAlive() {
 
 }
 
-static int LastKeepAliveFromServer = 0;
-static int LastKeepAliveBroadcast = 0;
-//static int LastKeyBroadcast = 0;
+static uint64_t LastKeepAliveFromServer = 0;
+static uint64_t LastKeepAliveBroadcast = 0;
+//static uint64_t LastKeyBroadcast = 0;
 void LocalClient::BroadcastTimer() {    //this should prob be called timers
-    int currenttime = SDL_GetTicks64();
+    uint64_t currenttime = SDL_GetTicks64();
 
     if(isConnectedToRemoteServer) {
         //key info X times a sec; 1000ms == 1 sec
@@ -440,7 +443,7 @@ void LocalClient::HandleDataString(const std::string& worldstr) {
     TypeKeyValue TKV[63];
     //turn the world string into something we can use
     ParseTKV(worldstr, TKV);
-//cout << "DataString: " << worldstr << endl;
+    //cout << "DataString: " << worldstr << endl;
     //process the new data
     for(int i = 0; i < 63; i++) {
         if(TKV[i].Type == ""); //do nothing; empty var
@@ -661,7 +664,7 @@ void LocalClient::HandleTextMessage(int messageaddress) {
     }
     else {  //add /txtmsg to command and let it go on to the server to be sent back
         localstring = "/txtmsg " + localstring;    //8
-        MessageBuffer[messageaddress].PayloadSize = strlen(localstring.c_str());
+        MessageBuffer[messageaddress].PayloadSize = static_cast<unsigned int>(localstring.size());
         memcpy(&MessageBuffer[messageaddress].Payload + 0, localstring.c_str(), MessageBuffer[messageaddress].PayloadSize);
 
         //cout << "new payload \"" << MessageBuffer[messageaddress].Payload << "\"" << endl;
@@ -806,7 +809,7 @@ void LocalClient::HandleNewPacket(ENetEvent localevent) {
             else if (messagetype == 3) {
                 ProcessEntityData(packetbuffer);
             }
-            else cout << "client: received and ignored type: " << (int)messagetype << endl;
+            else cout << "client: received and ignored type: " << messagetype << endl;
         }
 
         //clear buffers
@@ -829,25 +832,19 @@ void LocalClient::SendMessages() {
 
     for(int j = 0; j < MAXMSGS; j++) {
         //move data from client list to packet buffer
-        if(MessageBuffer[j].Type != 0) {
+        if(MessageBuffer[j].Type > 0) {
             memset(textmessagedata,  '\0', sizeof(textmessagedata));
             textmessagesize = 0;
             messagetype = 0;
 
-            messagetype = MessageBuffer[j].Type; //message type
-            textmessagesize = MessageBuffer[j].PayloadSize;  //message size
+            messagetype = static_cast<uint8_t>(MessageBuffer[j].Type); //message type
+            textmessagesize = static_cast<uint16_t>(MessageBuffer[j].PayloadSize);  //message size
 
             //message data
             if(MessageBuffer[j].PayloadSize <= MAXMSGLENTH && MessageBuffer[j].PayloadSize > 0) {   //check for valid size
                 memcpy(&textmessagedata, &MessageBuffer[j].Payload, MessageBuffer[j].PayloadSize);
-            }
-            else {
-                textmessagesize = 0;  //bad length
-                cout << "ReadCommands: bad message length" << endl; //should return here from another function
-            }
 
-            //move command data to the servers buffer in to the packet buffer; 254 so we know we dont over wright the null char
-            if(textmessagesize != 0 && 1022 > (textmessagesize+3) ) {   //check for valid size and that we arnt going to over wright the buffer
+                //move command data to the servers buffer in to the packet buffer; 254 so we know we dont over wright the null char
                 cout << "client: sending packet type:" << (int)messagetype;
                 memmove(packetbuffer + bufpos, &messagetype, sizeof(messagetype));   //copy type into buffer
                 bufpos += sizeof(messagetype);
@@ -861,6 +858,8 @@ void LocalClient::SendMessages() {
                 bufpos = bufpos + textmessagesize;
 
                 msgcount++;
+            } else {
+                cout << "ReadCommands: bad message length of " << textmessagesize << endl;
             }
 
             //message sent therefor no longer need

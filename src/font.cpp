@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 
-int fonttexture;
+GLuint fonttexture;
 int base;
 float sizex=1.f;
 float sizey=1.f;
@@ -44,10 +44,10 @@ void unloadFont() {
     glDeleteLists(base,256);
 }
 
-int printgls(float x, float y, const char *args,...)
-{
-
-    if (!args) return 1;
+int printgls(float x, float y, const char *args,...) {
+    if (!args) {
+        return 1;
+    }
 
     va_list arglist;
     va_start(arglist, args);
@@ -64,7 +64,7 @@ int printgls(float x, float y, const char *args,...)
     glTranslated(x, 1 - y,0);   //the 1 - y converts to my cordinate system
     glListBase(base-32);
     glScalef(sizex/512, sizey/512, 1.0f);
-    glCallLists(strlen(finaltext),GL_UNSIGNED_BYTE, finaltext);
+    glCallLists((GLsizei)strlen(finaltext), GL_UNSIGNED_BYTE, finaltext);
 
     leave2d();
     glEnable(GL_DEPTH_TEST);

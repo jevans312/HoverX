@@ -85,7 +85,6 @@ public:
 };
 
 // Helper functions
-std::string IntToIpAddress(unsigned int ip);
 std::string BoolToStr(bool b);
 void skipLine(std::istream& is);
 bool skipCommentLine(std::istream& is);

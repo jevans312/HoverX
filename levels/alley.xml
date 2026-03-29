@@ -11,8 +11,6 @@
         <add texture="img/Green Right.jpg" />
         <add texture="img/Green Left.JPG" />
         <add texture="img/caution.png" />
-        <add texture="img/GGR.png" />
-        <add texture="img/legacy.png" />
     </textures>
     <verts>
         <v x="37.799999" y="149.000000" type="0" />

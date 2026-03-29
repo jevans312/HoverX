@@ -57,7 +57,7 @@ void UI_Setup() {
     UIButtonCount = 0;
 
     UIAddButton(0.f, 1, "Menu", "mainmenu", "");
-    UIAddButton(0.9, 1, "Exit", "exit", "");    //.9 cuz there are 4 chars...
+    UIAddButton(0.9f, 1, "Exit", "exit", "");    //.9 cuz there are 4 chars...
     CreateMapDropdown();
     CreateMainMenu();
     CreateSectorsMenu();
@@ -121,27 +121,27 @@ void UI_DrawUserList() {
     glDisable(GL_TEXTURE_2D);
     go2d(0.0f, 1.0f, 0.0f, 1.0f);
     glPushMatrix();
-        glColor4f(0.32, 0.55, 0.64, 0.5);     //set drawing color to hxgreen and 50% alpha
+        glColor4f(0.32f, 0.55f, 0.64f, 0.5f);     //set drawing color to hxgreen and 50% alpha
 
         glBegin(GL_QUADS);
-            glVertex3f( 0.70, 0.15, 0.0f );    //left bottom
-            glVertex3f( 0.95, 0.15, 0.0f );    //right bottom
-            glVertex3f( 0.95, 0.90, 0.0f );    //right top
-            glVertex3f( 0.70, 0.90, 0.0f );    //left top
+            glVertex3f( 0.70f, 0.15f, 0.0f );    //left bottom
+            glVertex3f( 0.95f, 0.15f, 0.0f );    //right bottom
+            glVertex3f( 0.95f, 0.90f, 0.0f );    //right top
+            glVertex3f( 0.70f, 0.90f, 0.0f );    //left top
         glEnd();
 
         glEnable(GL_TEXTURE_2D);    //enable texturing for fonts
 
         //user list
         glColor3f(0, 0, 0); //draw black
-        printgls(0.70, 0.90, (char*)"%s", "Users");
+        printgls(0.70f, 0.90f, (char*)"%s", "Users");
 
         glColor3f(1, 1, 1); //draw white
-        float ywriteposition = 0.85;
+        float ywriteposition = 0.85f;
         for(int i = 0; i < MAXCLIENTS; i++) {
             if(LC.Clients[i].Name != "unnamed") {
-                printgls(0.70, ywriteposition, (char*)"%s", LC.Clients[i].Name.c_str());
-                ywriteposition = ywriteposition - .05;
+                printgls(0.70f, ywriteposition, (char*)"%s", LC.Clients[i].Name.c_str());
+                ywriteposition = ywriteposition - .05f;
             }
         }
 
@@ -161,13 +161,13 @@ void UI_DrawMSGs() {
         //glTranslatef(0.025, 0.025 , 0);     //move everything
 
         if(LC.MSGmode) {   //draw a box to indicate message mode
-            glColor3f(0.5, 0.5, 0.5);     //set drawing color to gray
+            glColor3f(0.5f, 0.5f, 0.5f);     //set drawing color to gray
 
             glBegin(GL_QUADS);
-                glVertex3f( 0.025, 0.025, 0.f );    //left bottom
-                glVertex3f( 0.975, 0.025, 0.f );    //right bottom
-                glVertex3f( 0.975, 0.050, 0.f );    //right top
-                glVertex3f( 0.025, 0.050, 0.f );      //left top
+                glVertex3f( 0.025f, 0.025f, 0.f );    //left bottom
+                glVertex3f( 0.975f, 0.025f, 0.f );    //right bottom
+                glVertex3f( 0.975f, 0.050f, 0.f );    //right top
+                glVertex3f( 0.025f, 0.050f, 0.f );      //left top
             glEnd();
         }
 
@@ -175,13 +175,13 @@ void UI_DrawMSGs() {
         glEnable(GL_TEXTURE_2D);    //enable texturing for fonts
 
         //draw message line
-        if(LC.MSGmode) printgls(0.025, 0.050, (char*)"%s", LC.hostMSGbuffer.c_str());
+        if(LC.MSGmode) printgls(0.025f, 0.050f, (char*)"%s", LC.hostMSGbuffer.c_str());
 
         //draw messages
-        printgls(0.025, 0.075, (char*)"%s", LC.MSGDrawBuffer0.c_str());
-        printgls(0.025, 0.100, (char*)"%s", LC.MSGDrawBuffer1.c_str());
-        printgls(0.025, 0.125, (char*)"%s", LC.MSGDrawBuffer2.c_str());
-        printgls(0.025, 0.150, (char*)"%s", LC.MSGDrawBuffer3.c_str());
+        printgls(0.025f, 0.075f, (char*)"%s", LC.MSGDrawBuffer0.c_str());
+        printgls(0.025f, 0.100f, (char*)"%s", LC.MSGDrawBuffer1.c_str());
+        printgls(0.025f, 0.125f, (char*)"%s", LC.MSGDrawBuffer2.c_str());
+        printgls(0.025f, 0.150f, (char*)"%s", LC.MSGDrawBuffer3.c_str());
 
         //draw fps
         //glColor3f(1, 1, 1);
@@ -202,8 +202,8 @@ void UIMousePress(float mousex, float mousey ) {
     //convert mouse data to something i can use
 
     //normalize data first
-    mousex = mousex/LC.window_width;
-    mousey = mousey/LC.window_height;
+    mousex = mousex / static_cast<float>(LC.window_width);
+    mousey = mousey / static_cast<float>(LC.window_height);
 
     //convert cordinates to match the gui system
     mouse_x = mousex;
@@ -274,8 +274,8 @@ int UIAddButton(float x, float y, const string &name, const string &command, con
     ButtonList[found_button].tl_y = y;
 
     //set bottom right position
-    ButtonList[found_button].br_x = x + (name.size() * .025);
-    ButtonList[found_button].br_y = (y - .025);
+    ButtonList[found_button].br_x = x + (static_cast<float>(name.size()) * .025f);
+    ButtonList[found_button].br_y = (y - .025f);
 
     ButtonList[found_button].label = name;
     ButtonList[found_button].command = command;
@@ -297,7 +297,7 @@ void UI_DrawButtons() {
     glPushMatrix();
         //glTranslatef(0.0, 0.0 , 0);     //move everything for the fonts to be in the right place
 
-        glColor3f(.32, .55, .64);     //set drawing color to the hx color
+        glColor3f(.32f, .55f, .64f);     //set drawing color to the hx color
 
         //draw box for the button
         for(int i = 0; i < UIButtonCount; i++) {
@@ -338,11 +338,11 @@ void UI_DrawLapTimes() {
     glPushMatrix();
         glColor3f(1, 1, 1);
         int entaddress = LC.EntityAddress;
-        int besttime = LC.lvl.Ent[entaddress].BestLapTime;
+        uint64_t besttime = LC.lvl.Ent[entaddress].BestLapTime;
 
         string bestlapstr = "Best Time: " + PrettyPrintTime(besttime);
-        float besttimexpos = 1 - ( 0.025 * bestlapstr.length() );
-        printgls(besttimexpos, 0.950, (char*)"%s", bestlapstr.c_str() );
+        float besttimexpos = 1 - ( 0.025f * static_cast<float>(bestlapstr.length()) );
+        printgls(besttimexpos, 0.950f, (char*)"%s", bestlapstr.c_str() );
 
 //        printgls(0.0, 0.975,"LAP TIME: %f", ((SDL_GetTicks()-mylvl.dude[0].lastlaptime)/1000.f));
 
@@ -384,16 +384,16 @@ void CreateMainMenu() {
     Dropdownmenus[1].Draw = false;
 
     //add buttons
-    Dropdownmenus[1].Buttons[0] = UIAddButton(0, .975, "Go Online", "connect", "38.102.164.40");
-    Dropdownmenus[1].Buttons[1] = UIAddButton(0, .950, "Sectors", "sectormenu", "");
+    Dropdownmenus[1].Buttons[0] = UIAddButton(0, .975f, "Go Online", "connect", "38.102.164.40");
+    Dropdownmenus[1].Buttons[1] = UIAddButton(0, .950f, "Sectors", "sectormenu", "");
 
     //disable drawing and testing of buttons until we want them
     ButtonList[Dropdownmenus[1].Buttons[0]].Draw = false;
     ButtonList[Dropdownmenus[1].Buttons[1]].Draw = false;
 
     //set the length of the drop down
-    ButtonList[Dropdownmenus[1].Buttons[0]].br_x = .25;
-    ButtonList[Dropdownmenus[1].Buttons[1]].br_x = .25;
+    ButtonList[Dropdownmenus[1].Buttons[0]].br_x = .25f;
+    ButtonList[Dropdownmenus[1].Buttons[1]].br_x = .25f;
 }
 
 void CreateSectorsMenu() {
@@ -402,16 +402,16 @@ void CreateSectorsMenu() {
     Dropdownmenus[2].Draw = false;
 
     //add buttons
-    Dropdownmenus[2].Buttons[0] = UIAddButton(.25, .950, "New", "mapmenu", "");
-    Dropdownmenus[2].Buttons[1] = UIAddButton(.25, .925, "Sectors", "openrooms", "");
+    Dropdownmenus[2].Buttons[0] = UIAddButton(.25f, .950f, "New", "mapmenu", "");
+    Dropdownmenus[2].Buttons[1] = UIAddButton(.25f, .925f, "Sectors", "openrooms", "");
 
     //disable drawing and testing of buttons until we want them
     ButtonList[Dropdownmenus[2].Buttons[0]].Draw = false;
     ButtonList[Dropdownmenus[2].Buttons[1]].Draw = false;
 
     //set the length of the drop down
-    ButtonList[Dropdownmenus[2].Buttons[0]].br_x = .45;
-    ButtonList[Dropdownmenus[2].Buttons[1]].br_x = .45;
+    ButtonList[Dropdownmenus[2].Buttons[0]].br_x = .45f;
+    ButtonList[Dropdownmenus[2].Buttons[1]].br_x = .45f;
 }
 
 void CreateSectorListMenu() {
@@ -420,13 +420,13 @@ void CreateSectorListMenu() {
     Dropdownmenus[3].Draw = false;
 
     //add buttons
-    Dropdownmenus[3].Buttons[0] = UIAddButton(.45, .925, "(none)", "join", "0");
-    Dropdownmenus[3].Buttons[1] = UIAddButton(.45, .900, "(none)", "join", "1");
-    Dropdownmenus[3].Buttons[2] = UIAddButton(.45, .875, "(none)", "join", "2");
-    Dropdownmenus[3].Buttons[3] = UIAddButton(.45, .850, "(none)", "join", "3");
-    Dropdownmenus[3].Buttons[4] = UIAddButton(.45, .825, "(none)", "join", "4");
-    Dropdownmenus[3].Buttons[5] = UIAddButton(.45, .800, "(none)", "join", "5");
-    Dropdownmenus[3].Buttons[6] = UIAddButton(.45, .775, "(none)", "join", "6");
+    Dropdownmenus[3].Buttons[0] = UIAddButton(.45f, .925f, "(none)", "join", "0");
+    Dropdownmenus[3].Buttons[1] = UIAddButton(.45f, .900f, "(none)", "join", "1");
+    Dropdownmenus[3].Buttons[2] = UIAddButton(.45f, .875f, "(none)", "join", "2");
+    Dropdownmenus[3].Buttons[3] = UIAddButton(.45f, .850f, "(none)", "join", "3");
+    Dropdownmenus[3].Buttons[4] = UIAddButton(.45f, .825f, "(none)", "join", "4");
+    Dropdownmenus[3].Buttons[5] = UIAddButton(.45f, .800f, "(none)", "join", "5");
+    Dropdownmenus[3].Buttons[6] = UIAddButton(.45f, .775f, "(none)", "join", "6");
 
     //disable drawing and testing of buttons until we want them
     ButtonList[Dropdownmenus[3].Buttons[0]].Draw = false;
@@ -438,13 +438,13 @@ void CreateSectorListMenu() {
     ButtonList[Dropdownmenus[3].Buttons[6]].Draw = false;
 
     //set the length of the drop down
-    ButtonList[Dropdownmenus[3].Buttons[0]].br_x = .80;
-    ButtonList[Dropdownmenus[3].Buttons[1]].br_x = .80;
-    ButtonList[Dropdownmenus[3].Buttons[2]].br_x = .80;
-    ButtonList[Dropdownmenus[3].Buttons[3]].br_x = .80;
-    ButtonList[Dropdownmenus[3].Buttons[4]].br_x = .80;
-    ButtonList[Dropdownmenus[3].Buttons[5]].br_x = .80;
-    ButtonList[Dropdownmenus[3].Buttons[6]].br_x = .80;
+    ButtonList[Dropdownmenus[3].Buttons[0]].br_x = .80f;
+    ButtonList[Dropdownmenus[3].Buttons[1]].br_x = .80f;
+    ButtonList[Dropdownmenus[3].Buttons[2]].br_x = .80f;
+    ButtonList[Dropdownmenus[3].Buttons[3]].br_x = .80f;
+    ButtonList[Dropdownmenus[3].Buttons[4]].br_x = .80f;
+    ButtonList[Dropdownmenus[3].Buttons[5]].br_x = .80f;
+    ButtonList[Dropdownmenus[3].Buttons[6]].br_x = .80f;
 }
 
 //create a dropdown menu for of the maps
@@ -454,9 +454,9 @@ void CreateMapDropdown() {
     Dropdownmenus[0].Draw = false;
 
     //add buttons
-    Dropdownmenus[0].Buttons[0] = UIAddButton(.45, .950, "alley", "createroom", "alley.xml");
-    Dropdownmenus[0].Buttons[1] = UIAddButton(.45, .925, "sumo", "createroom", "sumo.xml");
-    Dropdownmenus[0].Buttons[2] = UIAddButton(.45, .900, "classic 8", "createroom", "classic8.xml");
+    Dropdownmenus[0].Buttons[0] = UIAddButton(.45f, .950f, "alley", "createroom", "alley.xml");
+    Dropdownmenus[0].Buttons[1] = UIAddButton(.45f, .925f, "sumo", "createroom", "sumo.xml");
+    Dropdownmenus[0].Buttons[2] = UIAddButton(.45f, .900f, "classic 8", "createroom", "classic8.xml");
 
     //disable drawing and testing of buttons until we want them
     ButtonList[Dropdownmenus[0].Buttons[0]].Draw = false;
@@ -464,9 +464,9 @@ void CreateMapDropdown() {
     ButtonList[Dropdownmenus[0].Buttons[2]].Draw = false;
 
     //set the length of the drop down
-    ButtonList[Dropdownmenus[0].Buttons[0]].br_x = .80;
-    ButtonList[Dropdownmenus[0].Buttons[1]].br_x = .80;
-    ButtonList[Dropdownmenus[0].Buttons[2]].br_x = .80;
+    ButtonList[Dropdownmenus[0].Buttons[0]].br_x = .80f;
+    ButtonList[Dropdownmenus[0].Buttons[1]].br_x = .80f;
+    ButtonList[Dropdownmenus[0].Buttons[2]].br_x = .80f;
 
 }
 

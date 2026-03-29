@@ -47,17 +47,16 @@ void InitGL() {
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);      // Set Perspective Calculations To Most Accurate
 
     //lighting
-    GLfloat White_Light[] = {0.4, 0.4, 0.4, 0.0};
-    GLfloat Light_Position[] = {0.0, 0.0, 1.0};
     glEnable(GL_LIGHTING);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, White_Light);
+    glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
+    GLfloat Ambiant_Light[] = {0.30f, 0.32f, 0.35f, 1.0f};  //Neutral daylight
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, Ambiant_Light);
+
+    GLfloat Diffuse_Light[] = {.20f, 0.25f, 0.45f, 1.0f};
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, Diffuse_Light);
+    GLfloat Light_Position[] = {0.0f, 0.0f, -1.0f, 1.0f};
     glLightfv(GL_LIGHT0, GL_POSITION, Light_Position);
     glEnable(GL_LIGHT0);
-
-    GLfloat Ambiant_Light[] = {0.7, 0.7, 0.7, 0.0};
-    //glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
-    //glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, Ambiant_Light);
 }
 
 void DrawScene() {
@@ -117,7 +116,7 @@ void DrawSky() {
     if(LC.EntityAddress != -1) entcam = LC.EntityAddress;
 
     glDisable(GL_LIGHTING);
-    glBindTexture( GL_TEXTURE_2D, LC.lvl.gridtexid);
+    glBindTexture(GL_TEXTURE_2D, LC.lvl.gridtexid);
 
     glColor3f(1.f, 1.f, 1.f);   //reset the color
 
@@ -167,12 +166,17 @@ void SetCamera() {
     }
 }
 
+//TODO: Some polys are not input in the correct winding order
+//      A) check and flip them if needed
+//      B) or use glFrontFace(GL_CW) for the level display list
+//      C) replace display list all together with VBOs and VAOs
 void DrawLevel() {
     glDisable(GL_CULL_FACE);
     glCallList(LC.lvl.DisplayList);
     glEnable(GL_CULL_FACE);
 }
 
+const float radianDef = 3.14159265f/180.0f; //degrees to radians conversion factor
 void DrawEntities() {
     if(LC.lvl.Loaded ==  false) {
         cout << "DrawEntities: No level is loaded" << '\n';
@@ -188,7 +192,7 @@ void DrawEntities() {
             glPushMatrix();
                 //postion and roatate
                 glTranslatef(LC.lvl.Ent[i].pos.c.x, LC.lvl.Ent[i].pos.c.y, LC.lvl.Ent[i].pos.c.z);
-                glRotatef( -( LC.lvl.Ent[i].Yaw * (180/3.14159265) ), 0.0, 0.0, 1.0  );
+                glRotatef(-( LC.lvl.Ent[i].Yaw/radianDef), 0.0, 0.0, 1.0  );
 
                 //draw model
                 glCallList(LC.lvl.Ent[i].Model.DisplayList);

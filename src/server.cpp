@@ -45,7 +45,7 @@ bool ServerClass::Start(bool AllowRemoteConnections, const std::string& ip) {
 
     cout << '\n';
     cout << "====== Server ======" << '\n'
-         << "Address: " << IntToIpAddress(Address.host) << ":" << Address.port << '\n'
+         << "Address: " << ip << ":" << Address.port << '\n'
          << "Connections Accepted: " << (isAcceptingRemoteClients ? "Remote":"Local") << '\n';
 
     Host = enet_host_create (& Address      /* the address to bind the server host to */,
@@ -101,9 +101,13 @@ void ServerClass::Clear() {
 
 //messages that will go out to the clients
 int ServerClass::AddClientTextMessage(const std::string& newtextmessage, int clientaddress) {
-    int emptymsgaddress = -1;
+    if(newtextmessage.empty() || newtextmessage.size() > static_cast<std::string::size_type>(MAXMSGLENTH)) {
+        cout << "server: cant add new message: \"" << newtextmessage << "\"" << "; invalid size" << endl;
+        return -1;
+    }
 
     //find a empty message slot
+    int emptymsgaddress = -1;
     for(int i = 0; i <= MAXMSGS; i++) {
         if(Clients[clientaddress].MessageBuffer[i].Type == 0) {     //TODO: crashbug: if the server is in a room that is closed the program will crash here
             emptymsgaddress = i;
@@ -117,23 +121,25 @@ int ServerClass::AddClientTextMessage(const std::string& newtextmessage, int cli
         return -1;
     }
 
-    if(newtextmessage != "") {
-        Clients[clientaddress].MessageBuffer[emptymsgaddress].Type = 1;
-        Clients[clientaddress].MessageBuffer[emptymsgaddress].PayloadSize = strlen(newtextmessage.c_str());
-        memcpy(&Clients[clientaddress].MessageBuffer[emptymsgaddress].Payload + 0, newtextmessage.c_str(), Clients[clientaddress].MessageBuffer[emptymsgaddress].PayloadSize);
+    Clients[clientaddress].MessageBuffer[emptymsgaddress].Type = 1;
+    Clients[clientaddress].MessageBuffer[emptymsgaddress].PayloadSize = static_cast<unsigned int>(newtextmessage.size());
+    memcpy(&Clients[clientaddress].MessageBuffer[emptymsgaddress].Payload + 0, newtextmessage.c_str(), Clients[clientaddress].MessageBuffer[emptymsgaddress].PayloadSize);
 
-        //cout << "server position: " << emptymsgaddress << " added type: " << Clients[clientaddress].MessageBuffer[emptymsgaddress].Type << " that is "
-        //<< Clients[clientaddress].MessageBuffer[emptymsgaddress].PayloadSize << " bytes with a payload of \""
-        //<< Clients[clientaddress].MessageBuffer[emptymsgaddress].Payload << "\"" << endl;
-    }
+    //cout << "server position: " << emptymsgaddress << " added type: " << Clients[clientaddress].MessageBuffer[emptymsgaddress].Type << " that is "
+    //<< Clients[clientaddress].MessageBuffer[emptymsgaddress].PayloadSize << " bytes with a payload of \""
+    //<< Clients[clientaddress].MessageBuffer[emptymsgaddress].Payload << "\"" << endl;
     return emptymsgaddress;
 }
 
 //messages that go to the server
 int ServerClass::AddServerTextMessage(const std::string& newtextmessage, int clientaddress) {
-    int emptymsgaddress = -1;
+    if(newtextmessage.empty() || newtextmessage.size() > static_cast<std::string::size_type>(MAXMSGLENTH)) {
+        cout << "server: cant add new message: \"" << newtextmessage << "\"" << "; invalid size" << endl;
+        return -1;
+    }
 
     //find a empty message slot
+    int emptymsgaddress = -1;
     for(int i = 0; i < MAXMSGS; i++) {
         if(MessageBuffer[i].Type == 0) {
             emptymsgaddress = i;
@@ -147,16 +153,14 @@ int ServerClass::AddServerTextMessage(const std::string& newtextmessage, int cli
         return -1;
     }
 
-    if(newtextmessage != "") {
-        MessageBuffer[emptymsgaddress].ClientAddress = clientaddress;
-        MessageBuffer[emptymsgaddress].Type = 1;
-        MessageBuffer[emptymsgaddress].PayloadSize = strlen(newtextmessage.c_str());
-        memcpy(&MessageBuffer[emptymsgaddress].Payload + 0, newtextmessage.c_str(), MessageBuffer[emptymsgaddress].PayloadSize);
+    MessageBuffer[emptymsgaddress].ClientAddress = clientaddress;
+    MessageBuffer[emptymsgaddress].Type = 1;
+    MessageBuffer[emptymsgaddress].PayloadSize = static_cast<unsigned int>(newtextmessage.size());
+    memcpy(&MessageBuffer[emptymsgaddress].Payload + 0, newtextmessage.c_str(), MessageBuffer[emptymsgaddress].PayloadSize);
 
-        //cout << "server position: " << emptymsgaddress << " added type: " << Clients[clientaddress].MessageBuffer[emptymsgaddress].Type << " that is "
-        //<< Clients[clientaddress].MessageBuffer[emptymsgaddress].PayloadSize << " bytes with a payload of \""
-        //<< Clients[clientaddress].MessageBuffer[emptymsgaddress].Payload << "\"" << endl;
-    }
+    //cout << "server position: " << emptymsgaddress << " added type: " << Clients[clientaddress].MessageBuffer[emptymsgaddress].Type << " that is "
+    //<< Clients[clientaddress].MessageBuffer[emptymsgaddress].PayloadSize << " bytes with a payload of \""
+    //<< Clients[clientaddress].MessageBuffer[emptymsgaddress].Payload << "\"" << endl;
     return emptymsgaddress;
 }
 
@@ -251,13 +255,13 @@ void ServerClass::EntityAddRemove() {
 }
 
 void ServerClass::BroadcastEntityData(int clientaddress) {
-    uint8_t binarydatatype = 3;     //type 3 is entity data so the client knows what to do with it
-    uint16_t datasize = 0;           //
-    uint32_t timestamp = 0;      //SDL ticks used as a way of ordering packets
+    uint8_t binarydatatype = 3; //type 3 is entity data so the client knows what to do with it
+    uint16_t datasize = 0;      //
+    uint64_t timestamp = 0;     //SDL ticks used as a way of ordering packets
     uint16_t entcount = 0;      //how many entities data are in this packet
     uint16_t entaddress = 0;    //what entity this data is for
-    char packetbuffer[1080];   //enough for 64 entities and packet over head
-    unsigned int bufpos = 0;
+    char packetbuffer[1080];    //enough for 64 entities and packet over head
+    uint16_t bufpos = 0;
 
     memset(packetbuffer, '\0', sizeof(packetbuffer));
 
@@ -271,7 +275,7 @@ void ServerClass::BroadcastEntityData(int clientaddress) {
 
     //count entities to be sent; if zero no point in sending a packet
     for(int i = 0; i < MAXENTITIES; i++) {
-        if(lvl[clientroom].Ent[i].isUsed && lvl[clientroom].Ent[i].isNetworked ) entcount++;
+        if(lvl[clientroom].Ent[i].isUsed && lvl[clientroom].Ent[i].isNetworked) entcount++;
     }
     if(entcount == 0) return;
 
@@ -519,9 +523,9 @@ void ServerClass::JoinRoom(int clientaddress, int roomtojoin) {
                 
                 //position
                 datastr += " x=";
-                datastr += lvl[roomtojoin].Ent[i].pos.c.x;
+                datastr += IntToStr(lvl[roomtojoin].Ent[i].pos.c.x);
                 datastr += " y=";
-                datastr += lvl[roomtojoin].Ent[i].pos.c.y;
+                datastr += IntToStr(lvl[roomtojoin].Ent[i].pos.c.y);
 
                 //model
                 datastr += " md=" + lvl[roomtojoin].Ent[i].ModelFile;
@@ -1010,11 +1014,11 @@ void ServerClass::ReadMessages() {
     }
 }
 
-static int LastKeepAliveBroadcast = 0;
-//static int LastWorldDataBroadcast = 0;
-//static int LastEntDataBroadcast = 0;
+static uint64_t LastKeepAliveBroadcast = 0;
+//static uint64_t LastWorldDataBroadcast = 0;
+//static uint64_t LastEntDataBroadcast = 0;
 void ServerClass::CheckKeepAlive() {
-    int currenttime = SDL_GetTicks64();
+    uint64_t currenttime = SDL_GetTicks64();
 
     //send this out every server tick
     for(int i = 1; i < MAXCLIENTS; i++) {   //skip 0; dont send to server
@@ -1117,8 +1121,8 @@ void ServerClass::SendMessages() {
                         textmessagesize = 0;
                         messagetype = 0;
 
-                        messagetype = Clients[i].MessageBuffer[j].Type; //message type
-                        textmessagesize = Clients[i].MessageBuffer[j].PayloadSize;  //message size
+                        messagetype = static_cast<uint8_t>(Clients[i].MessageBuffer[j].Type); //message type
+                        textmessagesize = static_cast<uint16_t>(Clients[i].MessageBuffer[j].PayloadSize);  //message size
 
                         //message data
                         if(Clients[i].MessageBuffer[j].PayloadSize <= MAXMSGLENTH && Clients[i].MessageBuffer[j].PayloadSize > 0) {   //check for valid size

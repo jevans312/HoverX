@@ -96,7 +96,7 @@ void GetSDLInput() {
                     (event.key.keysym.sym >= SDLK_0 && event.key.keysym.sym <= SDLK_9) )  {
                         //add char to the string
                         if(LC.MSGmode && event.key.keysym.sym != SDLK_BACKSPACE) {
-                            LC.hostMSGbuffer += event.key.keysym.sym;
+                            LC.hostMSGbuffer += static_cast<char>(event.key.keysym.sym);
                         }
                 }
 
@@ -143,7 +143,7 @@ void GetSDLInput() {
                 break;
 
             case SDL_MOUSEBUTTONDOWN:
-                UIMousePress( event.button.x, event.button.y );
+                UIMousePress(static_cast<float>(event.button.x), static_cast<float>(event.button.y));
                 break;
 
             case SDL_MOUSEBUTTONUP:

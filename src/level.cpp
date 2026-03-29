@@ -6,6 +6,7 @@
 #include "tinerxml.h"
 #include "client.h"
 #include "server.h"
+#include <vector>
 
 using namespace std;
 
@@ -14,7 +15,7 @@ extern ServerClass hxServer;
 extern LocalClient LC;
 
 //return 01:23.321 on input of ms time from engine
-string PrettyPrintTime(int milliseconds) {
+string PrettyPrintTime(uint64_t milliseconds) {
     string returnstr = "";
     int minutes = 0;
     int seconds = 0;
@@ -48,11 +49,8 @@ bool level::Load(const std::string& LevelFilename)   {
     MapName = LevelFilename;
 
     Ent = new Entity[MAXENTITIES];  //allocate all the entities for this level
-
-    const char *temp;
-    int texnum = 0;
-    int* texlist;
-    float WHYSCALE = 1;         //named such, cos i cant remember why im scaling everything up...(and now im not scaling, i may make this load from the level though, or perhaps a user option)
+    
+    vector<GLuint> texlist;
     vector2d tCheckPoints[23];   //Maxium of 24 check points, i think that should be plenty
     vector2d tStartFinish;
 
@@ -63,78 +61,67 @@ bool level::Load(const std::string& LevelFilename)   {
     SpawnPoint.Clear();
 
     xmlfile hoverlvl;
-    TiXmlElement *xLevel = hoverlvl.getxmlfirstelement((char*)filewithlocal.c_str());
-    {
-        //this has to be defined for poly code
-        TiXmlElement *xTextures = hoverlvl.getelement(xLevel, (char*)"textures");
-        texnum = hoverlvl.countchildren(xTextures);
-        texlist = new int[texnum];
-        
+    TiXmlElement *xLevel = hoverlvl.getxmlfirstelement((char*)filewithlocal.c_str()); {
+        if (xLevel == nullptr) {
+             cout << "level::Load: Failed to load level XML file: " << filewithlocal.c_str() << '\n';
+             return false;
+        }
+
+        //Don't load textures if in console mode
         if(!LC.isConsoleMode()) {
             //load sky
-            temp =  xTextures->Attribute("skytex");
-            gridtexid = LoadGLTexture((char*)temp);
+            TiXmlElement *xTextures = hoverlvl.getelement(xLevel, (char*)"textures");
+            const char *temp =  xTextures->Attribute("skytex");
+            gridtexid = LoadGLTexture(temp);
 
             //load texture list
-            texnum = hoverlvl.countchildren(xTextures);
-            texlist = new int[texnum];  //this has to be defined
-            texnum = 0;
             TiXmlElement *xTexturei = xTextures->FirstChildElement();
-            while( xTexturei )  {
-                //lvltexture[texturenum].floor = atof(xTexturei->Attribute("floor"))*WHYSCALE;
-                //lvltexture[texturenum].roof = atof(xTexturei->Attribute("roof"))*WHYSCALE;
+            while(xTexturei)  {
                 temp = xTexturei->Attribute("texture");
-                texlist[texnum] = LoadGLTexture((char*)temp);
-                texnum++;
+                GLuint temptexid = LoadGLTexture(temp); //If the textue falls it points to default texture id
+                texlist.push_back(temptexid);
                 xTexturei = xTexturei->NextSiblingElement();
             }
         }
 
         //load verts
-        TiXmlElement *xVerts = hoverlvl.getelement(xLevel, (char*)"verts");
+        TiXmlElement *xVerts = hoverlvl.getelement(xLevel, "verts");
         vertnum = hoverlvl.countchildren(xVerts);
         lvlvert = new vector2d[vertnum];
         vertnum = 0;
 
         TiXmlElement *xVerti = xVerts->FirstChildElement();
         while( xVerti ) {
-            if ( atoi(xVerti->Attribute("type")) == 0 ) {   //normal vert
-                lvlvert[vertnum].setpos(atof(xVerti->Attribute("x"))*WHYSCALE, atof(xVerti->Attribute("y"))*WHYSCALE);
+            int vertType = atoi(xVerti->Attribute("type"));
+            if (vertType == 0) { //normal vert
+                lvlvert[vertnum].setpos(strtof(xVerti->Attribute("x"), NULL), strtof(xVerti->Attribute("y"), NULL));
                 vertnum++;
-            }
-            else if ( atoi(xVerti->Attribute("type")) == 1 )    {   //starts
+            } else if (vertType == 1 ) { //starts
                 if ( SpawnPoint.Count + 1 < MAXPLAYERS ) {
-                    SpawnPoint.Position[SpawnPoint.Count].x = atof(xVerti->Attribute("x"));
-                    SpawnPoint.Position[SpawnPoint.Count].y = atof(xVerti->Attribute("y"));
-                    SpawnPoint.Direction[SpawnPoint.Count] = atof(xVerti->Attribute("dir"));
-                    //cout << "dir " << SpawnPoint.Direction[SpawnPoint.Count] << endl;
+                    SpawnPoint.Position[SpawnPoint.Count].x = strtof(xVerti->Attribute("x"), NULL);
+                    SpawnPoint.Position[SpawnPoint.Count].y = strtof(xVerti->Attribute("y"), NULL);
+                    SpawnPoint.Direction[SpawnPoint.Count] = strtof(xVerti->Attribute("dir"), NULL);
                     SpawnPoint.Count++;
                     vertnum++;
                 }
                 else cout << "level::Load: too many start points, stoping at 8" << endl;
-            }
-            else if ( atoi(xVerti->Attribute("type")) == 2 ) {  //checkpoints
+            } else if (vertType == 2) { //checkpoints
                 if (CheckPointCount + 1 < 23)  {
-                    tCheckPoints[CheckPointCount].x = atof(xVerti->Attribute("x"));
-                    tCheckPoints[CheckPointCount].y = atof(xVerti->Attribute("y"));
+                    tCheckPoints[CheckPointCount].x = strtof(xVerti->Attribute("x"), NULL);
+                    tCheckPoints[CheckPointCount].y = strtof(xVerti->Attribute("y"), NULL);
                     CheckPointCount++;
                     vertnum++;
                 }
-            }
-            else if ( atoi(xVerti->Attribute("type")) == 3 )    {   //StartFinish
-                tStartFinish.x = atof(xVerti->Attribute("x"));
-                tStartFinish.y = atof(xVerti->Attribute("y"));
+            } else if (vertType == 3) { //StartFinish
+                tStartFinish.x = strtof(xVerti->Attribute("x"), NULL);
+                tStartFinish.y = strtof(xVerti->Attribute("y"), NULL);
                 vertnum++;
-            }
-            else if ( atoi(xVerti->Attribute("type")) == 4 )    {   //3d obj
+            } else if (vertType == 4) { //3d obj
                 vector2d pos;
-                pos.x = atof(xVerti->Attribute("x"));
-                pos.y = atof(xVerti->Attribute("y"));
-
+                pos.x = strtof(xVerti->Attribute("x"), NULL);
+                pos.y = strtof(xVerti->Attribute("y"), NULL);
                 Add3dobject(pos, "3dobject", "3dobject");
                 vertnum++;
-
-                cout << "adding 3d object " << pos.x  << " " << pos.y << endl;
             }
             else {
                 cout << "vert without type not added" << endl;
@@ -167,19 +154,19 @@ bool level::Load(const std::string& LevelFilename)   {
         while( xPolyi ) {
             lvlpoly[polynum].lnum = hoverlvl.countchildren(xPolyi);
             lvlpoly[polynum].l = new lc[lvlpoly[polynum].lnum];
-            lvlpoly[polynum].floor = atof(xPolyi->Attribute("floor"))*WHYSCALE;
-            lvlpoly[polynum].roof = atof(xPolyi->Attribute("roof"))*WHYSCALE;
+            lvlpoly[polynum].floor = strtof(xPolyi->Attribute("floor"), NULL);
+            lvlpoly[polynum].roof = strtof(xPolyi->Attribute("roof"), NULL);
             checktex = atoi(xPolyi->Attribute("ftex"));
             if(checktex >= 0)
-                lvlpoly[polynum].floortex = texlist[checktex];
+                lvlpoly[polynum].floortex = texlist.at(checktex);
             else
-                lvlpoly[polynum].floortex = -1;
+                lvlpoly[polynum].floortex = 0;
 
             checktex = atoi(xPolyi->Attribute("rtex"));
             if(checktex >= 0)
-                lvlpoly[polynum].rooftex = texlist[checktex];
+                lvlpoly[polynum].rooftex = texlist.at(checktex);
             else
-                lvlpoly[polynum].rooftex = -1;
+                lvlpoly[polynum].rooftex = 0;
 
             TiXmlElement *xPLinei = xPolyi->FirstChildElement();
             for(int i = 0;i<lvlpoly[polynum].lnum;i++)
@@ -187,9 +174,9 @@ bool level::Load(const std::string& LevelFilename)   {
                 lvlpoly[polynum].l[i].l = &lvlline[atoi(xPLinei->Attribute("l"))];
                 checktex = atoi(xPLinei->Attribute("tex"));
                 if(checktex >= 0)
-                    lvlpoly[polynum].l[i].ltexid = texlist[checktex];
+                    lvlpoly[polynum].l[i].ltexid = texlist.at(checktex);
                 else
-                    lvlpoly[polynum].l[i].ltexid = -1;
+                    lvlpoly[polynum].l[i].ltexid = 0;
                 xPLinei = xPLinei->NextSiblingElement();
             }
             polynum++;
@@ -224,7 +211,7 @@ bool level::Load(const std::string& LevelFilename)   {
 
         cout << "level::load: Game.CheckpointCount: " << Game.CheckpointCount << endl;
 
-        delete[] texlist;
+        texlist.clear();
     }
     hoverlvl.endxml();
 
@@ -427,10 +414,10 @@ void level::AddPlayerEntity(int clientaddress) {
 
     //starting point
     Ent[entaddress].pos.teleport(SpawnPoint.Position[Ent[entaddress].StartpointAddress].x, SpawnPoint.Position[Ent[entaddress].StartpointAddress].y);
-    Ent[entaddress].pos.c.z = Ent[entaddress].pos.o.z = 0.1;
+    Ent[entaddress].pos.c.z = Ent[entaddress].pos.o.z = 0.1f;
     Ent[entaddress].Yaw = SpawnPoint.Direction[Ent[entaddress].StartpointAddress];
 
-    Ent[entaddress].pos.rad = 1.4;  //collision radius
+    Ent[entaddress].pos.rad = 1.4f;  //collision radius
     Ent[entaddress].ModelFile = "bicraft";
     Ent[entaddress].TextureFile = "bicraft-blue";
     Ent[entaddress].ClientAddress = clientaddress;
@@ -442,6 +429,7 @@ void level::AddPlayerEntity(int clientaddress) {
 }
 
 void level::Add3dobject(vector2d pos , const std::string& modelfile, const std::string& texturefile) {
+    cout << "Add3dobject: " << pos.x  << " " << pos.y << " model:" << modelfile << " texture:" << texturefile << endl;
     int entaddress = -1;
 
     //find an unused entity
@@ -459,9 +447,8 @@ void level::Add3dobject(vector2d pos , const std::string& modelfile, const std::
 
     //properties
     Ent[entaddress].pos.teleport(pos.x, pos.y);
-    Ent[entaddress].pos.c.z = Ent[entaddress].pos.o.z = 0.1;
-
-    Ent[entaddress].pos.rad = 0.5;  //collision radius
+    Ent[entaddress].pos.c.z = Ent[entaddress].pos.o.z = 0.1f;
+    Ent[entaddress].pos.rad = 0.5f;  //collision radius
     Ent[entaddress].ModelFile = modelfile;
     Ent[entaddress].TextureFile = texturefile;
 
@@ -472,11 +459,11 @@ void level::Add3dobject(vector2d pos , const std::string& modelfile, const std::
 }
 
 void level::FinishedLap(Entity &ent) {
-    int gametime = GetGameTime();
+    uint64_t gametime = GetGameTime();
     ent.currentcheckpoint = 0;   //reset the current checkpoint
-    int currentlaptime = gametime - ent.LastFinishGameTime;
+    uint64_t currentlaptime = gametime - ent.LastFinishGameTime;
     ent.LastFinishGameTime = gametime;
-    int currentlapnumber = ent.CurrentLapNumber;
+    uint64_t currentlapnumber = ent.CurrentLapNumber;
     ent.LapTime[ent.CurrentLapNumber] = currentlaptime;
 
     string finishmsg = "";
@@ -508,9 +495,9 @@ void level::FinishedLap(Entity &ent) {
     }
 
     //set new best laptime if its is the best
-    int lowestlaptime = 2147483647;
+    uint64_t lowestlaptime = 18446744073709551615ULL;
     for(int j = 0; j < MAXLAPS; j++) {
-        if(ent.LapTime[j] < lowestlaptime && ent.LapTime[j] != -1) lowestlaptime = ent.LapTime[j];
+        if(ent.LapTime[j] < lowestlaptime && ent.LapTime[j] != 0) lowestlaptime = ent.LapTime[j];
         //cout << "lap #" << i << " time: " << Ent[i].LapTime[j] << " lowest time " << lowestlaptime << endl;
     }
 
@@ -526,9 +513,9 @@ void level::CheckTimerEvents() {
     //check for game start timer updates
     if(SDL_GetTicks64() > Game.StartGameTime) {
         //reset timers
-        Game.StartGameOffset = -1;
-        Game.StartGameTime = -1;
-        Game.StartGameTimer = -1;
+        Game.StartGameOffset = 0;
+        Game.StartGameTime = 0;
+        Game.StartGameTimer = 0;
         StartGame(1);
     }
     else if(SDL_GetTicks64() > Game.StartGameOffset + 1000) {
@@ -550,8 +537,10 @@ bool level::StartGame(uint8_t gametype) {
     for(int i = 0; i < MAXENTITIES; i++) {
         if( Ent[i].ClientAddress != -1 ) {
             Ent[i].pos.teleport(SpawnPoint.Position[Ent[i].StartpointAddress].x, SpawnPoint.Position[Ent[i].StartpointAddress].y);
-            Ent[i].pos.c.z = Ent[i].pos.o.z = 0.1;
+            Ent[i].pos.c.z = Ent[i].pos.o.z = 0.1f;
             Ent[i].Yaw = SpawnPoint.Direction[Ent[i].StartpointAddress];
+
+            //TODO: This should be Ent[i].ResetGameState(), Clear() resets all properties.
             Ent[i].SectorType = "";
             Ent[i].SectorValue = "";
             Ent[i].FinishedRace = false;
@@ -560,7 +549,7 @@ bool level::StartGame(uint8_t gametype) {
             Ent[i].CurrentLapNumber = 1;
             Ent[i].BestLapTime = 0;
             Ent[i].LastFinishGameTime = 0;
-            for(int j = 0; j < MAXLAPS; j++) Ent[i].LapTime[j] = -1;
+            for(int j = 0; j < MAXLAPS; j++) Ent[i].LapTime[j] = 0;
         }
     }
 
@@ -571,8 +560,8 @@ bool level::StartGame(uint8_t gametype) {
     return true;
 }
 
-int level::GetGameTime()  {
-    int returnval = 0;
+uint64_t level::GetGameTime()  {
+    uint64_t returnval = 0;
 
     returnval = SDL_GetTicks64() - Game.GameTimeOffset;
     //cout << "GameClass::GetGameTime() returning a GameTime of: " << returnval << endl;

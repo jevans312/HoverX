@@ -27,8 +27,8 @@ bool done;                  //main loop control
 
 //!Warning this gives you the time difference since you lasted call this function!
 uint64_t static TimeofLastUpdate = 0;
-int64_t getDeltaTime() {
-    int64_t returnvalue = 0;
+uint64_t getDeltaTime() {
+    uint64_t returnvalue = 0;
     uint64_t timenow = SDL_GetTicks64();
 
     //get the time between the last tick and now
@@ -125,17 +125,6 @@ int main(int argc, char *argv[]) {
 }
 
 //helper functions
-string IntToIpAddress(unsigned int ip) {
-    char ips[20];
-    unsigned char bytes[4];
-    bytes[0] = ip & 0xFF;
-    bytes[1] = (ip >> 8) & 0xFF;
-    bytes[2] = (ip >> 16) & 0xFF;
-    bytes[3] = (ip >> 24) & 0xFF;
-    sprintf(ips, "%d.%d.%d.%d", bytes[3], bytes[2], bytes[1], bytes[0]);
-    return ips;
-}
-
 string BoolToStr(const bool b) {
     if(b) {
         return "True";

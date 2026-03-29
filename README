@@ -1,26 +1,27 @@
-Build Instruction:
-Have basic build tools installed:
+BUILD INSTRUCTIONS
+
+1) Install basic build tools:
 sudo apt install -y build-essential git make gawk flex bison libgmp-dev libmpfr-dev libmpc-dev python3 binutils perl libisl-dev libzstd-dev tar gzip bzip2
 
-Dependancies: All of these require the dev version usually libName-dev in apt-get
+2) Install dependancies:
 -SDL2 - Crossplatform window creation, input etc
 -SDL2_image - Image file loading
 -OpenGL - The original graphics API
 -GLEW - Deals with the mess that is OpenGLs extentions and versions
 -tinyxml - XML parsing
 -ENet - Relaible packets on UDP
--Compiler; works with just about any compiler but you would have to change the make file
--Linker; same deal as compiler, use lld typically
-The following example should install all the dependancies on ubuntu: 
+-Compiler - clang/LLVM default make CXX=g++ for gcc.
+-Linker - lld
 sudo apt install libenet-dev libsdl2-dev libsdl2-image-dev libglew-dev libtinyxml-dev lld
 
-Run "make" in src folder. Run HoverX from the root directory, not from the src dir.
+3) Build/Install
+make - Create HoverX.
+make clean - Remove build files created in the src directory.
+make install - Install HoverX in home directory.
+make uninstall - Remove HoverX from home directory.
 CMake not quite working
 
-Bugs:
--Crash when /createroom on a file that doesn't exist
--Fullscreen is broken
--HoverCad doesn't have a functional Makefile
+USER INSTRUCTIONS
 
 Controls:
 -Arrow left/right turn
@@ -29,7 +30,7 @@ Controls:
 -Spacebar brake
 
 Singleplayer:
--New room; menu->Sectors->New and pick a map and wait for it to load!
+New room; menu->Sectors->New and pick a map and wait for it to load!
 
 Multiplayer:
 the host will need to do a /host 1 to allow connections to him
@@ -50,5 +51,5 @@ Commands:
 /exit and /quit
 
 Settings:
-settings.xml only resolution and user name are read
+Window resolution, user name settings stored in settings.xml.
 

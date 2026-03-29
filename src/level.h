@@ -5,7 +5,7 @@
 #include "poly2d.h"
 
 // Helper function
-std::string PrettyPrintTime(int milliseconds);
+std::string PrettyPrintTime(uint64_t milliseconds);
 
 class StartPoints {
 public:
@@ -30,9 +30,9 @@ public:
     int CurrentLap = 1;          // Current lap
     int RaceWinner = -1;         // Entity that won the race
     int CheckpointCount = -1;    // Number of checkpoints in this level
-    uint64_t StartGameOffset = -1;
-    uint64_t StartGameTime = -1;
-    uint64_t StartGameTimer = -1;
+    uint64_t StartGameOffset = 0;
+    uint64_t StartGameTime = 0;
+    uint64_t StartGameTimer = 0;
     uint64_t GameTimeOffset = 0;
 
     GameClass() { Clear(); }
@@ -41,10 +41,10 @@ public:
         RaceLaps = 5;
         CurrentLap = 1;
         RaceWinner = -1;
-        StartGameOffset = -1;
-        StartGameTime = -1;
-        StartGameTimer = -1;
         CheckpointCount = -1;
+        StartGameOffset = 0;
+        StartGameTime = 0;
+        StartGameTimer = 0;
         GameTimeOffset = 0;
     }
 };
@@ -53,9 +53,8 @@ class level {
 public:
     std::string MapName;             // For reference
     bool Loaded = false;
-    int gridtexid = 0;               // Sky texture
+    GLuint gridtexid = 0;               // Sky texture
     int vertnum = 0, linenum = 0, polynum = 0;
-    int linestage = 0, tlili = 0;    // For adding lines
     int OwnerAddress = -1;           // Which client owns this room
     int EntityCount = 0;
     short unsigned int CheckPointCount = 0;
@@ -70,7 +69,7 @@ public:
     GLuint DisplayList = 0;          // Address of the level's drawing list
 
     // Functions
-    int GetGameTime();
+    uint64_t GetGameTime();
     bool StartGame(uint8_t GameType);
     void AddPlayerEntity(int clientaddress);
     void Add3dobject(vector2d pos, const std::string& modelfile, const std::string& texturefile);

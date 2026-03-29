@@ -10,12 +10,12 @@
 class LocalClientList {
 public:
     std::string Name;
-    int LastUpdate;
+    uint64_t LastUpdate;
 
     LocalClientList() { Clear(); }
     void Clear() {
         Name = "unknown";
-        LastUpdate = -1;
+        LastUpdate = 0;
     }
 };
 
@@ -39,13 +39,13 @@ class LocalClient {
         KeyState Keys;
 
         // UI and display
-        SDL_Window *window;
-        SDL_GLContext glContext;
-        unsigned int window_width = 640;
-        unsigned int window_height = 480;
-        unsigned int window_fullscreen = 0;
-        int DefaultTextureID;
-        int DesktopTexture;
+        SDL_Window *window = nullptr;
+        SDL_GLContext glContext = nullptr;
+        int window_width = 640;
+        int window_height = 480;
+        int window_fullscreen = 0;
+        GLuint DefaultTextureID = 0;
+        GLuint DesktopTexture = 0;
         uint64_t afterDrawTime = 0;
         uint64_t beforeDrawTime = 0;
         uint64_t frameTime = 0;

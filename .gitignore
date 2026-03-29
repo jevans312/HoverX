@@ -1,7 +1,9 @@
 HoverX
 src/*.o
+src/*.d
 src/hx-cppcheck-build-dir/
 src/hx.cppcheck
 make-n-run.sh
-.vscode/launch.json
-.vscode/settings.json
+.vscode/**
+.github/copilot-instructions.md
+.unused/**

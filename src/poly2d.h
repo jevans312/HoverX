@@ -17,7 +17,7 @@ public:
     bool flipped = false;
     std::list<wallrangeT> range;
     float low = 0.0f, high = 0.0f;
-    int ltexid = -1;
+    GLuint ltexid = 0;
     bool alone = false;
 
     lc() = default;
@@ -32,7 +32,7 @@ public:
     int lnum = 0;
     lc* l = nullptr;
     float floor = 0.0f, roof = 0.0f;
-    int floortex = -1, rooftex = -1;
+    GLuint floortex = 0, rooftex = 0;
     float furthestpointdist = 0.0f; // TODO: check player is within this distance!
 
     std::string sectortype;

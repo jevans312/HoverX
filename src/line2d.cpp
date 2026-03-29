@@ -1,4 +1,4 @@
-#include "math.h" //TODO: remove this - just a few functions used from here
+#include <cmath>
 
 #include "line2d.h"
 
@@ -21,14 +21,14 @@ bool line2d::docol(physpoint &player, float walltop) //TODO add friction... maby
     vector2d leq = *p2 - *p1;
     float tdist = len;//sqrt(leq.magsqr());
     if (tdist == 0)
-        tdist = 0.0001;
-    vector2d dir = leq.divfr(tdist);
-    vector2d P = dir.getperp();
+        tdist = 0.0001f;
+    vector2d direction = leq.divfr(tdist);
+    vector2d P = direction.getperp();
     vector2d playervel = player.c - player.o;
 
     // distance along line to closest point on line to point.
     vector2d B = player.c - *p1;
-    float dist = B.x * dir.x + B.y * dir.y;
+    float dist = B.x * direction.x + B.y * direction.y;
 
     //compare if point is on left or right
     //float test2 = crossz(*p2 - *p1, player.o - *p1);
@@ -47,7 +47,7 @@ bool line2d::docol(physpoint &player, float walltop) //TODO add friction... maby
                 dist = 0;
 
             //find nearestpoint on line
-            vector2d pointonline = *p1+dir.scalefr(dist);
+            vector2d pointonline = *p1+direction.scalefr(dist);
 
             //find distance to nearest point
             vector2d vectortopoint = player.c-pointonline;

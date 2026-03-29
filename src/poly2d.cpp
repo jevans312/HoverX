@@ -72,23 +72,23 @@ int poly2d::pnpoly(float x, float y)
 //extra checks to make sure you are in the right room
 void poly2d::docolfloor(Entity& ent)    {   //this should be called sector check
     //antionground = 0;
-    float newfloor = floor+0.25;                            //TODO scaleme
+    float newfloor = floor+0.25f;                            //TODO scaleme
     if(pnpoly(ent.pos.c.x, ent.pos.c.y)) {
         if(ent.pos.c.z < newfloor && ent.pos.o.z >= floor ) {
             ent.pos.c.z = newfloor;
             ent.onground = 1;
         }
         if(ent.pos.c.z > floor-ent.height && ent.pos.o.z <= floor-ent.height )    {
-            ent.pos.c.z = ent.pos.o.z-0.1;
+            ent.pos.c.z = ent.pos.o.z-0.1f;
             ent.antionground = 1;
             ent.jumpingvel = 0;
         }
         if(ent.pos.c.z < roof+0.25 && ent.pos.o.z >=  roof) {
-            ent.pos.c.z =  roof+0.25;
+            ent.pos.c.z =  roof+0.25f;
             ent.onground = 1;
         }
         if(ent.pos.o.z <= roof-ent.height && ent.pos.c.z > roof-ent.height)   {
-            ent.pos.c.z = ent.pos.o.z-0.1 ;
+            ent.pos.c.z = ent.pos.o.z-0.1f ;
             ent.antionground = 1;
             ent.jumpingvel = 0;
         }
@@ -125,7 +125,7 @@ void poly2d::docolfloor(Entity& ent)    {   //this should be called sector check
             if(l[lid].l->docol(ent.pos, newfloor))
                 ent.onground = 1;
 
-            if(l[lid].l->docol(ent.pos,  roof+0.25))
+            if(l[lid].l->docol(ent.pos,  roof+0.25f))
                 ent.onground = 1;
         }
     }
@@ -191,7 +191,7 @@ void poly2d::getcentre()
         centre += *l[lid].l->p2;
     }
     //divide by number to get mean average
-    centre.divf((lnum*2));
+    centre.divf(static_cast<float>(lnum) * 2.0f);
 
     //loop through all points, to see which is furthest away
     furthestpointdist = 0;
@@ -214,12 +214,12 @@ void poly2d::draw() {   //TODO fix this
     float dy2 = 0.0f;
 
     // first attempt at lighting
-    GLfloat mat_amb_diff[] = {0.8, 0.8, 0.8, 1.0};
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, mat_amb_diff);
+    GLfloat mat_amb_diff[] = {0.8f, 0.8f, 0.8f, 1.0f};
+    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mat_amb_diff);
 
     //glDisable(GL_CULL_FACE);
     //draw floor
-    if(floortex != -1)
+    if(floortex != 0)
     {
         glBindTexture( GL_TEXTURE_2D, floortex );
         glBegin(GL_POLYGON);
@@ -263,7 +263,7 @@ void poly2d::draw() {   //TODO fix this
     }
 
     //draw roof
-    if(rooftex != -1)
+    if(rooftex != 0)
     {
         glBindTexture( GL_TEXTURE_2D, rooftex );
         glBegin(GL_POLYGON);
@@ -299,7 +299,7 @@ void poly2d::draw() {   //TODO fix this
     //draw walls
     for(int i = 0; i < lnum; i++)
     {
-        if(l[i].ltexid != -1)
+        if(l[i].ltexid != 0)
         {
             glBindTexture( GL_TEXTURE_2D, l[i].ltexid );
 

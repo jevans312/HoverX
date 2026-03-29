@@ -25,8 +25,8 @@ public:
     ENetPeer *Peer;                          // Access to the ENet peer
     std::string PrettyIP;                    // 127.0.0.1 format
     MSGClass MessageBuffer[MAXMSGS];         // Storage for data from this client
-    uint32_t LastTimeStamp;                  // Last time client time received, used to keep packets in order
-    uint32_t LastKeepAliveTime;              // Time when we last heard a keep alive response from the client
+    uint64_t LastTimeStamp;                  // Last time client time received, used to keep packets in order
+    uint64_t LastKeepAliveTime;              // Time when we last heard a keep alive response from the client
 };
 
 // TODO: JAE - 7/4/25 Most of the public variables should be private, accessible only through functions
