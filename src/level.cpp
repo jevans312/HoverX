@@ -618,3 +618,132 @@ int level::GetGameTime()  {
     //cout << "GameClass::GetGameTime() returning a GameTime of: " << returnval << endl;
     return returnval;
 }
+
+bool level::Save(const std::string& LevelFilename) {
+    if (!Loaded) {
+        cout << "level::Save: Cannot save - level not loaded" << endl;
+        return false;
+    }
+
+    //add the dir location to the string
+    string filewithlocal = "levels/" + LevelFilename;
+
+    char chartowrite[100];
+
+    tinyxml2::XMLDocument* xmlDoc = new tinyxml2::XMLDocument();
+    tinyxml2::XMLElement* rootnode = xmlDoc->NewElement("root");
+    xmlDoc->InsertEndChild(rootnode);
+
+    tinyxml2::XMLElement *xLvl = xmlDoc->NewElement("lvl");
+    xLvl->SetAttribute("name", MapName.c_str());
+    rootnode->InsertEndChild(xLvl);
+
+    // Create textures element (placeholder - actual texture names not stored in level class)
+    tinyxml2::XMLElement *xTextures = xmlDoc->NewElement("textures");
+    xTextures->SetAttribute("skytex", "img/skyline.jpg");
+    rootnode->InsertEndChild(xTextures);
+
+    // Note: Texture list would need to be passed in or stored separately
+    // For now, we'll just save a placeholder
+    tinyxml2::XMLElement *xTexi = xmlDoc->NewElement("add");
+    xTexi->SetAttribute("texture", "img/floor.jpg");
+    xTextures->InsertEndChild(xTexi);
+
+    // Save vertices
+    tinyxml2::XMLElement *xVerts = xmlDoc->NewElement("verts");
+    rootnode->InsertEndChild(xVerts);
+
+    // Save vertices with spawn point information
+    for(int i = 0; i < vertnum; i++) {
+        tinyxml2::XMLElement *xVerti = xmlDoc->NewElement("v");
+        sprintf(chartowrite, "%f", lvlvert[i].x);
+        xVerti->SetAttribute("x", chartowrite);
+        sprintf(chartowrite, "%f", lvlvert[i].y);
+        xVerti->SetAttribute("y", chartowrite);
+
+        // Check if this vertex is a spawn point
+        int vertType = 0;  // Default: normal vert
+        for(int sp = 0; sp < SpawnPoint.Count; sp++) {
+            if(fabs(lvlvert[i].x - SpawnPoint.Position[sp].x) < 0.01f &&
+               fabs(lvlvert[i].y - SpawnPoint.Position[sp].y) < 0.01f) {
+                vertType = 1;  // Start point
+                sprintf(chartowrite, "%f", SpawnPoint.Direction[sp]);
+                xVerti->SetAttribute("dir", chartowrite);
+                break;
+            }
+        }
+        xVerti->SetAttribute("type", vertType);
+
+        xVerts->InsertEndChild(xVerti);
+    }
+
+    // Save lines
+    tinyxml2::XMLElement *xLines = xmlDoc->NewElement("lines");
+    rootnode->InsertEndChild(xLines);
+
+    for(int i = 0; i < linenum; i++) {
+        tinyxml2::XMLElement *xLinei = xmlDoc->NewElement("l");
+
+        // Find vertex indices for this line's endpoints
+        int v1 = -1, v2 = -1;
+        for(int v = 0; v < vertnum; v++) {
+            if(lvlline[i].p1 == &lvlvert[v]) v1 = v;
+            if(lvlline[i].p2 == &lvlvert[v]) v2 = v;
+        }
+
+        sprintf(chartowrite, "%i", v1);
+        xLinei->SetAttribute("v1", chartowrite);
+        sprintf(chartowrite, "%i", v2);
+        xLinei->SetAttribute("v2", chartowrite);
+        xLines->InsertEndChild(xLinei);
+    }
+
+    // Save polygons
+    tinyxml2::XMLElement *xPolys = xmlDoc->NewElement("polys");
+    rootnode->InsertEndChild(xPolys);
+
+    for(int i = 0; i < polynum; i++) {
+        tinyxml2::XMLElement *xPolyi = xmlDoc->NewElement("p");
+        sprintf(chartowrite, "%f", lvlpoly[i].roof);
+        xPolyi->SetAttribute("roof", chartowrite);
+        sprintf(chartowrite, "%f", lvlpoly[i].floor);
+        xPolyi->SetAttribute("floor", chartowrite);
+        sprintf(chartowrite, "%i", lvlpoly[i].floortex);
+        xPolyi->SetAttribute("ftex", chartowrite);
+        sprintf(chartowrite, "%i", lvlpoly[i].rooftex);
+        xPolyi->SetAttribute("rtex", chartowrite);
+
+        // Save polygon sides
+        for(int s = 0; s < lvlpoly[i].lnum; s++) {
+            tinyxml2::XMLElement *xPolyii = xmlDoc->NewElement("add");
+
+            // Find line index
+            int lineIdx = -1;
+            for(int li = 0; li < linenum; li++) {
+                if(lvlpoly[i].l[s].l == &lvlline[li]) {
+                    lineIdx = li;
+                    break;
+                }
+            }
+
+            sprintf(chartowrite, "%i", lineIdx);
+            xPolyii->SetAttribute("l", chartowrite);
+            sprintf(chartowrite, "%i", lvlpoly[i].l[s].ltexid);
+            xPolyii->SetAttribute("tex", chartowrite);
+            xPolyi->InsertEndChild(xPolyii);
+        }
+
+        xPolys->InsertEndChild(xPolyi);
+    }
+
+    // Save the file
+    if(xmlDoc->SaveFile(filewithlocal.c_str()) != tinyxml2::XML_SUCCESS) {
+        cout << "level::Save: Could not save file " << filewithlocal << endl;
+        delete xmlDoc;
+        return false;
+    }
+
+    delete xmlDoc;
+    cout << "level::Save: Successfully saved to " << filewithlocal << endl;
+    return true;
+}

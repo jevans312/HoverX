@@ -77,6 +77,7 @@ public:
     void FinishedLap(Entity& ent);
     void CheckTimerEvents();
     bool Load(const std::string& LevelFilename);
+    bool Save(const std::string& LevelFilename);
     void Unload();
     void Update();
     void GenerateDisplayList();

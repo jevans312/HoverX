@@ -13,7 +13,7 @@ using namespace std;
 #include <FL/Fl_Dial.H>
 #include <FL/filename.H>
 
-#include "tinerxml.h"
+#include <tinyxml2.h>
 #include "math.h"
 
 #define PI 3.14159265
