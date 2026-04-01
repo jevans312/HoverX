@@ -32,9 +32,9 @@ public:
     void Draw();
     void Clear();
 
-    bool   Loaded = false;
+    bool Loaded = false;
     GLuint DisplayList = 0; // Holds all the data and commands for rendering
-    int    TextureID = 0;   // Holds texture id
+    GLuint TextureID = 0;   // Holds texture id
 
 private:
     // Add private members here if needed

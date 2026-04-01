@@ -82,6 +82,7 @@ void Entity::Clear() {
     ReplicateRemove = false;
 
     //game
+    //TODO: This should be Ent[i].ResetGameState() that can be called from clear()
     SectorType = "";
     SectorValue = "";
     FinishedRace = false;
@@ -90,7 +91,7 @@ void Entity::Clear() {
     CurrentLapNumber = 1;
     BestLapTime = 0;
     LastFinishGameTime = 0;
-    for(int i = 0; i < MAXLAPS; i++) LapTime[i] = -1;
+    for(int i = 0; i < MAXLAPS; i++) LapTime[i] = 0;
     StartpointAddress = -1;
 }
 
@@ -103,16 +104,15 @@ void Entity::ApplyForces(float divstep) {
     const float minzvel     = -0.040f;
 
     //only apply controls to clients
-    if(ClientAddress == -1) return;
+    if(ClientAddress < 0) return;
 
+    KeyState& keys = hxServer.Clients.at(static_cast<size_t>(ClientAddress)).Keys;
+
+    //save old z position for collision checks
     pos.o.z = pos.c.z;
 
     //gliding physics
     pos.dophys(drag, 1);
-
-    //get a vector of heading and speed
-    vector2d v (sinf(Yaw), cosf(Yaw));
-    //vector2d h = v.getperp();
 
     //apply gravity
     jumpingvel -= gravity/divstep;
@@ -121,30 +121,31 @@ void Entity::ApplyForces(float divstep) {
     }
 
     //apply up velocity if "onground"
-    if(hxServer.Clients[ClientAddress].Keys.jump && onground) {
+    if(keys.jump && onground) {
         jumpingvel = jumppower;
-        hxServer.Clients[ClientAddress].Keys.jump = false;
+        keys.jump = false;
     }
     pos.c.z += jumpingvel/divstep;
 
     //brake
-    if(hxServer.Clients[ClientAddress].Keys.brake) {
+    if(keys.brake) {
         vector2d tv = pos.c-pos.o;
-        tv.scalef(0.1);
+        tv.scalef(0.1f);
         tv.divf(divstep);
         pos.c -=  tv;
     }
 
-    //xy the heading vector
-    v.scalef(accel);
-    v.divf(divstep);
-
     //accelerate
-    if(hxServer.Clients[ClientAddress].Keys.accel)  pos.c+=v;
+    if(keys.accel) {
+        vector2d v (sinf(Yaw), cosf(Yaw)); //convert yaw to a vector
+        v.scalef(accel);
+        v.divf(divstep);
+        pos.c+=v;
+    }
 
     //turn
-    if(hxServer.Clients[ClientAddress].Keys.right)  Yaw += steerspeed/divstep;
-    if(hxServer.Clients[ClientAddress].Keys.left)   Yaw -= steerspeed/divstep;
+    if(keys.right)  Yaw += steerspeed/divstep;
+    if(keys.left)   Yaw -= steerspeed/divstep;
 }
 
 void Entity::EntityCollision(Entity &otherent) {

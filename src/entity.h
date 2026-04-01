@@ -39,11 +39,11 @@ public:
     bool FinishedRace = false;
     int lastcheckpoint = -1;
     int currentcheckpoint = -1;
-    int CurrentLapNumber = 0;
-    int BestLapTime = 0;
-    int LastFinishGameTime = 0;
-    int LapTime[MAXLAPS] = {0};
     int StartpointAddress = -1;
+    int CurrentLapNumber = 0;
+    uint64_t BestLapTime = 0;
+    uint64_t LastFinishGameTime = 0;
+    uint64_t LapTime[MAXLAPS] = {0};
 
     // Functions
     Entity() { Clear(); }

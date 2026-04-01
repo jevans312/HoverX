@@ -25,7 +25,7 @@ public:
 // ButtonArray class (should probably be called ButtonList)
 class ButtonArray {
 public:
-    unsigned short Buttons[15]; // 16 max buttons per array
+    int Buttons[15]; // 16 max buttons per array
     int ButtonCount;
     std::string Name;
     bool Draw;
