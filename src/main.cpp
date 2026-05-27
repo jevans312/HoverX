@@ -40,15 +40,17 @@ uint64_t getDeltaTime() {
     return returnvalue;
 }
 
-uint64_t static tickcount = 0;
+//uint64_t static tickcount = 0;
 void Tick() {
-    //Update ever 1 second
+    /*
+    //Print frame time once per second
     if(tickcount == 1000/TICK_RATE) {
         LC.frameTime = LC.afterDrawTime - LC.beforeDrawTime;
         cout << "Frame time: " << LC.frameTime << "ms" << '\n';
         tickcount = 0;
     }
     tickcount++;
+    */
 
     LC.Update();
     hxServer.Update();

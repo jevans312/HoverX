@@ -1,4 +1,4 @@
-CXX := clang++
+CXX ?= clang++
 LD := $(CXX)
 TARGET ?= HoverX
 PREFIX ?= /usr/local
@@ -6,16 +6,26 @@ DESTDIR ?= ~/HoverX
 
 # Build mode: debug or release
 BUILD ?= debug
-CXXFLAGS := -std=c++20 -m64 -Wall -Wextra -Wpedantic -Wconversion -D_REENTRANT
-CXXFLAGS += -MMD -MP
+CXXFLAGS := -std=c++20 -m64 -Wall -Wextra -Wpedantic -Wconversion -fno-exceptions
+CXXFLAGS += -Wshadow -Wduplicated-cond -Wlogical-op -MMD -MP
 LDFLAGS := -fuse-ld=lld
 LDLIBS := -lSDL2 -lSDL2_image -lX11 -lGL -lGLU -lGLEW -ltinyxml -lenet
-INC := -I/usr/include
 
-#make for debug build by default
-#make BUILD=release for release build
+# Include directories
+UNAME_S := $(shell uname -s)
+
+ifeq ($(UNAME_S),Linux)
+INC := -I/usr/include
+else ifeq ($(UNAME_S),Darwin)
+INC := -I/usr/local/include
+else
+INC := -IC:/msys64/ucrt64/include
+endif
+
+
+# BUILD=release for release build
 ifeq ($(BUILD),release)
-CXXFLAGS += -O3 -march=native -ffast-math -flto -DNDEBUG
+CXXFLAGS += -O3 -march=native -ffast-math -fstack-protector-strong -D_FORTIFY_SOURCE=2 -DNDEBUG
 else
 CXXFLAGS += -g
 endif

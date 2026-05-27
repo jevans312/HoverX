@@ -11,19 +11,19 @@ void xmlfile::endxml()
     delete xmlDoc;
 }
 
-TiXmlElement* xmlfile::getxmlfirstelement(const char* xmlfile)
+TiXmlElement* xmlfile::getxmlfirstelement(const char* _xmlfile)
 {
-    xmlDoc = new TiXmlDocument(xmlfile);
+    xmlDoc = new TiXmlDocument(_xmlfile);
     if (!xmlDoc->LoadFile())
     {
-    	cout << "couldnt find file " << xmlfile << endl;
+    	cout << "couldnt find file " << _xmlfile << endl;
         delete xmlDoc;
         return 0;
     }
     TiXmlElement *xGame = xmlDoc->FirstChildElement("root");
     if (!xGame)
     {
-    	cout << "couldnt find root(must be called root) element in " << xmlfile << endl;
+    	cout << "couldnt find root(must be called root) element in " << _xmlfile << endl;
         endxml();
         return 0;
     }

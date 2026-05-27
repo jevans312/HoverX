@@ -7,35 +7,31 @@
 #include <string.h>
 
 GLuint fonttexture;
-int base;
-float sizex=1.f;
-float sizey=1.f;
+GLuint base;
 
 void initsimplefont(const char *file) {
     float cx, cy;
-    float charsize = 1.f/16.f;
-
+    const float charsize = 1.0f/16.0f;
     fonttexture = LoadGLTexture(file);
+    base = glGenLists(256);
 
-    base=glGenLists(256);
     glBindTexture(GL_TEXTURE_2D, fonttexture);
-    for (int i=0; i<256; i++)
-    {
-        cx=(float)(i%16)/16.0f;
-        cy=(float)(i/16)/16.0f;
+    for (unsigned int i = 0; i < 256; i++) {
+        cx = (float)(i%16)/16.0f;
+        cy = (float)(i/16)/16.0f;
 
-        glNewList(base+i,GL_COMPILE);
+        glNewList(base + i, GL_COMPILE);
             glBegin(GL_QUADS);
-                glTexCoord2f(cx+charsize,1.0f-cy);
-                glVertex2i(16,0);
-                glTexCoord2f(cx,1.0f-cy);
-                glVertex2i(0,0);
-                glTexCoord2f(cx,1.0f-cy-charsize);
-                glVertex2d(0,16);
-                glTexCoord2f(cx+charsize,1.0f-cy-charsize);
-                glVertex2i(16,16);
+                glTexCoord2f(cx + charsize, 1.0f - cy);
+                glVertex2i(16, 0);
+                glTexCoord2f(cx, 1.0f - cy);
+                glVertex2i(0, 0);
+                glTexCoord2f(cx, 1.0f - cy - charsize);
+                glVertex2d(0, 16);
+                glTexCoord2f(cx + charsize, 1.0f - cy - charsize);
+                glVertex2i(16, 16);
             glEnd();
-        glTranslated(12,0,0);
+        glTranslated(12, 0, 0);
         glEndList();
     }
 }
@@ -63,7 +59,7 @@ int printgls(float x, float y, const char *args,...) {
     glLoadIdentity();
     glTranslated(x, 1 - y,0);   //the 1 - y converts to my cordinate system
     glListBase(base-32);
-    glScalef(sizex/512, sizey/512, 1.0f);
+    glScalef(1.0f/512, 1.0f/512, 1.0f);
     glCallLists((GLsizei)strlen(finaltext), GL_UNSIGNED_BYTE, finaltext);
 
     leave2d();
