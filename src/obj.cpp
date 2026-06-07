@@ -6,8 +6,6 @@
 #include "glex.h"
 #include "obj.h"
 
-using namespace std;
-
 objModel::objModel( void )    {
     TextureID = 0;
     Loaded = false;
@@ -27,7 +25,7 @@ void objModel::Clear() {
 //functions but this seems most efficent.
 //TODO: return bool value on load
 bool objModel::Load(const std::string& modelfile, const std::string& texturefile)   {
-    string ele_id;
+    std::string ele_id;
     float x, y, z;
 
     //all local data so we dont have to keep this in memory twice
@@ -41,18 +39,17 @@ bool objModel::Load(const std::string& modelfile, const std::string& texturefile
     unsigned int    TextureCount = 1;
 
     if (Loaded) {
-        cout << "objModel::Load: Object already has a model loaded" << '\n';
+        std::cout << "objModel::Load: Object already has a model loaded" << '\n';
         return false;
     }
-
-	ifstream is(modelfile.c_str(), ios::in|ios::ate);
+    std::ifstream is(modelfile.c_str(), std::ios::in|std::ios::ate);
 	if (!is) {
-        cout << "objModel::Load: Empty obj could not be opened!" << '\n';
+        std::cout << "objModel::Load: Empty obj could not be opened!" << '\n';
         return false;
     }
 
-	is.tellg();             //get the file size (we are at the end of file)...
-	is.seekg(0, ios::beg);  //... get back to start
+    is.tellg();             //get the file size (we are at the end of file)...
+    is.seekg(0, std::ios::beg);  //... get back to start
 
     //is >> ele_id;
     //read data in
@@ -60,15 +57,15 @@ bool objModel::Load(const std::string& modelfile, const std::string& texturefile
         is >> ele_id;
 
         if(is.fail()) {
-            cout << "objModel::Load->fail(): Maybe recoverable." << '\n';
+            std::cout << "objModel::Load->fail(): Maybe recoverable." << '\n';
 
             if(is.bad()) { // in case it is -1#IND00
-                cout << "objModel::Load->bad() Set also! May not be recoverable." << '\n';
+                std::cout << "objModel::Load->bad() Set also! May not be recoverable." << '\n';
             }
             is.clear();
 
             if(is.good()) {
-                cout << "objModel::Load: Cleared error. good() is set" << '\n';
+                std::cout << "objModel::Load: Cleared error. good() is set" << '\n';
             }
         }
 
@@ -82,7 +79,7 @@ bool objModel::Load(const std::string& modelfile, const std::string& texturefile
                 V[VertexCount].z = z;
                 VertexCount++;
             }
-            else cout << "objModel::Load: too many vertexs in file, will not load correctly" << '\n';
+            else std::cout << "objModel::Load: too many vertexs in file, will not load correctly" << '\n';
         }
         else if ("vt" == ele_id) {	// texture data
             is >> x >> y;
@@ -91,7 +88,7 @@ bool objModel::Load(const std::string& modelfile, const std::string& texturefile
                 T[TextureCount].y = -y; //flip the y cord so the textues display correctly
                 TextureCount++;
             }
-            else cout << "objModel::Load: too many texture cordinates, will not load correctly" << '\n';                        // is z (i.e. w) is not available, have to clear error flag.
+            else std::cout << "objModel::Load: too many texture cordinates, will not load correctly" << '\n';                        // is z (i.e. w) is not available, have to clear error flag.
         }
         else if ("vn" == ele_id) {	// normal data
             is >> x >> y >> z;
@@ -99,10 +96,10 @@ bool objModel::Load(const std::string& modelfile, const std::string& texturefile
                 N[NormalCount].x = x;
                 N[NormalCount].y = y;
                 N[NormalCount].z = z;
-                //cout << "added normal " << NormalCount << " x" << N[NormalCount].x << " y " << N[NormalCount].y << " z " << N[NormalCount].z << '\n';
+                //std::cout << "added normal " << NormalCount << " x" << N[NormalCount].x << " y " << N[NormalCount].y << " z " << N[NormalCount].z << '\n';
                 NormalCount++;
             }
-            else cout << "objModel::Load: too many normals, will not load correctly" << '\n';
+            else std::cout << "objModel::Load: too many normals, will not load correctly" << '\n';
         }
         else if ("f" == ele_id) {	//	face data
             char c;
@@ -112,10 +109,10 @@ bool objModel::Load(const std::string& modelfile, const std::string& texturefile
                         F[FaceCount].v3 >> c >> F[FaceCount].vt3 >> c >> F[FaceCount].vn3;
                         FaceCount++;
             }
-            else cout << "objModel::Load: too many polys in file, it will not load correctly" << '\n';
+            else std::cout << "objModel::Load: too many polys in file, it will not load correctly" << '\n';
         }
         else {
-            cout << "objModel::Load: Property type \'" << ele_id << "\' not implemented" << '\n';
+            std::cout << "objModel::Load: Property type \'" << ele_id << "\' not implemented" << '\n';
             skipLine(is);
         }
 	}

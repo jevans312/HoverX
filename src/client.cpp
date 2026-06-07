@@ -12,8 +12,6 @@
 #include "server.h"
 #include "tinerxml.h"
 
-using namespace std;
-
 extern ButtonArray Dropdownmenus[MAX_DROPDOWNS];
 extern UIButton ButtonList[MAX_BUTTONS];
 
@@ -22,22 +20,22 @@ extern ServerClass hxServer;
 //extern level mylvl;    //the one true world
 
 void LocalClient::StopClient() {
-    cout << "LocalClient::StopClient: Stop command received" << endl;
+    std::cout << "LocalClient::StopClient: Stop command received" << std::endl;
     done = true;
 }
 
 bool LocalClient::InitLocalClient(bool consoleMode) {
     if(_clientInitialized) {
-        cout << "LocalClient::InitLocalClient: Client is already initialized" << endl;
+        std::cout << "LocalClient::InitLocalClient: Client is already initialized" << std::endl;
         return false;
     } else {
-        cout << "Initializing HoverX " << VERSION << "..." << '\n';
+        std::cout << "Initializing HoverX " << VERSION << "..." << '\n';
     }
 
     if(consoleMode) {
         _consoleMode = true;
 
-        cout << "HoverX: Graphical interface disabled" << '\n';
+        std::cout << "HoverX: Graphical interface disabled" << '\n';
     } else {
         _consoleMode = false;
 
@@ -57,31 +55,31 @@ bool LocalClient::InitLocalClient(bool consoleMode) {
         //default texture to load when one is missing
         DefaultTextureID = LoadGLTexture((char*)"img/default.png");
         if (DefaultTextureID ==  0) {
-            cout << "InitGL: Could not load default texture img/default.png" << '\n';
+            std::cout << "InitGL: Could not load default texture img/default.png" << '\n';
         }
 
         //Background image of the window
         DesktopTexture = LoadGLTexture((char*)"img/desktop.jpg");
         if (DesktopTexture ==  0) {
-            cout << "InitGL: Could not load img/desktop.jpg" << '\n';
+            std::cout << "InitGL: Could not load img/desktop.jpg" << '\n';
         }
 
         // ENET networking
-        cout << "ENet: " << ENET_VERSION_MAJOR << "." << ENET_VERSION_MINOR <<  "." << ENET_VERSION_PATCH << '\n';
+        std::cout << "ENet: " << ENET_VERSION_MAJOR << "." << ENET_VERSION_MINOR <<  "." << ENET_VERSION_PATCH << '\n';
         enet_initialize();
         ClientHost = enet_host_create (NULL, 1,  MAXCHANNELS, 0, 0);
         if (ClientHost == NULL) {
-            cout <<  "ENet: Client network host could not be created" << '\n';
+            std::cout <<  "ENet: Client network host could not be created" << '\n';
         } else {
             isConnected = true;
-            cout << "ENet: Client network host created successfully" << '\n';
+            std::cout << "ENet: Client network host created successfully" << '\n';
         }
 
         //Show "desktop"
         DrawWorld = false;
     }
 
-    cout << "HoverX initialized successfully" << '\n';
+    std::cout << "HoverX initialized successfully" << '\n';
     _clientInitialized = true;
     return true;
 }
@@ -98,7 +96,7 @@ void LocalClient::LoadSettings() {
         Username = xUser->Attribute("name");
         settings.endxml();
     } else {
-        cout << "Settings: settings.xml not found" << '\n';
+        std::cout << "Settings: settings.xml not found" << '\n';
         Username = "unnamed";
     }
 }
@@ -166,7 +164,7 @@ void LocalClient::AddTextMessage(const std::string& newtextmessage) {
 
     //no empty spot found
     if(emptymsgaddress == -1) {
-        cout << "client: cant add new message: \"" << newtextmessage << "\"" << "; buffer full" << endl;
+        std::cout << "client: cant add new message: \"" << newtextmessage << "\"" << "; buffer full" << std::endl;
         return;
     }
 
@@ -177,7 +175,7 @@ void LocalClient::AddTextMessage(const std::string& newtextmessage) {
         MessageBuffer[emptymsgaddress].PayloadSize = static_cast<unsigned int>(newtextmessage.size());
         memcpy(&MessageBuffer[emptymsgaddress].Payload + 0, newtextmessage.c_str(), MessageBuffer[emptymsgaddress].PayloadSize);
 
-        //cout << "client added type: " << MessageBuffer[emptymsgaddress].Type << " that is " << MessageBuffer[emptymsgaddress].PayloadSize << " bytes with a payload of \"" << MessageBuffer[emptymsgaddress].Payload << "\"" << endl;
+        //std::cout << "client added type: " << MessageBuffer[emptymsgaddress].Type << " that is " << MessageBuffer[emptymsgaddress].PayloadSize << " bytes with a payload of \"" << MessageBuffer[emptymsgaddress].Payload << "\"" << std::endl;
     }
     return;
 }
@@ -216,7 +214,7 @@ void LocalClient::BroadcastKeyState() {
         memcpy(packetbuffer + 1, &datasize, sizeof(datasize)); //size of all data
     }
     else {
-        cout << "LocalClient::BroadcastKeyState packet too big; not sent" << '\n';
+        std::cout << "LocalClient::BroadcastKeyState packet too big; not sent" << '\n';
         return;
     }
 
@@ -224,14 +222,14 @@ void LocalClient::BroadcastKeyState() {
     if(packet != NULL) {
         int goodsend = -1;
         goodsend = enet_peer_send(ServerPeer, 0, packet);
-        if(goodsend < 0) cout << "ServerClass::SendMessages: couldnt send a packet to server; error #" << goodsend << '\n';
+        if(goodsend < 0) std::cout << "ServerClass::SendMessages: couldnt send a packet to server; error #" << goodsend << '\n';
         enet_host_flush (ClientHost); //do we need to send everytime?
     }
-    else cout << "ServerClass::SendMessages: bad packet construction: data not sent" << '\n';
+    else std::cout << "ServerClass::SendMessages: bad packet construction: data not sent" << '\n';
 }
 
 void LocalClient::SendClientInfo() {
-    string datastr = "";
+    std::string datastr = "";
 
     if(!isConnectedToRemoteServer) return;
 
@@ -242,7 +240,7 @@ void LocalClient::SendClientInfo() {
     AddTextMessage(datastr);
 }
 
-bool LocalClient::ExecuteCommand(const std::string& command, const string& arg) {
+bool LocalClient::ExecuteCommand(const std::string& command, const std::string& arg) {
     if (command == "connectionaccepted" ) {
         UI_AddMSG("connected: " + arg);
         //isConnected = true; should always be connected do i need this in LC?
@@ -258,7 +256,7 @@ bool LocalClient::ExecuteCommand(const std::string& command, const string& arg) 
         //JAE 3/31/23 - Sure about that?
         if(lvl.Loaded) {
             //if(isConnectedToRemoteServer) {
-                cout << "LocalClient::ExecuteCommand: Unloading level with local server, idea bad?" << '\n';
+                std::cout << "LocalClient::ExecuteCommand: Unloading level with local server, idea bad?" << '\n';
                 lvl.Unload();
                 AddTextMessage("/leftroom");
                 EntityAddress = -1;
@@ -377,7 +375,7 @@ void LocalClient::SendKeepAlive() {
 
     //no empty spot found
     if(emptymsgaddress == -1) {
-        cout << "client: message buffer full" << endl;
+        std::cout << "client: message buffer full" << std::endl;
         return;
     }
 
@@ -463,8 +461,8 @@ void LocalClient::HandleDataString(const std::string& worldstr) {
 
             //get addresses for client data
             for(int w = 0; w < MAXCLIENTS; w++) {
-                string clientnum;
-                stringstream convert (stringstream::in | stringstream::out);
+                std::string clientnum;
+                std::stringstream convert (std::stringstream::in | std::stringstream::out);
                 //itoa(w, roomnum, 10);   //convert w to a string
 
                 convert << w;
@@ -489,8 +487,8 @@ void LocalClient::HandleDataString(const std::string& worldstr) {
 
             //get addresses for room data
             for(int w = 0; w < MAXLVL; w++) {
-                string roomnum;
-                stringstream convert (stringstream::in | stringstream::out);
+                std::string roomnum;
+                std::stringstream convert (std::stringstream::in | std::stringstream::out);
                 //itoa(w, roomnum, 10);   //convert w to a string
 
                 convert << w;
@@ -538,7 +536,7 @@ void LocalClient::HandleDataString(const std::string& worldstr) {
                 }
                 else {
                     if(modeladdress != -1 && textureaddress != -1) {
-                        cout << "adding new ent: " << entaddress << endl;
+                        std::cout << "adding new ent: " << entaddress << std::endl;
                         //model stuff
                         lvl.Ent[entaddress].ModelFile = TKV[i].KV[modeladdress].sValue;
                         lvl.Ent[entaddress].TextureFile = TKV[i].KV[textureaddress].sValue;
@@ -563,10 +561,10 @@ void LocalClient::HandleDataString(const std::string& worldstr) {
                         }
 
                         if(! lvl.Ent[entaddress].Add(entaddress) ) {
-                            cout << "HandleDataString: add entity failed" << endl;
+                            std::cout << "HandleDataString: add entity failed" << std::endl;
                         }
                     }
-                    else cout << "HandleDataString: unknown entity referenced, no info to add" << endl;
+                    else std::cout << "HandleDataString: unknown entity referenced, no info to add" << std::endl;
                 }
 
                 //ent flagged to be removed
@@ -575,7 +573,7 @@ void LocalClient::HandleDataString(const std::string& worldstr) {
                 }
             }
         }
-        else cout << "HandleDataString: got unknown type \"" <<  TKV[i].Type << "\"" << endl;
+        else std::cout << "HandleDataString: got unknown type \"" <<  TKV[i].Type << "\"" << std::endl;
     }
 }
 
@@ -626,21 +624,21 @@ void LocalClient::ProcessEntityData(char *packetbuffer) {
             }
         }
         else {
-            cout << "LocalClient::ProcessEntityData packet too big ignoring" << endl;
+            std::cout << "LocalClient::ProcessEntityData packet too big ignoring" << std::endl;
             return;
         }
     }
 }
 
 void LocalClient::HandleTextMessage(int messageaddress) {
-    string localstring = "";
-    string found_arg = "";
-    string found_command = "";
+    std::string localstring = "";
+    std::string found_arg = "";
+    std::string found_command = "";
     size_t space_position = 0;
 
     localstring = MessageBuffer[messageaddress].Payload;
     if(localstring == "") {
-        cout << "LocalClient::HandleTextMessage: empty string" << endl;
+        std::cout << "LocalClient::HandleTextMessage: empty string" << std::endl;
         return;
     }
 
@@ -649,7 +647,7 @@ void LocalClient::HandleTextMessage(int messageaddress) {
     //look for a / at the beginning of the string then pull out the command
     if(localstring.at(0) == '/') {
         space_position = localstring.find(' ');
-        if( space_position != string::npos ) {
+        if( space_position != std::string::npos ) {
             //found space pull out substring
             found_command = localstring.substr(1, space_position - 1);
             found_arg = localstring.substr( space_position + 1, localstring.size() );
@@ -667,7 +665,7 @@ void LocalClient::HandleTextMessage(int messageaddress) {
         MessageBuffer[messageaddress].PayloadSize = static_cast<unsigned int>(localstring.size());
         memcpy(&MessageBuffer[messageaddress].Payload + 0, localstring.c_str(), MessageBuffer[messageaddress].PayloadSize);
 
-        //cout << "new payload \"" << MessageBuffer[messageaddress].Payload << "\"" << endl;
+            //std::cout << "new payload \"" << MessageBuffer[messageaddress].Payload << "\"" << std::endl;
     }
 }
 
@@ -683,19 +681,18 @@ bool LocalClient::NetServerConnect(const std::string& IPAddressString) {
     ServerPeer = enet_host_connect (ClientHost, & AddresToConnect, MAXCHANNELS, 2);
 
     if (ServerPeer == NULL)   {
-        cout << "LocalClient: could not connect to host: no server" << endl;
+        std::cout << "LocalClient: could not connect to host: no server" << std::endl;
         return false;
     }
 
     // Wait up to 1 second for the connection attempt to succeed.
     if (enet_host_service (ClientHost, & event, 1000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT)  {
-        cout << "LocalClient: connected to host" << endl;
+        std::cout << "LocalClient: connected to host" << std::endl;
         isConnectedToRemoteServer = true; //the type of networking we are using
         return true;
     } else {
         enet_peer_reset (ServerPeer);
-
-        cout << "LocalClient::NetServerConnect: could not connect to host: no responce" << endl;
+        std::cout << "LocalClient::NetServerConnect: could not connect to host: no responce" << std::endl;
         return false;
     }
 
@@ -730,10 +727,10 @@ void LocalClient::CheckNetEvents() {
     while (enet_host_service (ClientHost, & event, 1) > 0)  {
         switch (event.type) {
             case ENET_EVENT_TYPE_CONNECT:
-                cout << "LocalClient::CheckNetEvents(): "
+                 std::cout << "LocalClient::CheckNetEvents(): "
                      << "client connected address.host: " << event.peer -> address.host << ":"
                      << event.peer -> address.port << " "
-                     << "data: " << event.peer -> data << endl;
+                     << "data: " << event.peer -> data << std::endl;
                 break;
 
             case ENET_EVENT_TYPE_RECEIVE:
@@ -751,10 +748,10 @@ void LocalClient::CheckNetEvents() {
                 break;
 
             case ENET_EVENT_TYPE_NONE:
-               cout     << "LocalClient::CheckNetEvents(): "
-                        << "Mysterious event type none: "
-                        << "from ip:" <<   event.peer -> address.host << ":" << event.peer -> address.port << " "
-                        << "data: " << event.peer -> data << endl;
+                   std::cout     << "LocalClient::CheckNetEvents(): "
+                    << "Mysterious event type none: "
+                    << "from ip:" <<   event.peer -> address.host << ":" << event.peer -> address.port << " "
+                    << "data: " << event.peer -> data << std::endl;
                 break;
         }
     }
@@ -800,7 +797,7 @@ void LocalClient::HandleNewPacket(ENetEvent localevent) {
         //put new message in our message buffer
         if(!baddata) {
             if(messagetype == 1) {
-                string msgstring = textmessagedata;
+                std::string msgstring = textmessagedata;
                 AddTextMessage(msgstring);
             }
             else if(messagetype == 2) {
@@ -809,7 +806,7 @@ void LocalClient::HandleNewPacket(ENetEvent localevent) {
             else if (messagetype == 3) {
                 ProcessEntityData(packetbuffer);
             }
-            else cout << "client: received and ignored type: " << messagetype << endl;
+            else std::cout << "client: received and ignored type: " << messagetype << std::endl;
         }
 
         //clear buffers
@@ -845,21 +842,21 @@ void LocalClient::SendMessages() {
                 memcpy(&textmessagedata, &MessageBuffer[j].Payload, MessageBuffer[j].PayloadSize);
 
                 //move command data to the servers buffer in to the packet buffer; 254 so we know we dont over wright the null char
-                cout << "client: sending packet type:" << (int)messagetype;
+                std::cout << "client: sending packet type:" << (int)messagetype;
                 memmove(packetbuffer + bufpos, &messagetype, sizeof(messagetype));   //copy type into buffer
                 bufpos += sizeof(messagetype);
 
-                cout << " size: " << textmessagesize;
+                std::cout << " size: " << textmessagesize;
                 memmove(packetbuffer + bufpos, &textmessagesize, sizeof(textmessagesize));   //copy data size into buffer
                 bufpos += sizeof(textmessagesize);
 
-                cout << " data: \"" << textmessagedata << "\"" << endl;
+                std::cout << " data: \"" << textmessagedata << "\"" << std::endl;
                 memmove(packetbuffer + bufpos, textmessagedata, textmessagesize);
                 bufpos = bufpos + textmessagesize;
 
                 msgcount++;
             } else {
-                cout << "ReadCommands: bad message length of " << textmessagesize << endl;
+                std::cout << "ReadCommands: bad message length of " << textmessagesize << std::endl;
             }
 
             //message sent therefor no longer need
@@ -875,10 +872,10 @@ void LocalClient::SendMessages() {
         if(packet != NULL) {
             int goodsend = -1;
             goodsend = enet_peer_send(ServerPeer, 0, packet);
-            if(goodsend < 0) cout << "client: couldnt send a packet to server" << endl;
+            if(goodsend < 0) std::cout << "client: couldnt send a packet to server" << std::endl;
                 enet_host_flush (ClientHost); //do we need to send everytime?
             }
-            else cout << "bad packet construction: data not sent" << endl;
+            else std::cout << "bad packet construction: data not sent" << std::endl;
     }
 
     //reset the position of message writes

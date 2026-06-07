@@ -1,10 +1,8 @@
 #include "poly2d.h"
 #include "glness.h"
 
-using namespace std;
-
 extern float crossz(vector2d a, vector2d b);
-list<wallrangeT>::iterator rangei;//WARNING!! this is prob actauly fine, but it should probably *not* be shared!
+std::list<wallrangeT>::iterator rangei;//WARNING!! this is prob actauly fine, but it should probably *not* be shared!
 
 //list<wallrangeT>::iterator c1,c2;
 wallrangeT walladd;

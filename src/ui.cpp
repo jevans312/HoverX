@@ -5,7 +5,6 @@
 #include "font.h"
 #include "client.h"
 
-using namespace std;
 
 //extern level mylvl;    //the one true world
 //extern ServerClass hxServer;
@@ -27,10 +26,10 @@ UIButton ButtonList[MAX_BUTTONS];
 //UITexture TextureList;
 unsigned short int UIButtonCount;
 
-string MSGbuffer0;
-string MSGbuffer1;
-string MSGbuffer2;
-string MSGbuffer3;
+std::string MSGbuffer0;
+std::string MSGbuffer1;
+std::string MSGbuffer2;
+std::string MSGbuffer3;
 
 /*
 UIButton::UIButton( void )    {
@@ -66,11 +65,11 @@ void UI_Setup() {
     //TextureList.LoadUITexture("img/1.png", "1");
 }
 
-void UI_AddMSG(const string& tMSG) {
-    string newMSG0;
-    string newMSG1;
-    string newMSG2;
-    string newMSG3;
+void UI_AddMSG(const std::string& tMSG) {
+    std::string newMSG0;
+    std::string newMSG1;
+    std::string newMSG2;
+    std::string newMSG3;
 
     //setup new message buffer
     newMSG0 = tMSG;
@@ -224,7 +223,7 @@ void UIMousePress(float mousex, float mousey ) {
     //execute the found button if one was found
     //if(ButtonToExecute != -1)   UIExecuteCommand(ButtonList[ButtonToExecute].command, ButtonList[ButtonToExecute].arg);
     if(ButtonToExecute != -1) {
-        string newmsg = "/" + ButtonList[ButtonToExecute].command + " " + ButtonList[ButtonToExecute].arg;
+        std::string newmsg = "/" + ButtonList[ButtonToExecute].command + " " + ButtonList[ButtonToExecute].arg;
         LC.AddTextMessage(newmsg);
     }
     else {  //close dropdowns
@@ -237,7 +236,7 @@ void UIMousePress(float mousex, float mousey ) {
 }
 
 //locate button in button array and return its address
-int UIFindButtonByName(string nametofind) {
+int UIFindButtonByName(std::string nametofind) {
     int returnval = -1;
 
     for(int i = 0; i < MAX_BUTTONS; i++) {
@@ -247,10 +246,10 @@ int UIFindButtonByName(string nametofind) {
     return returnval;
 }
 
-int UIAddButton(float x, float y, const string &name, const string &command, const string &arg) {
+int UIAddButton(float x, float y, const std::string &name, const std::string &command, const std::string &arg) {
     //check that there are not to many buttons
     if(UIButtonCount+1 > MAX_BUTTONS) {
-        cout << "UIAddButton: tried to add too many buttons, \"" << name << "\" not added" << endl;
+        std::cout << "UIAddButton: tried to add too many buttons, \"" << name << "\" not added" << std::endl;
         return -1;
     }
 
@@ -265,7 +264,7 @@ int UIAddButton(float x, float y, const string &name, const string &command, con
         }
     }
     if(found_button == -1) {
-        cout << "UIAddButton: button not assigned" << endl;
+        std::cout << "UIAddButton: button not assigned" << std::endl;
         return -1;
     }
 
@@ -340,7 +339,7 @@ void UI_DrawLapTimes() {
         int entaddress = LC.EntityAddress;
         uint64_t besttime = LC.lvl.Ent[entaddress].BestLapTime;
 
-        string bestlapstr = "Best Time: " + PrettyPrintTime(besttime);
+        std::string bestlapstr = "Best Time: " + PrettyPrintTime(besttime);
         float besttimexpos = 1 - ( 0.025f * static_cast<float>(bestlapstr.length()) );
         printgls(besttimexpos, 0.950f, (char*)"%s", bestlapstr.c_str() );
 

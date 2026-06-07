@@ -12,8 +12,6 @@
     #include <windows.h>
 #endif
 
-using namespace std;
-
 //level mylvl; //clients level
 ServerClass hxServer;
 LocalClient LC; //local client data
@@ -26,7 +24,7 @@ bool MSGmode = false;       //game state for typing a message or command
 bool done;                  //main loop control
 
 //!Warning this gives you the time difference since you lasted call this function!
-uint64_t static TimeofLastUpdate = 0;
+static uint64_t TimeofLastUpdate = 0;
 uint64_t getDeltaTime() {
     uint64_t returnvalue = 0;
     uint64_t timenow = SDL_GetTicks64();
@@ -46,7 +44,7 @@ void Tick() {
     //Print frame time once per second
     if(tickcount == 1000/TICK_RATE) {
         LC.frameTime = LC.afterDrawTime - LC.beforeDrawTime;
-        cout << "Frame time: " << LC.frameTime << "ms" << '\n';
+        //std::cout << "Frame time: " << LC.frameTime << "ms" << '\n';
         tickcount = 0;
     }
     tickcount++;
@@ -56,7 +54,7 @@ void Tick() {
     hxServer.Update();
 }
 
-uint64_t static accumulator = 0;
+static uint64_t accumulator = 0;
 void Ticker() {
      //accumulate the time since the last tick
     accumulator += getDeltaTime();
@@ -79,15 +77,15 @@ void Ticker() {
 //TODO: Handle pause and resume
 void signalHandler(int signum) {
     if(signum == 1 || signum == 2 || signum == 9 || signum == 10 || signum == 15) {
-        cout << "HoverX: Received POSIX terminate signal type #" << signum << '\n';
+        std::cout << "HoverX: Received POSIX terminate signal type #" << signum << '\n';
     } else if(signum >= 3 && signum <= 8) {
-        cout << "HoverX: Received POSIX Dump signal type #" << signum << '\n';
+        std::cout << "HoverX: Received POSIX Dump signal type #" << signum << '\n';
     } else if(signum == 18) { //Continue
-        cout << "HoverX: Received POSIX Continue signal type #" << signum << '\n';
+        std::cout << "HoverX: Received POSIX Continue signal type #" << signum << '\n';
     } else if(signum == 19) { //Pause
-        cout << "HoverX: Received POSIX Stop signal type #" << signum << '\n';
+        std::cout << "HoverX: Received POSIX Stop signal type #" << signum << '\n';
     } else {
-        cout << "HoverX: Received unkonwn POSIX signal type #" << '\n';
+        std::cout << "HoverX: Received unkonwn POSIX signal type #" << '\n';
     }
 
     done = 1; // Exit the main loop
@@ -100,7 +98,7 @@ int main(int argc, char *argv[]) {
     //get commandline options
     bool consoleArgStr = false;
     for(int i = 1; i < argc; i++) {
-        string argstr = argv[i];
+        std::string argstr = argv[i];
 
         if(argstr == "console") {
             consoleArgStr = true;
@@ -127,7 +125,7 @@ int main(int argc, char *argv[]) {
 }
 
 //helper functions
-string BoolToStr(const bool b) {
+std::string BoolToStr(const bool b) {
     if(b) {
         return "True";
     } else {
@@ -135,16 +133,16 @@ string BoolToStr(const bool b) {
     }
 }
 
-void skipLine(istream& is)  {
+void skipLine(std::istream& is)  {
     char next;
-	is >> std::noskipws;
+    is >> std::noskipws;
     while( (is >> next) && ('\n' != next) );
 }
 
 //	skip a comment line
-bool skipCommentLine(istream& is)   {
-	char next;
-	while( is >> std::skipws >> next )
+bool skipCommentLine(std::istream& is)   {
+    char next;
+    while( is >> std::skipws >> next )
     {
 		is.putback(next);
 		if ('#' == next)
@@ -167,7 +165,7 @@ bool FileExists( const char* FileName ) {    //returns true if file exist
     return false;
 }
 
-int FindKeyByName(KeyValue *kv, string keytofind) {    //return the location of the data we are looking for or -1 on fail
+int FindKeyByName(KeyValue *kv, std::string keytofind) {    //return the location of the data we are looking for or -1 on fail
     for(int i = 0; i < 31; i++) {
         if(kv[i].Key== keytofind) {
             return i;
@@ -177,12 +175,12 @@ int FindKeyByName(KeyValue *kv, string keytofind) {    //return the location of 
     return -1;
 }
 
-void ParseTKV(string worldstr, TypeKeyValue *TKV) {     //turn data string into type key and value
+void ParseTKV(std::string worldstr, TypeKeyValue *TKV) {     //turn data string into type key and value
     size_t slash1 = 0;
     size_t slash2 = 0;
     size_t spacepos = 0;
     size_t equalpos = 0;
-    string datapoint = "";
+    std::string datapoint = "";
     bool endofkv = false;
     bool endoftype = false;
     int i = 0;
@@ -196,12 +194,12 @@ void ParseTKV(string worldstr, TypeKeyValue *TKV) {     //turn data string into 
         //cout << "slash1: " << slash1 << " slash2: " << slash2 << '\n';
 
         //use the end of the file as the end if there are no more '/'
-        if(slash2 == string::npos) {
+        if(slash2 == std::string::npos) {
             slash2 = worldstr.length();
             endoftype = true;
         }
 
-        if(slash1 != string::npos && slash2 != string::npos) {
+        if(slash1 != std::string::npos && slash2 != std::string::npos) {
             //seperate the type class from the rest of the string
             datapoint = worldstr.substr(slash1 + 1, slash2 - 1);
             //cout << "datapoint: " << datapoint << '\n';
@@ -233,13 +231,13 @@ void ParseTKV(string worldstr, TypeKeyValue *TKV) {     //turn data string into 
                     size_t strend = datapoint.find(' ');
 
                     //use the end of the file as the end if there is no space
-                    if(strend == string::npos) strend = datapoint.length();
+                    if(strend == std::string::npos) strend = datapoint.length();
 
                     //find a '=' between the beginning and the next space/end of string; if not no reason to continue
                     equalpos = datapoint.find('=');
 
-                    if(equalpos != string::npos) {
-                        string keyvaluestr = datapoint.substr(0, strend);
+                    if(equalpos != std::string::npos) {
+                        std::string keyvaluestr = datapoint.substr(0, strend);
                         //cout << "keyvaluestr: \"" << keyvaluestr << "\"" << '\n';
 
                         datapoint = datapoint.substr(strend, datapoint.length());
@@ -256,11 +254,11 @@ void ParseTKV(string worldstr, TypeKeyValue *TKV) {     //turn data string into 
 
                 j++;
             }
-            if(j >= 31) cout << "HandleWorldString: more than 32 key/values in type" << '\n';
+            if(j >= 31) std::cout << "HandleWorldString: more than 32 key/values in type" << '\n';
         }
 
         i++;
     }
-    if(i >= 63) cout << "HandleWorldString: more than 64 types in string" << '\n';
+    if(i >= 63) std::cout << "HandleWorldString: more than 64 types in string" << '\n';
 
 }

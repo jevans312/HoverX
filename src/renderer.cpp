@@ -6,17 +6,15 @@
 #include "ui.h"
 #include "client.h"
 
-using namespace std;
-
 //extern level mylvl;    //the one true world
 extern LocalClient LC;
 
 //Initialize OpenGL
 void InitGL() {
     GLenum err = glewInit();
-    cout << "OpenGL: " << glGetString(GL_VERSION) << '\n';
-    cout << "OpenGL Hardware: " << glGetString(GL_RENDERER) << '\n';
-    cout << "OpenGL GLEW: " << ((GLEW_OK ==  err)?glewGetString(GLEW_VERSION):glewGetErrorString(err)) << '\n';
+    std::cout << "OpenGL: " << glGetString(GL_VERSION) << '\n';
+    std::cout << "OpenGL Hardware: " << glGetString(GL_RENDERER) << '\n';
+    std::cout << "OpenGL GLEW: " << ((GLEW_OK ==  err)?glewGetString(GLEW_VERSION):glewGetErrorString(err)) << '\n';
 
     glViewport(0, 0, LC.window_width, LC.window_height);
     glMatrixMode(GL_PROJECTION);
@@ -151,16 +149,16 @@ void SetCamera() {
                   entPos.x,				entPos.y,				entPos.z + 1,
                   0,0,1);
     } else {
-        cout << "SetCamera::Invalid Entity:" << IntToStr(entcam)
-             <<  " LC.EntityAddress:" << IntToStr(LC.EntityAddress) <<'\n';
+           std::cout << "SetCamera::Invalid Entity:" << IntToStr(entcam)
+               <<  " LC.EntityAddress:" << IntToStr(LC.EntityAddress) <<'\n';
 
         if(LC.lvl.Loaded) {
             //Maybe server disconnected so we just unload level?
-            cout << "SetCamera::Unloading level" <<  '\n';
+            std::cout << "SetCamera::Unloading level" <<  '\n';
             LC.lvl.Unload();
         } else {
             //This is probably in an unrecoverable state...
-            cout << "SetCamera::Setting LC.DrawWorld = false" << '\n';
+            std::cout << "SetCamera::Setting LC.DrawWorld = false" << '\n';
             LC.DrawWorld = false;
         }
     }
@@ -179,7 +177,7 @@ void DrawLevel() {
 const float radianDef = 3.14159265f/180.0f; //degrees to radians conversion factor
 void DrawEntities() {
     if(LC.lvl.Loaded ==  false) {
-        cout << "DrawEntities: No level is loaded" << '\n';
+        std::cout << "DrawEntities: No level is loaded" << '\n';
         return;
     }
 

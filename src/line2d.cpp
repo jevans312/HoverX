@@ -2,8 +2,6 @@
 
 #include "line2d.h"
 
-using namespace std;
-
 float crossz(vector2d a, vector2d b) {
     return a.x * b.y - b.x * a.y;
 }
@@ -102,8 +100,7 @@ void line2d::setup(vector2d& P1, vector2d &P2) {
     p1 = &P1;
     p2 = &P2;
 
-    len = hypot(P1.x-P2.x,P1.y-P2.y);
-
+    len = static_cast<float>(hypot(P1.x-P2.x,P1.y-P2.y));
 }
 
 

@@ -7,8 +7,6 @@
 extern ServerClass hxServer;
 extern LocalClient LC;
 
-using namespace std;
-
 //Add an entity into the world using predefined data
 //returns true on success
 bool Entity::Add(int entaddress) {
@@ -16,20 +14,20 @@ bool Entity::Add(int entaddress) {
         ID = entaddress;
     }
     else {
-        cout << "Entity::Add: over writing an entity with and ID already assigned" << '\n';
+            std::cout << "Entity::Add: over writing an entity with and ID already assigned" << '\n';
     }
 
-    string modelfile = "models/" + ModelFile + ".obj";
-    string texturefile = "models/" + TextureFile + ".png";
+        std::string modelfile = "models/" + ModelFile + ".obj";
+        std::string texturefile = "models/" + TextureFile + ".png";
 
     //check if files exist
     if(FileExists(modelfile.c_str()) == false) {
-        cout << "Entity::Add: model's model not found: \"" << modelfile.c_str() << '\n';
+        std::cout << "Entity::Add: model's model not found: \"" << modelfile.c_str() << '\n';
         Clear();
         return false;
     }
     if(FileExists(texturefile.c_str()) == false) {
-        cout << "Entity::Add: model's texture not found \"" << texturefile.c_str() << "\"" << '\n';
+        std::cout << "Entity::Add: model's texture not found \"" << texturefile.c_str() << "\"" << '\n';
         Clear();
         return false;
     }
@@ -55,7 +53,7 @@ void Entity::Remove() {
     if(hxServer.isAcceptingRemoteClients) {
         ID = tempid;
         ReplicateRemove = true;
-        cout << "entity being set to be removed" << '\n';
+        std::cout << "entity being set to be removed" << '\n';
     }
 }
 

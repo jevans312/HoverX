@@ -13,16 +13,14 @@
 #include "client.h"
 #include "glex.h"
 
-using namespace std;
-
 extern LocalClient LC;
 
 struct texidS {
     GLuint id;
-    string texname;
+    std::string texname;
 };
-list<texidS> texlist;
-list<texidS>::iterator i;
+std::list<texidS> texlist;
+std::list<texidS>::iterator i;
 
 float GetMaxTextureAnisotropy() {
 #if defined(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT) && defined(GL_TEXTURE_MAX_ANISOTROPY_EXT)
@@ -37,10 +35,10 @@ float GetMaxTextureAnisotropy() {
 }
 
 GLuint LoadGLTexture(const char* filename)  {
-    string fns = filename;
+    std::string fns = filename;
     for(i = texlist.begin(); i != texlist.end(); i++) {
         if((*i).texname == fns) {
-            cout << "texture " << filename << " alredy loaded" << '\n';
+            std::cout << "texture " << filename << " alredy loaded" << '\n';
             return (*i).id;
         }
     }
@@ -51,8 +49,8 @@ GLuint LoadGLTexture(const char* filename)  {
     if (loadedSurface != NULL) {
         SDL_Surface *rgbaSurface = SDL_ConvertSurfaceFormat(loadedSurface, SDL_PIXELFORMAT_RGBA32, 0);
         if (rgbaSurface == NULL) {
-            cout << "LoadGLTexture: Could not convert texture: " << filename
-                 << "; Using default.png in it's place" << '\n';
+              std::cout << "LoadGLTexture: Could not convert texture: " << filename
+                  << "; Using default.png in it's place" << '\n';
             SDL_FreeSurface(loadedSurface);
             return LC.DefaultTextureID;
         }
@@ -77,7 +75,7 @@ GLuint LoadGLTexture(const char* filename)  {
         texlist.push_front(ttexid);
     }
     else {
-        cout << "LoadGLTexture: Could not load texture: " << filename
+        std::cout << "LoadGLTexture: Could not load texture: " << filename
              << "; Using default.png in it's place" << '\n';
         newid = LC.DefaultTextureID;
     }

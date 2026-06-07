@@ -1,3 +1,4 @@
+#include <vector>
 #include <sstream>
 #include <SDL2/SDL.h>
 
@@ -6,17 +7,14 @@
 #include "tinerxml.h"
 #include "client.h"
 #include "server.h"
-#include <vector>
-
-using namespace std;
 
 extern bool isConsole;
 extern ServerClass hxServer;
 extern LocalClient LC;
 
 //return 01:23.321 on input of ms time from engine
-string PrettyPrintTime(uint64_t milliseconds) {
-    string returnstr = "";
+std::string PrettyPrintTime(uint64_t milliseconds) {
+    std::string returnstr = "";
     int minutes = 0;
     int seconds = 0;
     //int thousandths = 0;
@@ -37,7 +35,7 @@ string PrettyPrintTime(uint64_t milliseconds) {
 
 bool level::Load(const std::string& LevelFilename)   {
     //add the dir location to the string
-    string filewithlocal = "levels/" + LevelFilename;
+    std::string filewithlocal = "levels/" + LevelFilename;
 
     //check to see if the file exist or not
     if( ! FileExists(filewithlocal.c_str()) ) return false;
@@ -50,7 +48,7 @@ bool level::Load(const std::string& LevelFilename)   {
 
     Ent = new Entity[MAXENTITIES];  //allocate all the entities for this level
     
-    vector<GLuint> texlist;
+    std::vector<GLuint> texlist;
     vector2d tCheckPoints[23];   //Maxium of 24 check points, i think that should be plenty
     vector2d tStartFinish;
 
@@ -63,7 +61,7 @@ bool level::Load(const std::string& LevelFilename)   {
     xmlfile hoverlvl;
     TiXmlElement *xLevel = hoverlvl.getxmlfirstelement((char*)filewithlocal.c_str()); {
         if (xLevel == nullptr) {
-             cout << "level::Load: Failed to load level XML file: " << filewithlocal.c_str() << '\n';
+                 std::cout << "level::Load: Failed to load level XML file: " << filewithlocal.c_str() << '\n';
              return false;
         }
 
@@ -104,7 +102,7 @@ bool level::Load(const std::string& LevelFilename)   {
                     SpawnPoint.Count++;
                     vertnum++;
                 }
-                else cout << "level::Load: too many start points, stoping at 8" << endl;
+                else std::cout << "level::Load: too many start points, stoping at 8" << std::endl;
             } else if (vertType == 2) { //checkpoints
                 if (CheckPointCount + 1 < 23)  {
                     tCheckPoints[CheckPointCount].x = strtof(xVerti->Attribute("x"), NULL);
@@ -124,7 +122,7 @@ bool level::Load(const std::string& LevelFilename)   {
                 vertnum++;
             }
             else {
-                cout << "vert without type not added" << endl;
+                std::cout << "vert without type not added" << std::endl;
             }
             xVerti = xVerti->NextSiblingElement();
         }
@@ -192,8 +190,8 @@ bool level::Load(const std::string& LevelFilename)   {
                 if(lvlpoly[pid].pnpoly(tCheckPoints[i].x, tCheckPoints[i].y))   {
                     //lvlpoly[pid].ischeckpoint = 1;
                     //lvlpoly[pid].checkpointid = i;
-                    stringstream convert (stringstream::in | stringstream::out);
-                    string sectorval = "";
+                    std::stringstream convert (std::stringstream::in | std::stringstream::out);
+                    std::string sectorval = "";
 
                     convert << i;
                     convert >> sectorval;
@@ -209,7 +207,7 @@ bool level::Load(const std::string& LevelFilename)   {
         if(CheckPointCount != 0)    Game.CheckpointCount = CheckPointCount;
         else Game.CheckpointCount = -1;
 
-        cout << "level::load: Game.CheckpointCount: " << Game.CheckpointCount << endl;
+        std::cout << "level::load: Game.CheckpointCount: " << Game.CheckpointCount << std::endl;
 
         texlist.clear();
     }
@@ -332,7 +330,7 @@ void level::Update() {
         
         for(int i = 0; i < MAXENTITIES; i++) {  //look for any ents that are flagged to be in a checkpoint
             if(Ent[i].isUsed && Ent[i].SectorType == "checkpoint") {
-                stringstream convert (stringstream::in | stringstream::out);
+                std::stringstream convert (std::stringstream::in | std::stringstream::out);
                 int checkpointnumber = -1;
 
                 //change string value to an integer
@@ -394,7 +392,7 @@ void level::AddPlayerEntity(int clientaddress) {
     }
 
     if (entaddress == -1) {
-       cout << "AddPlayerEntity: no space for a new entity" << endl;
+       std::cout << "AddPlayerEntity: no space for a new entity" << std::endl;
        return;
     }
 
@@ -408,7 +406,7 @@ void level::AddPlayerEntity(int clientaddress) {
     }
 
     if (Ent[entaddress].StartpointAddress == -1) {
-        cout << "couldnt find a spawn point for player " << entaddress << ", player not added" << endl;
+        std::cout << "couldnt find a spawn point for player " << entaddress << ", player not added" << std::endl;
         return;
     }
 
@@ -423,13 +421,13 @@ void level::AddPlayerEntity(int clientaddress) {
     Ent[entaddress].ClientAddress = clientaddress;
 
     if(! Ent[entaddress].Add(entaddress) ) {
-        cout << "AddPlayerEntity: add player entity failed" << endl;
+        std::cout << "AddPlayerEntity: add player entity failed" << std::endl;
         Ent[entaddress].Clear();
     }
 }
 
 void level::Add3dobject(vector2d pos , const std::string& modelfile, const std::string& texturefile) {
-    cout << "Add3dobject: " << pos.x  << " " << pos.y << " model:" << modelfile << " texture:" << texturefile << endl;
+    std::cout << "Add3dobject: " << pos.x  << " " << pos.y << " model:" << modelfile << " texture:" << texturefile << std::endl;
     int entaddress = -1;
 
     //find an unused entity
@@ -441,7 +439,7 @@ void level::Add3dobject(vector2d pos , const std::string& modelfile, const std::
     }
 
     if (entaddress == -1) {
-       cout << "Add3dobject: no space for a new entity" << endl;
+       std::cout << "Add3dobject: no space for a new entity" << std::endl;
        return;
     }
 
@@ -453,7 +451,7 @@ void level::Add3dobject(vector2d pos , const std::string& modelfile, const std::
     Ent[entaddress].TextureFile = texturefile;
 
     if(! Ent[entaddress].Add(entaddress) ) {
-        cout << "Add3dobject: add 3dobject failed" << endl;
+        std::cout << "Add3dobject: add 3dobject failed" << std::endl;
         Ent[entaddress].Clear();
     }
 }
@@ -466,7 +464,7 @@ void level::FinishedLap(Entity &ent) {
     uint64_t currentlapnumber = ent.CurrentLapNumber;
     ent.LapTime[ent.CurrentLapNumber] = currentlaptime;
 
-    string finishmsg = "";
+    std::string finishmsg = "";
 
     if(Game.CurrentLap < Game.RaceLaps) {   //finshed lap
         Game.CurrentLap++;
@@ -474,12 +472,12 @@ void level::FinishedLap(Entity &ent) {
         if(ent.CurrentLapNumber == 1) ent.BestLapTime = currentlaptime;   //first lap is always the fastest!
 
         //setup message for finishing a lap
-        string currentlaptimestring = PrettyPrintTime(currentlaptime);    //convert to string
-        string currentlapnumberstring = IntToStr(currentlapnumber);
+        std::string currentlaptimestring = PrettyPrintTime(currentlaptime);    //convert to string
+        std::string currentlapnumberstring = IntToStr(currentlapnumber);
         finishmsg = LC.Clients[ent.ClientAddress].Name + " lap #" + currentlapnumberstring + " time: " + currentlaptimestring;
     }
     else {  //finished race
-        string gametimestring = PrettyPrintTime(GetGameTime());
+        std::string gametimestring = PrettyPrintTime(GetGameTime());
 
         if( ! ent.FinishedRace) {
             if(Game.RaceWinner == -1) {
@@ -498,7 +496,7 @@ void level::FinishedLap(Entity &ent) {
     uint64_t lowestlaptime = 18446744073709551615ULL;
     for(int j = 0; j < MAXLAPS; j++) {
         if(ent.LapTime[j] < lowestlaptime && ent.LapTime[j] != 0) lowestlaptime = ent.LapTime[j];
-        //cout << "lap #" << i << " time: " << Ent[i].LapTime[j] << " lowest time " << lowestlaptime << endl;
+        //std::cout << "lap #" << i << " time: " << Ent[i].LapTime[j] << " lowest time " << lowestlaptime << std::endl;
     }
 
     ent.BestLapTime = lowestlaptime;
@@ -508,7 +506,7 @@ void level::FinishedLap(Entity &ent) {
 }
 
 void level::CheckTimerEvents() {
-    string msg = "";
+    std::string msg = "";
 
     //check for game start timer updates
     if(SDL_GetTicks64() > Game.StartGameTime) {
@@ -529,7 +527,7 @@ void level::CheckTimerEvents() {
 //0 is limbo; 1 is race 2; 3 is sumo
 bool level::StartGame(uint8_t gametype) {
     if(gametype > 3) {
-        cout << "GameClass::StartGame failed, game type " << gametype << " is over 3!" << endl;
+        std::cout << "GameClass::StartGame failed, game type " << gametype << " is over 3!" << std::endl;
         return false;
     }
 
