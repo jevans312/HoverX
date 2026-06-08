@@ -1,44 +1,49 @@
 BUILD INSTRUCTIONS
-
 1) Install basic build tools:
 sudo apt install -y build-essential git make gawk flex bison libgmp-dev libmpfr-dev libmpc-dev python3 binutils perl libisl-dev libzstd-dev tar gzip bzip2
 
-2) Install dependancies:
--SDL2 - Crossplatform window creation, input etc
+2) Install dependencies:
+-SDL2 - Cross platform window creation, input etc.
 -SDL2_image - Image file loading
 -OpenGL - The original graphics API
--GLEW - Deals with the mess that is OpenGLs extentions and versions
+-GLEW - Deals with the mess that is OpenGL extensions and versions
 -tinyxml - XML parsing
--ENet - Relaible packets on UDP
+-ENet - Reliable packets on UDP
 -Compiler - clang/LLVM default make CXX=g++ for gcc.
 -Linker - lld
 sudo apt install libenet-dev libsdl2-dev libsdl2-image-dev libglew-dev libtinyxml-dev lld
 
-3) Build/Install
-make - Create HoverX.
-make clean - Remove build files created in the src directory.
-make install - Install HoverX in home directory.
-make uninstall - Remove HoverX from home directory.
-CMake not quite working
+3) Build/Install 
+Linux - Run commands on Makefile in HoverX root directory.
+make: Create HoverX. Add -j# to speed things up. # is number of CPUs.
+make clean: Remove build files created in the src directory.
+make install: Install HoverX in home directory.
+make uninstall: Remove HoverX from home directory.
+
+Other - Use CMake to generate build files and then build with them.
+cmake -S src -B build: Generate build files in build folder in HoverX root
+cmake --build build: Build HoverX in build folder.
+mv HoverX ..: Move HoverX to root directory
+./HoverX: Execute HoverX.
+
 
 USER INSTRUCTIONS
-
 Controls:
 -Arrow left/right turn
 -Arrow up jump
 -Left shift gas
 -Spacebar brake
 
-Singleplayer:
+Single player:
 New room; menu->Sectors->New and pick a map and wait for it to load!
 
 Multiplayer:
 the host will need to do a /host 1 to allow connections to him
-the connecting players will need to /connect "the host ip address here"
+the connecting players will need to /connect "the host IP address here"
 
 Levels:
 alley - old school remake of a hover race track
-sumo - demo of a sumo wrestling game mode; not impleamented yet
+sumo - demo of a sumo wrestling game mode; not implemented yet
 classic 8 - cool map made by Lee!
 
 Commands:
