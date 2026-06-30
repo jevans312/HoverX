@@ -4,6 +4,7 @@ src/*.d
 src/hx-cppcheck-build-dir/
 src/hx.cppcheck
 make-n-run.sh
+build/**
 .vscode/**
 .github/copilot-instructions.md
 .unused/**
