@@ -26,7 +26,6 @@ cmake --build build: Build HoverX in build folder.
 mv HoverX ..: Move HoverX to root directory
 ./HoverX: Execute HoverX.
 
-
 USER INSTRUCTIONS
 Controls:
 -Arrow left/right turn
@@ -58,3 +57,4 @@ Commands:
 Settings:
 Window resolution, user name settings stored in settings.xml.
 
+t 
