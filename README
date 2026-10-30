@@ -1,60 +1,57 @@
+The HoverX engine was originally built to clone a very old PC game called HoverRace. The last few years I have kept the dependences upto date and slowly improve aspects in my free time. The goal now is a multiplayer hovercraft racing game built on top of a game engine that I use to keep my skill sharp in game related coding and technologies.
+
 BUILD INSTRUCTIONS
-1) Install basic build tools:
-sudo apt install -y build-essential git make gawk flex bison libgmp-dev libmpfr-dev libmpc-dev python3 binutils perl libisl-dev libzstd-dev tar gzip bzip2
+    Dependencies
+    -Compiler - clang/LLVM default make CXX=g++ for gcc.
+    -Linker - lld
+    -SDL2 - Cross platform window creation, input etc.
+    -SDL2_image - Image file loading
+    -OpenGL - The original graphics API
+    -GLEW - Deals with the mess that is OpenGL extensions and versions
+    -tinyxml - XML parsing
+    -ENet - Reliable packets on UDP
+    sudo apt install libenet-dev libsdl2-dev libsdl2-image-dev libglew-dev libtinyxml-dev gcc lld
 
-2) Install dependencies:
--SDL2 - Cross platform window creation, input etc.
--SDL2_image - Image file loading
--OpenGL - The original graphics API
--GLEW - Deals with the mess that is OpenGL extensions and versions
--tinyxml - XML parsing
--ENet - Reliable packets on UDP
--Compiler - clang/LLVM default make CXX=g++ for gcc.
--Linker - lld
-sudo apt install libenet-dev libsdl2-dev libsdl2-image-dev libglew-dev libtinyxml-dev lld
+    Build and Install
+    Linux - Run commands on Makefile in HoverX root directory.
+    make: Create HoverX. Add -j# to speed things up. # is number of CPUs.
+    make clean: Remove build files created in the src directory.
+    make install: Install HoverX in home directory.
+    make uninstall: Remove HoverX from home directory.
 
-3) Build/Install 
-Linux - Run commands on Makefile in HoverX root directory.
-make: Create HoverX. Add -j# to speed things up. # is number of CPUs.
-make clean: Remove build files created in the src directory.
-make install: Install HoverX in home directory.
-make uninstall: Remove HoverX from home directory.
-
-Other - Use CMake to generate build files and then build with them.
-cmake -S src -B build: Generate build files in build folder in HoverX root
-cmake --build build: Build HoverX in build folder.
-mv HoverX ..: Move HoverX to root directory
-./HoverX: Execute HoverX.
+    Other - Use CMake to generate build files and then build with them.
+    cmake -S src -B build: Generate build files in build folder in HoverX root
+    cmake --build build: Build HoverX in build folder.
+    mv HoverX ..: Move HoverX to root directory
+    ./HoverX: Execute HoverX.
 
 USER INSTRUCTIONS
-Controls:
--Arrow left/right turn
--Arrow up jump
--Left shift gas
--Spacebar brake
+    Controls:
+    -Arrow left/right turn
+    -Arrow up jump
+    -Left shift gas
+    -Spacebar brake
 
-Single player:
-New room; menu->Sectors->New and pick a map and wait for it to load!
+    Single player:
+    New room; menu->Sectors->New and pick a map and wait for it to load!
 
-Multiplayer:
-the host will need to do a /host 1 to allow connections to him
-the connecting players will need to /connect "the host IP address here"
+    Multiplayer:
+    the host will need to do a /host 1 to allow connections to him
+    the connecting players will need to /connect "the host IP address here"
 
-Levels:
-alley - old school remake of a hover race track
-sumo - demo of a sumo wrestling game mode; not implemented yet
-classic 8 - cool map made by Lee!
+    Levels:
+    alley - old school remake of a hover race track
+    sumo - demo of a sumo wrestling game mode; not implemented yet
+    classic 8 - cool map made by Lee!
 
-Commands:
-/createroom mapname.xml     //maps should be in levels folder
-/leaveroom
-/closeroom
-/startrace 3(or whatever)   //the laps that will be in the race
-/host 1(or 0)               //start a server and allow clients to join
-/connect 127.0.0.1          //connect to server
-/exit and /quit
+    Commands:
+    /createroom mapname.xml     //maps should be in levels folder
+    /leaveroom
+    /closeroom
+    /startrace 3(or whatever)   //the laps that will be in the race
+    /host 1(or 0)               //start a server and allow clients to join
+    /connect 127.0.0.1          //connect to server
+    /exit and /quit
 
-Settings:
-Window resolution, user name settings stored in settings.xml.
-
-t 
+    Settings:
+    Window resolution, user name settings stored in settings.xml.
