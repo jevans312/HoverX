@@ -309,7 +309,9 @@ void level::Update() {
 
             //look for collition with each player
             for (int r = 0; r < MAXENTITIES; r++) {
-                if(r != i && Ent[r].isUsed) Ent[i].EntityCollision(Ent[r]);  //dont colide with your self
+                if(r != i && Ent[r].isUsed) { // Dont check against self
+                    Ent[i].EntityCollision(Ent[r]);
+                }
             }
 
             //floor/ceiling collision poly by poly
@@ -341,7 +343,9 @@ void level::Update() {
                     Ent[i].currentcheckpoint = checkpointnumber;
 
                     //-1 because 0 1 2 3 is 4 checkpoints
-                    if(Ent[i].currentcheckpoint == Game.CheckpointCount - 1)    FinishedLap(Ent[i]);
+                    if(Ent[i].currentcheckpoint == Game.CheckpointCount - 1) {
+                        FinishedLap(Ent[i]);
+                    }
                 }
             }
         }

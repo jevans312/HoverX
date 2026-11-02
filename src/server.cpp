@@ -253,12 +253,12 @@ void ServerClass::EntityAddRemove() {
 }
 
 void ServerClass::BroadcastEntityData(int clientaddress) {
+    char packetbuffer[1080];    //enough for 64 entities and packet over head
     uint8_t binarydatatype = 3; //type 3 is entity data so the client knows what to do with it
     uint16_t datasize = 0;      //
     uint64_t timestamp = 0;     //SDL ticks used as a way of ordering packets
     uint16_t entcount = 0;      //how many entities data are in this packet
     uint16_t entaddress = 0;    //what entity this data is for
-    char packetbuffer[1080];    //enough for 64 entities and packet over head
     uint16_t bufpos = 0;
 
     memset(packetbuffer, '\0', sizeof(packetbuffer));
@@ -410,6 +410,11 @@ int ServerClass::CreateNewRoom(int clientaddress, const std::string& mapname) {
 }
 
 void ServerClass::CloseRoom(int clientaddress) {
+    if(clientaddress < 0 || clientaddress > MAXCLIENTS) {
+        std::cout << "ServerClass::CloseRoom: invalid client address: " << clientaddress << std::endl;
+        return;
+    }
+    
     const int clientsRoom = Clients[clientaddress].RoomAddress;
     if(clientsRoom == -1) {
         const std::string tmpstr = "You are not in a room";
@@ -1177,21 +1182,17 @@ void ServerClass::SendMessages() {
 }
 
 void ServerClass::Update() {
-	if(isRunning) {
-		//get new messages from clients; becomes ReadCommands
-		ReadMessages();
+	if(isRunning == false)
+        return;
 
-		//use command buffer from each client to update our data
-		ProcessMessages();
+	ReadMessages();
+	ProcessMessages();
 
-		//update the worlds
-		for(int i = 0; i < MAXLVL; i++) {
-			lvl[i].Update();
-		}
-
-		//send out all the new data to the clients
-		SendMessages();
+	for(int i = 0; i < MAXLVL; i++) {
+		lvl[i].Update();
 	}
+
+	SendMessages();
 }
 
 void ClientList::Clear() {
