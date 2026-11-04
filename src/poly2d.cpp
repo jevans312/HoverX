@@ -19,7 +19,7 @@ void lc::checkagainst(lc& other)
         /*c1 = range.begin();
         c2 = other.range.begin();
         if(range.size() == 1 && other.range.size() == 1 && c1->low == c2->low && c1-> high == c2->high) {
-            cout << "MATCH!" << endl;
+            std::println("MATCH!");
             range.clear();
             other.range.clear();
         }else {
@@ -165,7 +165,7 @@ void poly2d::sortflipped()
     for (int lid = 0; lid <lnum;lid++)
     {
         float ztest = crossz(*l[lid].l->p2 - *l[lid].l->p1, centre - *l[lid].l->p1);
-        //cout << ztest << endl;
+        //std::println("{}", ztest);
         if (ztest <= 0)
         {
             l[lid].flipped = 0;

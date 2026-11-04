@@ -1,4 +1,4 @@
-#include <iostream>
+#include <print>
 
 #include "glex.h"
 #include "ui.h"
@@ -207,7 +207,7 @@ void UIMousePress(float mousex, float mousey ) {
     //convert cordinates to match the gui system
     mouse_x = mousex;
     mouse_y = 1 - mousey;
-    //cout << "x: " << mousex << "y: " << mousey << endl;
+    //std::println("x: {}y: {}", mousex, mousey);
 
     //find button that was pressed if there is one
     for(int i = 0; i < UIButtonCount; i++) {
@@ -249,7 +249,7 @@ int UIFindButtonByName(std::string nametofind) {
 int UIAddButton(float x, float y, const std::string &name, const std::string &command, const std::string &arg) {
     //check that there are not to many buttons
     if(UIButtonCount+1 > MAX_BUTTONS) {
-        std::cout << "UIAddButton: tried to add too many buttons, \"" << name << "\" not added" << std::endl;
+        std::println("UIAddButton: tried to add too many buttons, \"{}\" not added", name);
         return -1;
     }
 
@@ -264,7 +264,7 @@ int UIAddButton(float x, float y, const std::string &name, const std::string &co
         }
     }
     if(found_button == -1) {
-        std::cout << "UIAddButton: button not assigned" << std::endl;
+        std::println("UIAddButton: button not assigned");
         return -1;
     }
 

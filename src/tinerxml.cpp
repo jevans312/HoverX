@@ -1,6 +1,6 @@
 #include "tinerxml.h"
 
-#include <iostream>
+#include <print>
 
 //TiXmlDocument     *xmlDoc;
 void xmlfile::endxml()
@@ -14,14 +14,14 @@ TiXmlElement* xmlfile::getxmlfirstelement(const char* _xmlfile)
     xmlDoc = new TiXmlDocument(_xmlfile);
     if (!xmlDoc->LoadFile())
     {
-        std::cout << "couldnt find file " << _xmlfile << std::endl;
+        std::println("couldnt find file {}", _xmlfile);
         delete xmlDoc;
         return 0;
     }
     TiXmlElement *xGame = xmlDoc->FirstChildElement("root");
     if (!xGame)
     {
-        std::cout << "couldnt find root(must be called root) element in " << _xmlfile << std::endl;
+        std::println("couldnt find root(must be called root) element in {}", _xmlfile);
         endxml();
         return 0;
     }
@@ -33,7 +33,7 @@ TiXmlElement* xmlfile::getelement(TiXmlElement* from, const char* name)
     TiXmlElement *element = from->FirstChildElement(name);
     if (!element)
     {
-        std::cout << "error! xml element " << name << " didnt load!" << std::endl;
+        std::println("error! xml element {} didnt load!", name);
         endxml();
         return 0;
     }

@@ -1,4 +1,4 @@
-#include <iostream>
+#include <print>
 
 #include "entity.h"
 #include "server.h"
@@ -14,7 +14,7 @@ bool Entity::Add(int entaddress) {
         ID = entaddress;
     }
     else {
-            std::cout << "Entity::Add: over writing an entity with and ID already assigned" << '\n';
+            std::println("Entity::Add: over writing an entity with and ID already assigned");
     }
 
         std::string modelfile = "models/" + ModelFile + ".obj";
@@ -22,12 +22,12 @@ bool Entity::Add(int entaddress) {
 
     //check if files exist
     if(FileExists(modelfile.c_str()) == false) {
-        std::cout << "Entity::Add: model's model not found: \"" << modelfile.c_str() << '\n';
+        std::println("Entity::Add: model's model not found: \"{}", modelfile.c_str());
         Clear();
         return false;
     }
     if(FileExists(texturefile.c_str()) == false) {
-        std::cout << "Entity::Add: model's texture not found \"" << texturefile.c_str() << "\"" << '\n';
+        std::println("Entity::Add: model's texture not found \"{}\"", texturefile.c_str());
         Clear();
         return false;
     }
@@ -53,7 +53,7 @@ void Entity::Remove() {
     if(hxServer.isAcceptingRemoteClients) {
         ID = tempid;
         ReplicateRemove = true;
-        std::cout << "entity being set to be removed" << '\n';
+        std::println("entity being set to be removed");
     }
 }
 

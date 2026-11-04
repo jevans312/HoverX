@@ -1,4 +1,4 @@
-#include <iostream>
+#include <print>
 
 #include "main.h"
 #include "server.h"
@@ -41,10 +41,9 @@ bool ServerClass::Start(bool AllowRemoteConnections, const std::string& ip) {
     enet_address_set_host(&Address, ip.c_str()); // Address.host = ENET_HOST_ANY;
     Address.port = 41414;
 
-    std::cout << '\n';
-    std::cout << "====== Server ======" << '\n'
-              << "Address: " << ip << ":" << Address.port << '\n'
-              << "Connections Accepted: " << (isAcceptingRemoteClients ? "Remote":"Local") << '\n';
+    std::print("\n");
+    std::println("====== Server ======\nAddress: {}:{}\nConnections Accepted: {}",
+        ip, Address.port, isAcceptingRemoteClients ? "Remote" : "Local");
 
     Host = enet_host_create (& Address      /* the address to bind the server host to */,
                             MAXCLIENTS      /* allow up to MAXCLIENTS clients and/or outgoing connections */,
@@ -54,8 +53,7 @@ bool ServerClass::Start(bool AllowRemoteConnections, const std::string& ip) {
 
     //cant return false other wise the server wont start; this could cause problems
     if (Host == NULL) {
-        std::cout << "Host is NULL!" << '\n'
-             << "Running: False" << '\n';
+        std::println("Host is NULL!\nRunning: False");
         return false;
     } else {
         //create lvl memory
@@ -66,7 +64,7 @@ bool ServerClass::Start(bool AllowRemoteConnections, const std::string& ip) {
         Clients[0].Name = LC.Username;
 
         isRunning = true;
-        std::cout << "Running: True" << '\n';
+        std::println("Running: True");
         return true;
     }
 }
@@ -85,7 +83,7 @@ void ServerClass::Stop() {
     isRunning = false;
     isAcceptingRemoteClients = false;
 
-    std::cout << "Server: Stopped" << '\n';
+    std::println("Server: Stopped");
 }
 
 void ServerClass::Clear() {
@@ -100,7 +98,7 @@ void ServerClass::Clear() {
 //messages that will go out to the clients
 int ServerClass::AddClientTextMessage(const std::string& newtextmessage, int clientaddress) {
     if(newtextmessage.empty() || newtextmessage.size() > static_cast<std::string::size_type>(MAXMSGLENTH)) {
-        std::cout << "server: cant add new message: \"" << newtextmessage << "\"" << "; invalid size" << std::endl;
+        std::println("server: cant add new message: \"{}\"; invalid size", newtextmessage);
         return -1;
     }
 
@@ -115,7 +113,7 @@ int ServerClass::AddClientTextMessage(const std::string& newtextmessage, int cli
 
     //no empty spot found
     if(emptymsgaddress == -1) {
-        std::cout << "server: message buffer full" << std::endl;
+        std::println("server: message buffer full");
         return -1;
     }
 
@@ -123,16 +121,17 @@ int ServerClass::AddClientTextMessage(const std::string& newtextmessage, int cli
     Clients[clientaddress].MessageBuffer[emptymsgaddress].PayloadSize = static_cast<unsigned int>(newtextmessage.size());
     memcpy(&Clients[clientaddress].MessageBuffer[emptymsgaddress].Payload + 0, newtextmessage.c_str(), Clients[clientaddress].MessageBuffer[emptymsgaddress].PayloadSize);
 
-    //std::cout << "server position: " << emptymsgaddress << " added type: " << Clients[clientaddress].MessageBuffer[emptymsgaddress].Type << " that is "
-    //<< Clients[clientaddress].MessageBuffer[emptymsgaddress].PayloadSize << " bytes with a payload of \""
-    //<< Clients[clientaddress].MessageBuffer[emptymsgaddress].Payload << "\"" << std::endl;
+    //std::println("server position: {} added type: {} that is {} bytes with a payload of \"{}\"",
+    //    emptymsgaddress, Clients[clientaddress].MessageBuffer[emptymsgaddress].Type,
+    //    Clients[clientaddress].MessageBuffer[emptymsgaddress].PayloadSize,
+    //    Clients[clientaddress].MessageBuffer[emptymsgaddress].Payload);
     return emptymsgaddress;
 }
 
 //messages that go to the server
 int ServerClass::AddServerTextMessage(const std::string& newtextmessage, int clientaddress) {
     if(newtextmessage.empty() || newtextmessage.size() > static_cast<std::string::size_type>(MAXMSGLENTH)) {
-        std::cout << "server: cant add new message: \"" << newtextmessage << "\"" << "; invalid size" << std::endl;
+        std::println("server: cant add new message: \"{}\"; invalid size", newtextmessage);
         return -1;
     }
 
@@ -147,7 +146,7 @@ int ServerClass::AddServerTextMessage(const std::string& newtextmessage, int cli
 
     //no empty spot found
     if(emptymsgaddress == -1) {
-        std::cout << "server: message buffer full, intended message: " << newtextmessage << std::endl;
+        std::println("server: message buffer full, intended message: {}", newtextmessage);
         return -1;
     }
 
@@ -156,9 +155,10 @@ int ServerClass::AddServerTextMessage(const std::string& newtextmessage, int cli
     MessageBuffer[emptymsgaddress].PayloadSize = static_cast<unsigned int>(newtextmessage.size());
     memcpy(&MessageBuffer[emptymsgaddress].Payload + 0, newtextmessage.c_str(), MessageBuffer[emptymsgaddress].PayloadSize);
 
-    //std::cout << "server position: " << emptymsgaddress << " added type: " << Clients[clientaddress].MessageBuffer[emptymsgaddress].Type << " that is "
-    //<< Clients[clientaddress].MessageBuffer[emptymsgaddress].PayloadSize << " bytes with a payload of \""
-    //<< Clients[clientaddress].MessageBuffer[emptymsgaddress].Payload << "\"" << endl;
+    //std::println("server position: {} added type: {} that is {} bytes with a payload of \"{}\"",
+    //    emptymsgaddress, Clients[clientaddress].MessageBuffer[emptymsgaddress].Type,
+    //    Clients[clientaddress].MessageBuffer[emptymsgaddress].PayloadSize,
+    //    Clients[clientaddress].MessageBuffer[emptymsgaddress].Payload);
     return emptymsgaddress;
 }
 
@@ -166,7 +166,7 @@ void ServerClass::BroadcastTxtMessage(const std::string& localmsg) {
     //find all connected and add text message to them
     for(int i = 0; i < MAXCLIENTS; i++) {
         if(Clients[i].isConnected) {  //no connection here
-            //cout << "broadcasting txt msg: " << localmsg << " to client: " << i << endl;
+            //std::println("broadcasting txt msg: {} to client: {}", localmsg, i);
             AddClientTextMessage(localmsg, i);
         }
     }
@@ -200,7 +200,7 @@ void ServerClass::BroadcastRoomInfo() {
 
     if(datastr != "/datastr /room /clients") {
         BroadcastTxtMessage(datastr);
-        //cout << "ServerClass::BroadcastRoomInfo: sending->" << datastr << endl;
+        //std::println("ServerClass::BroadcastRoomInfo: sending->{}", datastr);
     }
 }
 
@@ -233,7 +233,7 @@ void ServerClass::EntityAddRemove() {
                 }
 
                 if(lvl[j].Ent[i].ReplicateRemove) { //tell the client to remove this ent
-                    //cout << "how can this not work?" << endl;
+                    //std::println("how can this not work?");
                     sprintf(chartowrite, " /e id=%i rm=1", lvl[j].Ent[i].ID);
                     datastr += chartowrite;
                     lvl[j].Ent[i].ID = -1;
@@ -245,7 +245,7 @@ void ServerClass::EntityAddRemove() {
         if(datastr != "" && datastr != "/datastr ") {
             for(int i = 0; i < MAXCLIENTS; i++) {
                 //send only to those clients that have confirmed there joinning the room
-                //cout << "server sending datastr: " << datastr << endl;
+                //std::println("server sending datastr: {}", datastr);
                 if( Clients[i].hasJoinedRoom && Clients[i].RoomAddress == j ) AddClientTextMessage(datastr, i);
             }
         }
@@ -312,7 +312,7 @@ void ServerClass::BroadcastEntityData(int clientaddress) {
         memcpy(packetbuffer + 1, &datasize, sizeof(datasize)); //size of all data
     }
     else {
-        std::cout << "ServerClass::BroadcastEntityData packet too big; not sent" << std::endl;
+        std::println("ServerClass::BroadcastEntityData packet too big; not sent");
         return;
     }
 
@@ -320,10 +320,10 @@ void ServerClass::BroadcastEntityData(int clientaddress) {
     if(packet != NULL) {
         int goodsend = -1;
         goodsend = enet_peer_send(Clients[clientaddress].Peer, 0, packet);
-        if(goodsend < 0) std::cout << "ServerClass::SendMessages: couldnt send a packet to client #" << clientaddress << " error: " << goodsend << std::endl;
+        if(goodsend < 0) std::println("ServerClass::SendMessages: couldnt send a packet to client #{} error: {}", clientaddress, goodsend);
         enet_host_flush (Host); //do we need to send everytime?
     }
-    else std::cout << "ServerClass::SendMessages: bad packet construction: data not sent" << std::endl;
+    else std::println("ServerClass::SendMessages: bad packet construction: data not sent");
 }
 
 
@@ -341,13 +341,13 @@ void ServerClass::AddKeepAlive(int clientaddress) {
 
     //no empty spot found
     if(emptymsgaddress == -1) {
-        std::cout << "server: message buffer full" << '\n';
+        std::println("server: message buffer full");
         return;
     }
 
     //make sure the client is connected
     if(!Clients[clientaddress].isConnected) {
-        std::cout << "server: atempting to send keep alive to non connected client" << '\n';
+        std::println("server: atempting to send keep alive to non connected client");
         return;
     }
 
@@ -363,7 +363,7 @@ void ServerClass::AddKeepAlive(int clientaddress) {
 int ServerClass::CreateNewRoom(int clientaddress, const std::string& mapname) {
     int emptylvl = -1;
 
-    std::cout << "CreateNewRoom clientaddress: " << clientaddress << '\n';
+    std::println("CreateNewRoom clientaddress: {}", clientaddress);
 
     //check to see if you already a in a room or own a room
     if(Clients[clientaddress].RoomAddress != -1) {
@@ -411,7 +411,7 @@ int ServerClass::CreateNewRoom(int clientaddress, const std::string& mapname) {
 
 void ServerClass::CloseRoom(int clientaddress) {
     if(clientaddress < 0 || clientaddress > MAXCLIENTS) {
-        std::cout << "ServerClass::CloseRoom: invalid client address: " << clientaddress << std::endl;
+        std::println("ServerClass::CloseRoom: invalid client address: {}", clientaddress);
         return;
     }
     
@@ -434,8 +434,7 @@ void ServerClass::CloseRoom(int clientaddress) {
     for(int i = 0; i < MAXENTITIES; i++) {
         if(lvl[clientsRoom].Ent[i].ClientAddress != -1) {
             int targetclient = lvl[clientsRoom].Ent[i].ClientAddress;
-            std::cout << "ServerClass::CloseRoom: Kicking client #" << targetclient
-                 << " from room #" << clientsRoom << '\n';
+            std::println("ServerClass::CloseRoom: Kicking client #{} from room #{}", targetclient, clientsRoom);
             //client should respond to this but if not its the servers problem
             AddClientTextMessage("/roomkick", targetclient);
             Clients[targetclient].RoomAddress = -1;
@@ -460,7 +459,7 @@ void ServerClass::CloseRoom(int clientaddress) {
 }
 
 void ServerClass::JoinRoom(int clientaddress, int roomtojoin) {
-    //std::cout << "ServerClass::JoinRoom: got join room #" << roomtojoin << std::endl;
+    //std::println("ServerClass::JoinRoom: got join room #{}", roomtojoin);
 
     //make sure room to join is in range
     if(roomtojoin < 0 || roomtojoin > MAXLVL) {
@@ -547,7 +546,7 @@ bool ServerClass::ExecuteCommand(const std::string &command, const std::string &
         //do nothing
     }
     else if (command == "clstr") {
-        //std::cout << "server: data string: " << arg << std::endl;
+        //std::println("server: data string: {}", arg);
         HandleDataString(arg, clientaddress);
     }
     else if (command == "createroom" ) {
@@ -596,7 +595,7 @@ bool ServerClass::ExecuteCommand(const std::string &command, const std::string &
         Clients[clientaddress].hasJoinedRoom = true;
     }
     else if (command == "disconnect" ) {
-        std::cout << "requesting disconnect for client: " << clientaddress << std::endl;
+        std::println("requesting disconnect for client: {}", clientaddress);
         DisconnectClient( clientaddress );
     }
     else if (command == "startrace" ) {
@@ -629,11 +628,11 @@ bool ServerClass::ExecuteCommand(const std::string &command, const std::string &
         else messagetobroadcast = "/txtmsg " + arg;
 
         BroadcastTxtMessage(messagetobroadcast);
-        std::cout << "ServerClass::ExecuteCommand: server got a message from client: ?; " << arg << std::endl;
+        std::println("ServerClass::ExecuteCommand: server got a message from client: ?; {}", arg);
     }
     else {
         AddClientTextMessage("no such command", clientaddress);
-        std::cout << "server: command \"" << command << "\" not recognized" << std::endl;
+        std::println("server: command \"{}\" not recognized", command);
         return false;
     }
 
@@ -658,15 +657,13 @@ void ServerClass::CheckNetEvents() {
                 break;
 
             case ENET_EVENT_TYPE_DISCONNECT:
-                std::cout << "peer disconnected: " << event.peer -> data << std::endl;
+                std::println("peer disconnected: {:p}", event.peer->data);
                 // Reset the peer's client information.
                 event.peer -> data = NULL;
                 break;
             case ENET_EVENT_TYPE_NONE:
-                std::cout << "ServerClass::CheckNetEvents(): "
-                     << "Mysterious event type none: "
-                     << "from ip:" << event.peer->address.host << ":" << event.peer->address.port << " "
-                     << "data: " << event.peer->data << std::endl;
+                std::println("ServerClass::CheckNetEvents(): Mysterious event type none: from ip:{}:{} data: {:p}",
+                    event.peer->address.host, event.peer->address.port, event.peer->data);
                 break;
         }
     }
@@ -690,7 +687,7 @@ void ServerClass::HandleDataString(const std::string& datastr, int clientaddress
             }
 
             int versionaddress = FindKeyByName(TKV[i].KV, "v");
-            std::cout << "ServerClass::HandleDataString: versionaddress: " << versionaddress << std::endl;
+            std::println("ServerClass::HandleDataString: versionaddress: {}", versionaddress);
 
             /* cant get this to work!
             if(versionaddress != -1) {
@@ -698,7 +695,7 @@ void ServerClass::HandleDataString(const std::string& datastr, int clientaddress
                 strcpy(version, TKV[i].KV[versionaddress].sValue.c_str());
 
                 if(version != VERSION) {
-                    std::cout << "ServerClass::HandleDataString: old client c=" << version << " s=" << VERSION << std::endl;
+                    std::println("ServerClass::HandleDataString: old client c={} s={}", version, VERSION);
                     DisconnectClient(clientaddress);
                 }
             }
@@ -737,7 +734,7 @@ void ServerClass::HandleDataString(const std::string& datastr, int clientaddress
                 else Clients[clientaddress].Keys.jump = false;
             }
         }*/
-        else std::cout << "HandleWorldString: got unknown type \"" <<  TKV[i].Type << "\"" << std::endl;
+        else std::println("HandleWorldString: got unknown type \"{}\"", TKV[i].Type);
     }
 }
 
@@ -747,14 +744,14 @@ void ServerClass::ProcessKeyState(char *packetbuffer, int clientaddress) {
     uint16_t datasize = 0;               //size of the data to process
     uint32_t timestamp = 0;             //SDL ticks used as a way of ordering packet
 
-    memcpy(&binarydatatype, packetbuffer + bufpos, sizeof(binarydatatype)); //cout << "type: " << (int)binarydatatype;
+    memcpy(&binarydatatype, packetbuffer + bufpos, sizeof(binarydatatype)); //std::print("type: {}", static_cast<int>(binarydatatype));
     bufpos += sizeof(binarydatatype);
-    memcpy(&datasize, packetbuffer + bufpos, sizeof(datasize)); //cout << "type: " << (int)datasize;
+    memcpy(&datasize, packetbuffer + bufpos, sizeof(datasize)); //std::print("type: {}", static_cast<int>(datasize));
     bufpos += sizeof(datasize);
-    memcpy(&timestamp, packetbuffer + bufpos, sizeof(timestamp)); //cout << " timestamp: " << (uint32_t)timestamp;
+    memcpy(&timestamp, packetbuffer + bufpos, sizeof(timestamp)); //std::print(" timestamp: {}", static_cast<uint32_t>(timestamp));
     bufpos += sizeof(timestamp);
 
-    //cout << "timestamp from client: " << timestamp << " last client timestamp: " << Clients[clientaddress].LastTimeStamp << endl;
+    //std::println("timestamp from client: {} last client timestamp: {}", timestamp, Clients[clientaddress].LastTimeStamp);
     if(timestamp <= Clients[clientaddress].LastTimeStamp)   //check to see if this isnt an old packet
         return;
     Clients[clientaddress].LastTimeStamp = timestamp;
@@ -772,7 +769,7 @@ void ServerClass::ProcessKeyState(char *packetbuffer, int clientaddress) {
         bufpos += 1;
     }
     else {
-        std::cout << "ServerClass::ProcessKeyState packet too big ignoring" << std::endl;
+        std::println("ServerClass::ProcessKeyState packet too big ignoring");
         return;
     }
 }
@@ -784,7 +781,7 @@ void ServerClass::HandleTextMessage(int messageaddress) {
     size_t space_position = 0;
 
     localstring = MessageBuffer[messageaddress].Payload;
-    //std::cout << "handling \"" << localstring << "\"" << std::endl;
+    //std::println("handling \"{}\"", localstring);
 
     //look for a / at the beginning of the string then pull out the command
     if(localstring.at(0) == '/') {
@@ -841,8 +838,8 @@ void ServerClass::HandleNewConnection(ENetEvent localevent)  {
         AddClientTextMessage("/connectionaccepted welcome to hoverland", emptyclient); //tell the client it
 
         //print out connection info
-        std::cout << "server: assigned client to position: " << emptyclient << " connected from: "
-        << Clients[emptyclient].PrettyIP << " data: " << localevent.peer->data << std::endl;
+        std::println("server: assigned client to position: {} connected from: {} data: {:p}",
+            emptyclient, Clients[emptyclient].PrettyIP, localevent.peer->data);
 
         //first keep alive
         AddKeepAlive(emptyclient);
@@ -860,7 +857,7 @@ void ServerClass::HandleNewConnection(ENetEvent localevent)  {
 
 void ServerClass::DisconnectClient(int clientaddress) {
     if(clientaddress < 1 || clientaddress > MAXCLIENTS) {
-        std::cout << "server: asked to disconnect and impossable client#, #" << clientaddress << std::endl;
+        std::println("server: asked to disconnect and impossable client#, #{}", clientaddress);
         return;
     }
 
@@ -871,7 +868,7 @@ void ServerClass::DisconnectClient(int clientaddress) {
     if(lvlclientsin != -1) {
         for(int i = 0; i < MAXENTITIES; i++) {
             if(lvl[lvlclientsin].Ent[i].ClientAddress == clientaddress) {
-                std::cout << "ServerClass::DisconnectClient: disconnecting client with ent attached; removing ent #" << i << std::endl;
+                std::println("ServerClass::DisconnectClient: disconnecting client with ent attached; removing ent #{}", i);
                 lvl[lvlclientsin].Ent[i].Remove();
             }
         }
@@ -935,7 +932,7 @@ void ServerClass::HandleNewPacket(ENetEvent localevent) {
         memset(textmessagedata, '\0', sizeof(textmessagedata));
 
         memmove(packetbuffer, localevent.packet->data, localevent.packet->dataLength);
-        //cout << "server: processing packet \"" << packetbuffer << "\"" << endl;
+        //std::println("server: processing packet \"{}\"", packetbuffer);
 
         //seperate and process the messages
         while(packetbuffer[bufpos] != '\0') {
@@ -945,10 +942,10 @@ void ServerClass::HandleNewPacket(ENetEvent localevent) {
             memmove(&textmessagesize, packetbuffer + bufpos, sizeof(textmessagesize));
             bufpos += sizeof(textmessagesize);
 
-            //cout << "got packet type: " << messagetype << " size: " << textmessagesize << endl;
+            //std::println("got packet type: {} size: {}", messagetype, textmessagesize);
 
             if(textmessagesize > 0 && textmessagesize <= 1023) {
-                //cout << "got a message size of: " << textmessagesize << endl;
+                //std::println("got a message size of: {}", textmessagesize);
                 memmove(textmessagedata, packetbuffer + bufpos, textmessagesize);
                 bufpos += textmessagesize;
             }
@@ -966,7 +963,8 @@ void ServerClass::HandleNewPacket(ENetEvent localevent) {
                 }
                 else if(messagetype == 2)   Clients[peernumber].LastKeepAliveTime = SDL_GetTicks64();
                 else if(messagetype == 4)   ProcessKeyState(packetbuffer, peernumber);
-                else std::cout << "server: received and ignored type: " << messagetype << " message" << std::endl;
+                else std::println("server: received and ignored type: {} message",
+                    static_cast<char>(messagetype));
             }
 
             //clear buffers
@@ -975,7 +973,7 @@ void ServerClass::HandleNewPacket(ENetEvent localevent) {
             for( int tempi = 0 ; tempi < MAXMSGLENTH; tempi++) textmessagedata[tempi] = '\0'; //clear char array
         }
     }
-    else std::cout << "server: got a packet from a unknown client" << std::endl;
+    else std::println("server: got a packet from a unknown client");
 }
 
 void ServerClass::ReadMessages() {
@@ -997,13 +995,13 @@ void ServerClass::ReadMessages() {
             }
             else {
                 MessageBuffer[msgcount].PayloadSize = -1;  //bad length
-                std::cout << "ReadCommands: bad message length" << std::endl;
+                std::println("ReadCommands: bad message length");
             }
 
             //move command data to the servers buffer to be read with all the other commandse
             memcpy(&MessageBuffer[msgcount].Payload, &LC.MessageBuffer[i].Payload, MessageBuffer[msgcount].PayloadSize);
-            //std::cout << "server: reading message type: " << MessageBuffer[msgcount].Type << " size: " << MessageBuffer[msgcount].PayloadSize
-            //<< " bytes with a payload of \"" << MessageBuffer[msgcount].Payload << "\"" << std::endl;
+            //std::println("server: reading message type: {} size: {} bytes with a payload of \"{}\"",
+            //    MessageBuffer[msgcount].Type, MessageBuffer[msgcount].PayloadSize, MessageBuffer[msgcount].Payload);
             msgcount++;
 
             LC.MessageBuffer[i].Clear();
@@ -1034,9 +1032,9 @@ void ServerClass::CheckKeepAlive() {
     if( 1000 < (currenttime - LastKeepAliveBroadcast) ) {
         for(int i = 1; i < MAXCLIENTS; i++) {
             if(Clients[i].isConnected) {
-                //std::cout << "current time: " << currenttime << " client #" << i << " last keep alive: " << Clients[i].LastKeepAliveTime << std::endl;
+                //std::println("current time: {} client #{} last keep alive: {}", currenttime, i, Clients[i].LastKeepAliveTime);
                 if( 10000 < (currenttime - Clients[i].LastKeepAliveTime) ) {
-                    std::cout << "ServerClass::CheckKeepAlive: disconnecting client #" << i << std::endl;
+                    std::println("ServerClass::CheckKeepAlive: disconnecting client #{}", i);
                     DisconnectClient(i);
                 }
 
@@ -1054,7 +1052,7 @@ void ServerClass::ProcessMessages() {
 
     //read each message
     for(int i = 0; i < 127; i++) {
-        //cout << "; " << i << " = " << hxServer.MessageBuffer[i].Type;
+        //std::print("; {} = {}", i, hxServer.MessageBuffer[i].Type);
         switch(MessageBuffer[i].Type) {
             case 0:
                 //do nothing
@@ -1093,13 +1091,14 @@ void ServerClass::SendMessages() {
                             LC.MessageBuffer[msgcount].PayloadSize = Clients[i].MessageBuffer[j].PayloadSize;
                         else {
                             LC.MessageBuffer[msgcount].PayloadSize = -1;  //bad length
-                            std::cout << "ServerClass::SendMessages(): bad message length" << std::endl;
+                            std::println("ServerClass::SendMessages(): bad message length");
                         }
 
                         //move command data to the servers buffer to be read with all the other commands
                         memcpy(&LC.MessageBuffer[msgcount].Payload, &Clients[i].MessageBuffer[j].Payload, Clients[i].MessageBuffer[j].PayloadSize);
-                        //std::cout << "server: buffer output; message address " << msgcount << " type: " << LC.MessageBuffer[msgcount].Type << " that is " << LC.MessageBuffer[msgcount].PayloadSize
-                        //<< " bytes with a payload of \"" << LC.MessageBuffer[msgcount].Payload << "\"" << std::endl;
+                        //std::println("server: buffer output; message address {} type: {} that is {} bytes with a payload of \"{}\"",
+                        //    msgcount, LC.MessageBuffer[msgcount].Type, LC.MessageBuffer[msgcount].PayloadSize,
+                        //    LC.MessageBuffer[msgcount].Payload);
                         msgcount++;
 
                         //message sent therefor no longer need
@@ -1133,19 +1132,19 @@ void ServerClass::SendMessages() {
                         }
                         else {
                             textmessagesize = 0;  //bad length
-                            std::cout << "ServerClass::SendMessages: bad message length" << std::endl; //should return here from another function
+                            std::println("ServerClass::SendMessages: bad message length"); //should return here from another function
                         }
 
                         //move command data to the servers buffer in to the packet buffer; 254 so we know we dont over wright the null char
                         if(textmessagesize != 0 && 1022 > (textmessagesize+3) ) {   //check for valid size and that we arnt going to over wright the buffer
-                            //std::cout << "server: sending packet type:" << messagetype;
+                            //std::print("server: sending packet type:{}", messagetype);
                             memmove(packetbuffer + bufpos, &messagetype, sizeof(messagetype));   //copy type into buffer
                             bufpos += sizeof(messagetype);
-                            //std::cout << " size: " << textmessagesize;
+                            //std::print(" size: {}", textmessagesize);
 
                             memmove(packetbuffer + bufpos, &textmessagesize, sizeof(textmessagesize));   //copy data size into buffer
                             bufpos += sizeof(textmessagesize);
-                            //std::cout << " data: \"" << textmessagedata << "\"" << std::endl;
+                            //std::println(" data: \"{}\"", textmessagedata);
 
                             memmove(packetbuffer + bufpos, textmessagedata, textmessagesize);
                             bufpos += textmessagesize;
@@ -1167,11 +1166,11 @@ void ServerClass::SendMessages() {
                     if(packet != NULL) {
                         int goodsend = -1;
                         goodsend = enet_peer_send(Clients[i].Peer , 0, packet);
-                        if(goodsend < 0) std::cout << "ServerClass::SendMessages: couldnt send a packet to client #" << i << " error: " << goodsend << std::endl;
+                        if(goodsend < 0) std::println("ServerClass::SendMessages: couldnt send a packet to client #{} error: {}", i, goodsend);
 
                         enet_host_flush (Host); //do we need to send everytime?
                     }
-                    else std::cout << "ServerClass::SendMessages: bad packet construction: data not sent" << std::endl;
+                    else std::println("ServerClass::SendMessages: bad packet construction: data not sent");
                 }
 
                 //reset the position of message writes

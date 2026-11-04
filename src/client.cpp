@@ -1,5 +1,6 @@
 #include <string>
-#include <iostream>
+#include <print>
+#include <sstream>
 #include <SDL2/SDL.h>
 #include <enet/enet.h>
 
@@ -20,22 +21,22 @@ extern ServerClass hxServer;
 //extern level mylvl;    //the one true world
 
 void LocalClient::StopClient() {
-    std::cout << "LocalClient::StopClient: Stop command received" << std::endl;
+    std::println("LocalClient::StopClient: Stop command received");
     done = true;
 }
 
 bool LocalClient::InitLocalClient(bool consoleMode) {
     if(_clientInitialized) {
-        std::cout << "LocalClient::InitLocalClient: Client is already initialized" << std::endl;
+        std::println("LocalClient::InitLocalClient: Client is already initialized");
         return false;
     } else {
-        std::cout << "Initializing HoverX " << VERSION << "..." << '\n';
+        std::println("Initializing HoverX {}...", VERSION);
     }
 
     if(consoleMode) {
         _consoleMode = true;
 
-        std::cout << "HoverX: Graphical interface disabled" << '\n';
+        std::println("HoverX: Graphical interface disabled");
     } else {
         _consoleMode = false;
 
@@ -55,31 +56,31 @@ bool LocalClient::InitLocalClient(bool consoleMode) {
         //default texture to load when one is missing
         DefaultTextureID = LoadGLTexture((char*)"img/default.png");
         if (DefaultTextureID ==  0) {
-            std::cout << "InitGL: Could not load default texture img/default.png" << '\n';
+            std::println("InitGL: Could not load default texture img/default.png");
         }
 
         //Background image of the window
         DesktopTexture = LoadGLTexture((char*)"img/desktop.jpg");
         if (DesktopTexture ==  0) {
-            std::cout << "InitGL: Could not load img/desktop.jpg" << '\n';
+            std::println("InitGL: Could not load img/desktop.jpg");
         }
 
         // ENET networking
-        std::cout << "ENet: " << ENET_VERSION_MAJOR << "." << ENET_VERSION_MINOR <<  "." << ENET_VERSION_PATCH << '\n';
+        std::println("ENet: {}.{}.{}", ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH);
         enet_initialize();
         ClientHost = enet_host_create (NULL, 1,  MAXCHANNELS, 0, 0);
         if (ClientHost == NULL) {
-            std::cout <<  "ENet: Client network host could not be created" << '\n';
+            std::println("ENet: Client network host could not be created");
         } else {
             isConnected = true;
-            std::cout << "ENet: Client network host created successfully" << '\n';
+            std::println("ENet: Client network host created successfully");
         }
 
         //Show "desktop"
         DrawWorld = false;
     }
 
-    std::cout << "HoverX initialized successfully" << '\n';
+    std::println("HoverX initialized successfully");
     _clientInitialized = true;
     return true;
 }
@@ -96,7 +97,7 @@ void LocalClient::LoadSettings() {
         Username = xUser->Attribute("name");
         settings.endxml();
     } else {
-        std::cout << "Settings: settings.xml not found" << '\n';
+        std::println("Settings: settings.xml not found");
         Username = "unnamed";
     }
 }
@@ -107,7 +108,7 @@ void LocalClient::Update() {
 
     //this may add client side prediction
     if(isConnectedToRemoteServer && lvl.Loaded) {
-        //cout << "is running this code" << endl;
+        //std::println("is running this code");
         //lvl.Ent[EntityAddress].ApplyForces(1);  //gravity and input
         //if(Keys.right)  lvl.Ent[EntityAddress].Yaw += 0.025;
         //if(Keys.left)   lvl.Ent[EntityAddress].Yaw -= 0.025;
@@ -164,7 +165,7 @@ void LocalClient::AddTextMessage(const std::string& newtextmessage) {
 
     //no empty spot found
     if(emptymsgaddress == -1) {
-        std::cout << "client: cant add new message: \"" << newtextmessage << "\"" << "; buffer full" << std::endl;
+        std::println("client: cant add new message: \"{}\"; buffer full", newtextmessage);
         return;
     }
 
@@ -175,7 +176,7 @@ void LocalClient::AddTextMessage(const std::string& newtextmessage) {
         MessageBuffer[emptymsgaddress].PayloadSize = static_cast<unsigned int>(newtextmessage.size());
         memcpy(&MessageBuffer[emptymsgaddress].Payload + 0, newtextmessage.c_str(), MessageBuffer[emptymsgaddress].PayloadSize);
 
-        //std::cout << "client added type: " << MessageBuffer[emptymsgaddress].Type << " that is " << MessageBuffer[emptymsgaddress].PayloadSize << " bytes with a payload of \"" << MessageBuffer[emptymsgaddress].Payload << "\"" << std::endl;
+        //std::println("client added type: {} that is {} bytes with a payload of \"{}\"", MessageBuffer[emptymsgaddress].Type, MessageBuffer[emptymsgaddress].PayloadSize, MessageBuffer[emptymsgaddress].Payload);
     }
     return;
 }
@@ -210,11 +211,11 @@ void LocalClient::BroadcastKeyState() {
 
     if(bufpos <= 255) {
         datasize = bufpos;
-        //cout << "datasize: " << datasize << endl;
+        //std::println("datasize: {}", datasize);
         memcpy(packetbuffer + 1, &datasize, sizeof(datasize)); //size of all data
     }
     else {
-        std::cout << "LocalClient::BroadcastKeyState packet too big; not sent" << '\n';
+        std::println("LocalClient::BroadcastKeyState packet too big; not sent");
         return;
     }
 
@@ -222,10 +223,10 @@ void LocalClient::BroadcastKeyState() {
     if(packet != NULL) {
         int goodsend = -1;
         goodsend = enet_peer_send(ServerPeer, 0, packet);
-        if(goodsend < 0) std::cout << "ServerClass::SendMessages: couldnt send a packet to server; error #" << goodsend << '\n';
+        if(goodsend < 0) std::println("ServerClass::SendMessages: couldnt send a packet to server; error #{}", goodsend);
         enet_host_flush (ClientHost); //do we need to send everytime?
     }
-    else std::cout << "ServerClass::SendMessages: bad packet construction: data not sent" << '\n';
+    else std::println("ServerClass::SendMessages: bad packet construction: data not sent");
 }
 
 void LocalClient::SendClientInfo() {
@@ -236,7 +237,7 @@ void LocalClient::SendClientInfo() {
     datastr = "/clstr /user n=";
     datastr += Username;
 
-    //cout << "LocalClient::SendClientInfo: " << datastr << endl;
+    //std::println("LocalClient::SendClientInfo: {}", datastr);
     AddTextMessage(datastr);
 }
 
@@ -256,7 +257,7 @@ bool LocalClient::ExecuteCommand(const std::string& command, const std::string& 
         //JAE 3/31/23 - Sure about that?
         if(lvl.Loaded) {
             //if(isConnectedToRemoteServer) {
-                std::cout << "LocalClient::ExecuteCommand: Unloading level with local server, idea bad?" << '\n';
+                std::println("LocalClient::ExecuteCommand: Unloading level with local server, idea bad?");
                 lvl.Unload();
                 AddTextMessage("/leftroom");
                 EntityAddress = -1;
@@ -268,7 +269,7 @@ bool LocalClient::ExecuteCommand(const std::string& command, const std::string& 
         UI_AddMSG("signaled to disconnect, ignored");
     }
     else if (command == "datastr" ) {
-        //cout << "client received datastr: " << arg << endl;
+        //std::println("client received datastr: {}", arg);
         //if( isConnectedToRemoteServer ) HandleDataString(arg); //if we are connected to a local server we can just look at the local data
         HandleDataString(arg);
     }
@@ -375,7 +376,7 @@ void LocalClient::SendKeepAlive() {
 
     //no empty spot found
     if(emptymsgaddress == -1) {
-        std::cout << "client: message buffer full" << std::endl;
+        std::println("client: message buffer full");
         return;
     }
 
@@ -401,7 +402,7 @@ void LocalClient::BroadcastTimer() {    //this should prob be called timers
 
         //send keep alives every half sec
         if( 500 <= (currenttime - LastKeepAliveBroadcast) ) {
-            //cout << "sending keepy alive" << endl;
+            //std::println("sending keepy alive");
             SendKeepAlive();
             LastKeepAliveBroadcast = currenttime;
         }
@@ -414,7 +415,7 @@ void LocalClient::BroadcastTimer() {    //this should prob be called timers
 
     //look to see when we last heard from the clients on our list; clear after 2 seconds
     for(int i = 0; i < MAXCLIENTS; i++) {
-        //cout << (currenttime - Clients[i].LastUpdate) << " :currenttime - Clients[i].LastUpdate" << endl;
+        //std::println("{} :currenttime - Clients[i].LastUpdate", currenttime - Clients[i].LastUpdate);
         if(  2000 <= (currenttime - Clients[i].LastUpdate) ) Clients[i].Clear();
     }
 }
@@ -441,7 +442,7 @@ void LocalClient::HandleDataString(const std::string& worldstr) {
     TypeKeyValue TKV[63];
     //turn the world string into something we can use
     ParseTKV(worldstr, TKV);
-    //cout << "DataString: " << worldstr << endl;
+    //std::println("DataString: {}", worldstr);
     //process the new data
     for(int i = 0; i < 63; i++) {
         if(TKV[i].Type == ""); //do nothing; empty var
@@ -474,7 +475,7 @@ void LocalClient::HandleDataString(const std::string& worldstr) {
             //assign data to client list
             for(int w = 0; w < MAXCLIENTS; w++) {
                 if(clientnameaddress[w] != -1) {
-                    //cout << "client #" << w << "'s name is " << TKV[i].KV[clientnameaddress[w]].sValue << endl;
+                    //std::println("client #{}'s name is {}", w, TKV[i].KV[clientnameaddress[w]].sValue);
                     Clients[w].Name = TKV[i].KV[clientnameaddress[w]].sValue;
                     Clients[w].LastUpdate = SDL_GetTicks64();
                 }
@@ -501,11 +502,11 @@ void LocalClient::HandleDataString(const std::string& worldstr) {
             for(int w = 0; w < MAXLVL; w++) {
                 if(roomaddress[w] != -1) {
                     ButtonList[Dropdownmenus[3].Buttons[w]].label = TKV[i].KV[roomaddress[w]].sValue;
-                    //cout << "room #" << w << " is " << TKV[i].KV[roomaddress[w]].sValue << endl;
+                    //std::println("room #{} is {}", w, TKV[i].KV[roomaddress[w]].sValue);
                 }
                 else {
                     ButtonList[Dropdownmenus[3].Buttons[w]].label = "(none)";
-                    //cout << "room #" << w << " is (none)" << endl;
+                    //std::println("room #{} is (none)", w);
                 }
             }
 
@@ -536,7 +537,7 @@ void LocalClient::HandleDataString(const std::string& worldstr) {
                 }
                 else {
                     if(modeladdress != -1 && textureaddress != -1) {
-                        std::cout << "adding new ent: " << entaddress << std::endl;
+                        std::println("adding new ent: {}", entaddress);
                         //model stuff
                         lvl.Ent[entaddress].ModelFile = TKV[i].KV[modeladdress].sValue;
                         lvl.Ent[entaddress].TextureFile = TKV[i].KV[textureaddress].sValue;
@@ -561,10 +562,10 @@ void LocalClient::HandleDataString(const std::string& worldstr) {
                         }
 
                         if(! lvl.Ent[entaddress].Add(entaddress) ) {
-                            std::cout << "HandleDataString: add entity failed" << std::endl;
+                            std::println("HandleDataString: add entity failed");
                         }
                     }
-                    else std::cout << "HandleDataString: unknown entity referenced, no info to add" << std::endl;
+                    else std::println("HandleDataString: unknown entity referenced, no info to add");
                 }
 
                 //ent flagged to be removed
@@ -573,7 +574,7 @@ void LocalClient::HandleDataString(const std::string& worldstr) {
                 }
             }
         }
-        else std::cout << "HandleDataString: got unknown type \"" <<  TKV[i].Type << "\"" << std::endl;
+        else std::println("HandleDataString: got unknown type \"{}\"", TKV[i].Type);
     }
 }
 
@@ -589,15 +590,15 @@ void LocalClient::ProcessEntityData(char *packetbuffer) {
     float yaw = 0;                        //entities rotation
     float x = 0; float y = 0; float z = 0;  //position in the world
 
-    //cout << "size: " << strlen(packetbuffer) << " packetbuffer: " << packetbuffer << endl;
+    //std::println("size: {} packetbuffer: {}", strlen(packetbuffer), packetbuffer);
 
-    memcpy(&binarydatatype, packetbuffer + bufpos, sizeof(binarydatatype)); //cout << "type: " << (int)binarydatatype;
+    memcpy(&binarydatatype, packetbuffer + bufpos, sizeof(binarydatatype)); //std::print("type: {}", static_cast<int>(binarydatatype));
     bufpos += sizeof(binarydatatype);
-    memcpy(&datasize, packetbuffer + bufpos, sizeof(datasize)); //cout << "type: " << (int)datasize;
+    memcpy(&datasize, packetbuffer + bufpos, sizeof(datasize)); //std::print("type: {}", static_cast<int>(datasize));
     bufpos += sizeof(datasize);
-    memcpy(&timestamp, packetbuffer + bufpos, sizeof(timestamp)); //cout << " timestamp: " << (uint32_t)timestamp;
+    memcpy(&timestamp, packetbuffer + bufpos, sizeof(timestamp)); //std::print(" timestamp: {}", static_cast<uint32_t>(timestamp));
     bufpos += sizeof(timestamp);
-    memcpy(&entcount, packetbuffer + bufpos, sizeof(entcount)); //cout << " # of ents: " << (int)entcount << endl;
+    memcpy(&entcount, packetbuffer + bufpos, sizeof(entcount)); //std::println(" # of ents: {}", static_cast<int>(entcount));
     bufpos += sizeof(entcount);
 
     if(timestamp < LastTimestamp)  return; //check to see if this isnt an old packet
@@ -605,15 +606,15 @@ void LocalClient::ProcessEntityData(char *packetbuffer) {
 
     for(int i = 0; i < entcount; i++) {
         if(bufpos < datasize) {    //prevent the buffer from overflowing; 17 bytes in ent data
-            memcpy(&entaddress, packetbuffer + bufpos, sizeof(entaddress)); //cout << "ent add: " << entaddress;
+            memcpy(&entaddress, packetbuffer + bufpos, sizeof(entaddress)); //std::print("ent add: {}", entaddress);
             bufpos += sizeof(entaddress);
-            memcpy(&yaw, packetbuffer + bufpos, sizeof(yaw)); //cout << " yaw: " << (float)yaw;
+            memcpy(&yaw, packetbuffer + bufpos, sizeof(yaw)); //std::print(" yaw: {}", static_cast<float>(yaw));
             bufpos += sizeof(yaw);
-            memcpy(&x, packetbuffer + bufpos, sizeof(x)); //cout << " x " << (float)x;
+            memcpy(&x, packetbuffer + bufpos, sizeof(x)); //std::print(" x {}", static_cast<float>(x));
             bufpos += sizeof(x);
-            memcpy(&y, packetbuffer + bufpos, sizeof(y)); //cout << " y: " << (float)y;
+            memcpy(&y, packetbuffer + bufpos, sizeof(y)); //std::print(" y: {}", static_cast<float>(y));
             bufpos += sizeof(y);
-            memcpy(&z, packetbuffer + bufpos, sizeof(z)); //cout << " z: " << (float)z << endl;
+            memcpy(&z, packetbuffer + bufpos, sizeof(z)); //std::println(" z: {}", static_cast<float>(z));
             bufpos += sizeof(z);
 
             if(lvl.Ent[entaddress].isUsed) {    //check to see if this ent is actually there
@@ -624,7 +625,7 @@ void LocalClient::ProcessEntityData(char *packetbuffer) {
             }
         }
         else {
-            std::cout << "LocalClient::ProcessEntityData packet too big ignoring" << std::endl;
+            std::println("LocalClient::ProcessEntityData packet too big ignoring");
             return;
         }
     }
@@ -638,11 +639,11 @@ void LocalClient::HandleTextMessage(int messageaddress) {
 
     localstring = MessageBuffer[messageaddress].Payload;
     if(localstring == "") {
-        std::cout << "LocalClient::HandleTextMessage: empty string" << std::endl;
+        std::println("LocalClient::HandleTextMessage: empty string");
         return;
     }
 
-    //cout << "HandleTextMessage: proccessing string \"" << localstring << "\"" << endl;
+    //std::println("HandleTextMessage: proccessing string \"{}\"", localstring);
 
     //look for a / at the beginning of the string then pull out the command
     if(localstring.at(0) == '/') {
@@ -665,7 +666,7 @@ void LocalClient::HandleTextMessage(int messageaddress) {
         MessageBuffer[messageaddress].PayloadSize = static_cast<unsigned int>(localstring.size());
         memcpy(&MessageBuffer[messageaddress].Payload + 0, localstring.c_str(), MessageBuffer[messageaddress].PayloadSize);
 
-            //std::cout << "new payload \"" << MessageBuffer[messageaddress].Payload << "\"" << std::endl;
+            //std::println("new payload \"{}\"", MessageBuffer[messageaddress].Payload);
     }
 }
 
@@ -681,18 +682,18 @@ bool LocalClient::NetServerConnect(const std::string& IPAddressString) {
     ServerPeer = enet_host_connect (ClientHost, & AddresToConnect, MAXCHANNELS, 2);
 
     if (ServerPeer == NULL)   {
-        std::cout << "LocalClient: could not connect to host: no server" << std::endl;
+        std::println("LocalClient: could not connect to host: no server");
         return false;
     }
 
     // Wait up to 1 second for the connection attempt to succeed.
     if (enet_host_service (ClientHost, & event, 1000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT)  {
-        std::cout << "LocalClient: connected to host" << std::endl;
+        std::println("LocalClient: connected to host");
         isConnectedToRemoteServer = true; //the type of networking we are using
         return true;
     } else {
         enet_peer_reset (ServerPeer);
-        std::cout << "LocalClient::NetServerConnect: could not connect to host: no responce" << std::endl;
+        std::println("LocalClient::NetServerConnect: could not connect to host: no responce");
         return false;
     }
 
@@ -727,10 +728,8 @@ void LocalClient::CheckNetEvents() {
     while (enet_host_service (ClientHost, & event, 1) > 0)  {
         switch (event.type) {
             case ENET_EVENT_TYPE_CONNECT:
-                 std::cout << "LocalClient::CheckNetEvents(): "
-                     << "client connected address.host: " << event.peer -> address.host << ":"
-                     << event.peer -> address.port << " "
-                     << "data: " << event.peer -> data << std::endl;
+                std::println("LocalClient::CheckNetEvents(): client connected address.host: {}:{} data: {:p}",
+                    event.peer->address.host, event.peer->address.port, event.peer->data);
                 break;
 
             case ENET_EVENT_TYPE_RECEIVE:
@@ -748,10 +747,8 @@ void LocalClient::CheckNetEvents() {
                 break;
 
             case ENET_EVENT_TYPE_NONE:
-                   std::cout     << "LocalClient::CheckNetEvents(): "
-                    << "Mysterious event type none: "
-                    << "from ip:" <<   event.peer -> address.host << ":" << event.peer -> address.port << " "
-                    << "data: " << event.peer -> data << std::endl;
+                std::println("LocalClient::CheckNetEvents(): Mysterious event type none: from ip:{}:{} data: {:p}",
+                    event.peer->address.host, event.peer->address.port, event.peer->data);
                 break;
         }
     }
@@ -770,22 +767,22 @@ void LocalClient::HandleNewPacket(ENetEvent localevent) {
     memset(textmessagedata, '\0', sizeof(textmessagedata));
 
     memmove(packetbuffer, localevent.packet->data, localevent.packet->dataLength);
-    //cout << "client: processing \"" << packetbuffer << "\"" << endl;
+    //std::println("client: processing \"{}\"", packetbuffer);
 
     //seperate and process the messages
     while(packetbuffer[bufpos] != '\0') {
         //copy data into buffer
         memmove(&messagetype, packetbuffer + bufpos, sizeof(messagetype));
         bufpos += sizeof(messagetype);
-        //cout << "client: processing packet type: " << (int)messagetype;
+        //std::print("client: processing packet type: {}", static_cast<int>(messagetype));
 
         memmove(&textmessagesize, packetbuffer + bufpos, sizeof(textmessagesize));
         bufpos += sizeof(textmessagesize);
-        //cout << " size: " << (int)textmessagesize;
+        //std::print(" size: {}", static_cast<int>(textmessagesize));
 
         memmove(textmessagedata, packetbuffer + bufpos, textmessagesize);
         bufpos += textmessagesize;
-        //cout << " data: \"" << textmessagedata << "\"" << endl;
+        //std::println(" data: \"{}\"", textmessagedata);
 
         //update buffer pos
         //bufpos = bufpos + (textmessagesize + 3);
@@ -806,7 +803,8 @@ void LocalClient::HandleNewPacket(ENetEvent localevent) {
             else if (messagetype == 3) {
                 ProcessEntityData(packetbuffer);
             }
-            else std::cout << "client: received and ignored type: " << messagetype << std::endl;
+            else std::println("client: received and ignored type: {}",
+                static_cast<char>(messagetype));
         }
 
         //clear buffers
@@ -842,21 +840,21 @@ void LocalClient::SendMessages() {
                 memcpy(&textmessagedata, &MessageBuffer[j].Payload, MessageBuffer[j].PayloadSize);
 
                 //move command data to the servers buffer in to the packet buffer; 254 so we know we dont over wright the null char
-                std::cout << "client: sending packet type:" << (int)messagetype;
+                std::print("client: sending packet type:{}", (int)messagetype);
                 memmove(packetbuffer + bufpos, &messagetype, sizeof(messagetype));   //copy type into buffer
                 bufpos += sizeof(messagetype);
 
-                std::cout << " size: " << textmessagesize;
+                std::print(" size: {}", textmessagesize);
                 memmove(packetbuffer + bufpos, &textmessagesize, sizeof(textmessagesize));   //copy data size into buffer
                 bufpos += sizeof(textmessagesize);
 
-                std::cout << " data: \"" << textmessagedata << "\"" << std::endl;
+                std::println(" data: \"{}\"", textmessagedata);
                 memmove(packetbuffer + bufpos, textmessagedata, textmessagesize);
                 bufpos = bufpos + textmessagesize;
 
                 msgcount++;
             } else {
-                std::cout << "ReadCommands: bad message length of " << textmessagesize << std::endl;
+                std::println("ReadCommands: bad message length of {}", textmessagesize);
             }
 
             //message sent therefor no longer need
@@ -872,10 +870,10 @@ void LocalClient::SendMessages() {
         if(packet != NULL) {
             int goodsend = -1;
             goodsend = enet_peer_send(ServerPeer, 0, packet);
-            if(goodsend < 0) std::cout << "client: couldnt send a packet to server" << std::endl;
+            if(goodsend < 0) std::println("client: couldnt send a packet to server");
                 enet_host_flush (ClientHost); //do we need to send everytime?
             }
-            else std::cout << "bad packet construction: data not sent" << std::endl;
+            else std::println("bad packet construction: data not sent");
     }
 
     //reset the position of message writes

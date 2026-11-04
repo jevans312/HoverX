@@ -94,5 +94,5 @@ endif()
 # Project include directory for headers in this folder
 target_include_directories(HoverX PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-# Require C++11
-target_compile_features(HoverX PRIVATE cxx_std_11)
+# Require C++23 for std::print
+target_compile_features(HoverX PRIVATE cxx_std_23)

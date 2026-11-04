@@ -1,4 +1,4 @@
-#include <iostream>
+#include <print>
 #include <SDL2/SDL.h>
 
 #include "glness.h"
@@ -12,9 +12,9 @@ extern LocalClient LC;
 //Initialize OpenGL
 void InitGL() {
     GLenum err = glewInit();
-    std::cout << "OpenGL: " << glGetString(GL_VERSION) << '\n';
-    std::cout << "OpenGL Hardware: " << glGetString(GL_RENDERER) << '\n';
-    std::cout << "OpenGL GLEW: " << ((GLEW_OK ==  err)?glewGetString(GLEW_VERSION):glewGetErrorString(err)) << '\n';
+    std::println("OpenGL: {}", reinterpret_cast<const char*>(glGetString(GL_VERSION)));
+    std::println("OpenGL Hardware: {}", reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
+    std::println("OpenGL GLEW: {}", reinterpret_cast<const char*>((GLEW_OK == err) ? glewGetString(GLEW_VERSION) : glewGetErrorString(err)));
 
     glViewport(0, 0, LC.window_width, LC.window_height);
     glMatrixMode(GL_PROJECTION);
@@ -149,16 +149,15 @@ void SetCamera() {
                   entPos.x,				entPos.y,				entPos.z + 1,
                   0,0,1);
     } else {
-           std::cout << "SetCamera::Invalid Entity:" << IntToStr(entcam)
-               <<  " LC.EntityAddress:" << IntToStr(LC.EntityAddress) <<'\n';
+           std::println("SetCamera::Invalid Entity:{} LC.EntityAddress:{}", IntToStr(entcam), IntToStr(LC.EntityAddress));
 
         if(LC.lvl.Loaded) {
             //Maybe server disconnected so we just unload level?
-            std::cout << "SetCamera::Unloading level" <<  '\n';
+            std::println("SetCamera::Unloading level");
             LC.lvl.Unload();
         } else {
             //This is probably in an unrecoverable state...
-            std::cout << "SetCamera::Setting LC.DrawWorld = false" << '\n';
+            std::println("SetCamera::Setting LC.DrawWorld = false");
             LC.DrawWorld = false;
         }
     }
@@ -177,7 +176,7 @@ void DrawLevel() {
 const float radianDef = 3.14159265f/180.0f; //degrees to radians conversion factor
 void DrawEntities() {
     if(LC.lvl.Loaded ==  false) {
-        std::cout << "DrawEntities: No level is loaded" << '\n';
+        std::println("DrawEntities: No level is loaded");
         return;
     }
 
@@ -185,7 +184,7 @@ void DrawEntities() {
         //draw existing entities
         if(LC.lvl.Ent[i].isUsed) {
 
-            //cout << "drawing ent #" << i << endl;
+            //std::println("drawing ent #{}", i);
             glMatrixMode(GL_MODELVIEW);
             glPushMatrix();
                 //postion and roatate

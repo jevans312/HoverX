@@ -6,7 +6,7 @@ DESTDIR ?= ~/HoverX
 
 # Build mode: debug or release
 BUILD ?= debug
-CXXFLAGS := -std=c++20 -m64 -Wall -Wextra -Wpedantic -Wconversion -fno-exceptions
+CXXFLAGS := -std=c++23 -m64 -Wall -Wextra -Wpedantic -Wconversion -fno-exceptions
 CXXFLAGS += -Wshadow -Wduplicated-cond -Wlogical-op -MMD -MP
 LDFLAGS := -fuse-ld=lld
 LDLIBS := -lSDL2 -lSDL2_image -lX11 -lGL -lGLU -lGLEW -ltinyxml -lenet

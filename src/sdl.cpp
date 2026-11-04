@@ -1,4 +1,4 @@
-#include <iostream>
+#include <print>
 #include <SDL2/SDL.h>
 
 #include "sdl.h"
@@ -8,22 +8,22 @@
 extern LocalClient LC;
 
 void InitSDL() {
-    std::cout << "SDL: " << SDL_MAJOR_VERSION << "." << SDL_MINOR_VERSION << "." << SDL_PATCHLEVEL << '\n';
+    std::println("SDL: {}.{}.{}", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL);
     
     if(LC.isConsoleMode()) {
         // Only initialize SDL timer
         if (SDL_Init(SDL_INIT_TIMER) < 0) {
-            std::cout << "SDL Error: " << SDL_GetError() << '\n';
+            std::println("SDL Error: {}", SDL_GetError());
         } else {
-            std::cout << "SDL: Timer initialized successfully" << '\n';
+            std::println("SDL: Timer initialized successfully");
         }
         return;
     }
     
     if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO) < 0) {
-        std::cout << "SDL Error: " << SDL_GetError() << '\n';
+        std::println("SDL Error: {}", SDL_GetError());
     } else {
-        std::cout << "SDL: Video and timer initialized successfully" << '\n';
+        std::println("SDL: Video and timer initialized successfully");
     }
 
     // gl version
@@ -45,7 +45,7 @@ void InitSDL() {
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
     } else {
-        std::cout << "SDL: GL Multisampling not supported" << '\n';
+        std::println("SDL: GL Multisampling not supported");
     }
 
     // double buffering and vsync; I feel this is ideal for our game
@@ -56,26 +56,26 @@ void InitSDL() {
     SDL_WindowFlags windowFlags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
     LC.window = SDL_CreateWindow("HoverX", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, LC.window_width, LC.window_height, windowFlags);
     if (LC.window == NULL) {
-        std::cout << "SDL: Could not create window" << '\n';
-        std::cout << "SDL ERROR: " << SDL_GetError() << '\n';
+        std::println("SDL: Could not create window");
+        std::println("SDL ERROR: {}", SDL_GetError());
         return;
     }
 
     LC.glContext = SDL_GL_CreateContext(LC.window);
     if(LC.glContext == NULL) {
-        std::cout << "SDL: Could not create OpenGL context" << '\n';
-        std::cout << "SDL ERROR: " << SDL_GetError() << '\n';
+        std::println("SDL: Could not create OpenGL context");
+        std::println("SDL ERROR: {}", SDL_GetError());
         SDL_DestroyWindow(LC.window);
         return;
     }
 
     if(SDL_GL_MakeCurrent(LC.window, LC.glContext) < 0) {
-        std::cout << "SDL: Could not make OpenGL context current" << '\n';
-        std::cout << "SDL ERROR: " << SDL_GetError() << '\n';
+        std::println("SDL: Could not make OpenGL context current");
+        std::println("SDL ERROR: {}", SDL_GetError());
         SDL_DestroyWindow(LC.window);
         return;
     } else {
-        std::cout << "SDL: Window and OpenGL context created successfully" << '\n';
+        std::println("SDL: Window and OpenGL context created successfully");
     }
 }
 

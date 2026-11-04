@@ -1,6 +1,6 @@
 #include <list>
 #include <string>
-#include <iostream>
+#include <print>
 
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -38,7 +38,7 @@ GLuint LoadGLTexture(const char* filename)  {
     std::string fns = filename;
     for(i = texlist.begin(); i != texlist.end(); i++) {
         if((*i).texname == fns) {
-            std::cout << "texture " << filename << " alredy loaded" << '\n';
+            std::println("texture {} alredy loaded", filename);
             return (*i).id;
         }
     }
@@ -49,8 +49,7 @@ GLuint LoadGLTexture(const char* filename)  {
     if (loadedSurface != NULL) {
         SDL_Surface *rgbaSurface = SDL_ConvertSurfaceFormat(loadedSurface, SDL_PIXELFORMAT_RGBA32, 0);
         if (rgbaSurface == NULL) {
-              std::cout << "LoadGLTexture: Could not convert texture: " << filename
-                  << "; Using default.png in it's place" << '\n';
+              std::println("LoadGLTexture: Could not convert texture: {}; Using default.png in it's place", filename);
             SDL_FreeSurface(loadedSurface);
             return LC.DefaultTextureID;
         }
@@ -75,8 +74,7 @@ GLuint LoadGLTexture(const char* filename)  {
         texlist.push_front(ttexid);
     }
     else {
-        std::cout << "LoadGLTexture: Could not load texture: " << filename
-             << "; Using default.png in it's place" << '\n';
+        std::println("LoadGLTexture: Could not load texture: {}; Using default.png in it's place", filename);
         newid = LC.DefaultTextureID;
     }
 
