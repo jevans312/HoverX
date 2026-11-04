@@ -91,7 +91,7 @@ bool line2d::docol(physpoint &player, float walltop) //TODO add friction... maby
         }
     }
 
-    //cout <<  "line2d::docol return 0" << endl;
+    //std::println("line2d::docol return 0");
     return 0;
 }
 

@@ -1,5 +1,6 @@
 #include <vector>
 #include <sstream>
+#include <print>
 #include <SDL2/SDL.h>
 
 #include "level.h"
@@ -61,7 +62,7 @@ bool level::Load(const std::string& LevelFilename)   {
     xmlfile hoverlvl;
     TiXmlElement *xLevel = hoverlvl.getxmlfirstelement((char*)filewithlocal.c_str()); {
         if (xLevel == nullptr) {
-                 std::cout << "level::Load: Failed to load level XML file: " << filewithlocal.c_str() << '\n';
+                 std::println("level::Load: Failed to load level XML file: {}", filewithlocal.c_str());
              return false;
         }
 
@@ -102,7 +103,7 @@ bool level::Load(const std::string& LevelFilename)   {
                     SpawnPoint.Count++;
                     vertnum++;
                 }
-                else std::cout << "level::Load: too many start points, stoping at 8" << std::endl;
+                else std::println("level::Load: too many start points, stoping at 8");
             } else if (vertType == 2) { //checkpoints
                 if (CheckPointCount + 1 < 23)  {
                     tCheckPoints[CheckPointCount].x = strtof(xVerti->Attribute("x"), NULL);
@@ -122,7 +123,7 @@ bool level::Load(const std::string& LevelFilename)   {
                 vertnum++;
             }
             else {
-                std::cout << "vert without type not added" << std::endl;
+                std::println("vert without type not added");
             }
             xVerti = xVerti->NextSiblingElement();
         }
@@ -198,7 +199,7 @@ bool level::Load(const std::string& LevelFilename)   {
 
                     lvlpoly[pid].sectortype = "checkpoint";
                     lvlpoly[pid].sectorvalue = sectorval;
-                    //cout << "level::Load assign checkpoint sectorvalue: " << lvlpoly[pid].sectorvalue << endl;
+                    //std::println("level::Load assign checkpoint sectorvalue: {}", lvlpoly[pid].sectorvalue);
                 }
             }
         }
@@ -207,7 +208,7 @@ bool level::Load(const std::string& LevelFilename)   {
         if(CheckPointCount != 0)    Game.CheckpointCount = CheckPointCount;
         else Game.CheckpointCount = -1;
 
-        std::cout << "level::load: Game.CheckpointCount: " << Game.CheckpointCount << std::endl;
+        std::println("level::load: Game.CheckpointCount: {}", Game.CheckpointCount);
 
         texlist.clear();
     }
@@ -367,7 +368,7 @@ void level::Unload() {
     }
 
     //free memory
-    //cout << "Level::Unload: FIX ME: Leaking some memory!" << '\n';
+    //std::println("Level::Unload: FIX ME: Leaking some memory!");
     //delete[] lvlvert;
     //delete[] lvlline;
     //delete[] lvlpoly;
@@ -396,7 +397,7 @@ void level::AddPlayerEntity(int clientaddress) {
     }
 
     if (entaddress == -1) {
-       std::cout << "AddPlayerEntity: no space for a new entity" << std::endl;
+       std::println("AddPlayerEntity: no space for a new entity");
        return;
     }
 
@@ -410,7 +411,7 @@ void level::AddPlayerEntity(int clientaddress) {
     }
 
     if (Ent[entaddress].StartpointAddress == -1) {
-        std::cout << "couldnt find a spawn point for player " << entaddress << ", player not added" << std::endl;
+        std::println("couldnt find a spawn point for player {}, player not added", entaddress);
         return;
     }
 
@@ -425,13 +426,13 @@ void level::AddPlayerEntity(int clientaddress) {
     Ent[entaddress].ClientAddress = clientaddress;
 
     if(! Ent[entaddress].Add(entaddress) ) {
-        std::cout << "AddPlayerEntity: add player entity failed" << std::endl;
+        std::println("AddPlayerEntity: add player entity failed");
         Ent[entaddress].Clear();
     }
 }
 
 void level::Add3dobject(vector2d pos , const std::string& modelfile, const std::string& texturefile) {
-    std::cout << "Add3dobject: " << pos.x  << " " << pos.y << " model:" << modelfile << " texture:" << texturefile << std::endl;
+    std::println("Add3dobject: {} {} model:{} texture:{}", pos.x, pos.y, modelfile, texturefile);
     int entaddress = -1;
 
     //find an unused entity
@@ -443,7 +444,7 @@ void level::Add3dobject(vector2d pos , const std::string& modelfile, const std::
     }
 
     if (entaddress == -1) {
-       std::cout << "Add3dobject: no space for a new entity" << std::endl;
+       std::println("Add3dobject: no space for a new entity");
        return;
     }
 
@@ -455,7 +456,7 @@ void level::Add3dobject(vector2d pos , const std::string& modelfile, const std::
     Ent[entaddress].TextureFile = texturefile;
 
     if(! Ent[entaddress].Add(entaddress) ) {
-        std::cout << "Add3dobject: add 3dobject failed" << std::endl;
+        std::println("Add3dobject: add 3dobject failed");
         Ent[entaddress].Clear();
     }
 }
@@ -500,7 +501,7 @@ void level::FinishedLap(Entity &ent) {
     uint64_t lowestlaptime = 18446744073709551615ULL;
     for(int j = 0; j < MAXLAPS; j++) {
         if(ent.LapTime[j] < lowestlaptime && ent.LapTime[j] != 0) lowestlaptime = ent.LapTime[j];
-        //std::cout << "lap #" << i << " time: " << Ent[i].LapTime[j] << " lowest time " << lowestlaptime << std::endl;
+        //std::println("lap #{} time: {} lowest time {}", i, Ent[i].LapTime[j], lowestlaptime);
     }
 
     ent.BestLapTime = lowestlaptime;
@@ -531,7 +532,7 @@ void level::CheckTimerEvents() {
 //0 is limbo; 1 is race 2; 3 is sumo
 bool level::StartGame(uint8_t gametype) {
     if(gametype > 3) {
-        std::cout << "GameClass::StartGame failed, game type " << gametype << " is over 3!" << std::endl;
+        std::println("GameClass::StartGame failed, game type {} is over 3!", gametype);
         return false;
     }
 
@@ -566,6 +567,6 @@ uint64_t level::GetGameTime()  {
     uint64_t returnval = 0;
 
     returnval = SDL_GetTicks64() - Game.GameTimeOffset;
-    //cout << "GameClass::GetGameTime() returning a GameTime of: " << returnval << endl;
+    //std::println("GameClass::GetGameTime() returning a GameTime of: {}", returnval);
     return returnval;
 }

@@ -1,4 +1,4 @@
-#include <iostream>
+#include <print>
 #include <string>
 #include <fstream>
 
@@ -39,12 +39,12 @@ bool objModel::Load(const std::string& modelfile, const std::string& texturefile
     unsigned int    TextureCount = 1;
 
     if (Loaded) {
-        std::cout << "objModel::Load: Object already has a model loaded" << '\n';
+        std::println("objModel::Load: Object already has a model loaded");
         return false;
     }
     std::ifstream is(modelfile.c_str(), std::ios::in|std::ios::ate);
 	if (!is) {
-        std::cout << "objModel::Load: Empty obj could not be opened!" << '\n';
+        std::println("objModel::Load: Empty obj could not be opened!");
         return false;
     }
 
@@ -57,15 +57,15 @@ bool objModel::Load(const std::string& modelfile, const std::string& texturefile
         is >> ele_id;
 
         if(is.fail()) {
-            std::cout << "objModel::Load->fail(): Maybe recoverable." << '\n';
+            std::println("objModel::Load->fail(): Maybe recoverable.");
 
             if(is.bad()) { // in case it is -1#IND00
-                std::cout << "objModel::Load->bad() Set also! May not be recoverable." << '\n';
+                std::println("objModel::Load->bad() Set also! May not be recoverable.");
             }
             is.clear();
 
             if(is.good()) {
-                std::cout << "objModel::Load: Cleared error. good() is set" << '\n';
+                std::println("objModel::Load: Cleared error. good() is set");
             }
         }
 
@@ -79,7 +79,7 @@ bool objModel::Load(const std::string& modelfile, const std::string& texturefile
                 V[VertexCount].z = z;
                 VertexCount++;
             }
-            else std::cout << "objModel::Load: too many vertexs in file, will not load correctly" << '\n';
+            else std::println("objModel::Load: too many vertexs in file, will not load correctly");
         }
         else if ("vt" == ele_id) {	// texture data
             is >> x >> y;
@@ -88,7 +88,7 @@ bool objModel::Load(const std::string& modelfile, const std::string& texturefile
                 T[TextureCount].y = -y; //flip the y cord so the textues display correctly
                 TextureCount++;
             }
-            else std::cout << "objModel::Load: too many texture cordinates, will not load correctly" << '\n';                        // is z (i.e. w) is not available, have to clear error flag.
+            else std::println("objModel::Load: too many texture cordinates, will not load correctly");                        // is z (i.e. w) is not available, have to clear error flag.
         }
         else if ("vn" == ele_id) {	// normal data
             is >> x >> y >> z;
@@ -96,10 +96,10 @@ bool objModel::Load(const std::string& modelfile, const std::string& texturefile
                 N[NormalCount].x = x;
                 N[NormalCount].y = y;
                 N[NormalCount].z = z;
-                //std::cout << "added normal " << NormalCount << " x" << N[NormalCount].x << " y " << N[NormalCount].y << " z " << N[NormalCount].z << '\n';
+                //std::println("added normal {} x{} y {} z {}", NormalCount, N[NormalCount].x, N[NormalCount].y, N[NormalCount].z);
                 NormalCount++;
             }
-            else std::cout << "objModel::Load: too many normals, will not load correctly" << '\n';
+            else std::println("objModel::Load: too many normals, will not load correctly");
         }
         else if ("f" == ele_id) {	//	face data
             char c;
@@ -109,10 +109,10 @@ bool objModel::Load(const std::string& modelfile, const std::string& texturefile
                         F[FaceCount].v3 >> c >> F[FaceCount].vt3 >> c >> F[FaceCount].vn3;
                         FaceCount++;
             }
-            else std::cout << "objModel::Load: too many polys in file, it will not load correctly" << '\n';
+            else std::println("objModel::Load: too many polys in file, it will not load correctly");
         }
         else {
-            std::cout << "objModel::Load: Property type \'" << ele_id << "\' not implemented" << '\n';
+            std::println("objModel::Load: Property type '{}' not implemented", ele_id);
             skipLine(is);
         }
 	}

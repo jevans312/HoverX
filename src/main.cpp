@@ -1,5 +1,6 @@
 #include <signal.h>
-#include <iostream>
+#include <istream>
+#include <print>
 
 #include "main.h"
 #include "sdl.h"
@@ -44,7 +45,7 @@ void Tick() {
     //Print frame time once per second
     if(tickcount == 1000/TICK_RATE) {
         LC.frameTime = LC.afterDrawTime - LC.beforeDrawTime;
-        //std::cout << "Frame time: " << LC.frameTime << "ms" << '\n';
+        //std::println("Frame time: {}ms", LC.frameTime);
         tickcount = 0;
     }
     tickcount++;
@@ -77,15 +78,15 @@ void Ticker() {
 //TODO: Handle pause and resume
 void signalHandler(int signum) {
     if(signum == 1 || signum == 2 || signum == 9 || signum == 10 || signum == 15) {
-        std::cout << "HoverX: Received POSIX terminate signal type #" << signum << '\n';
+        std::println("HoverX: Received POSIX terminate signal type #{}", signum);
     } else if(signum >= 3 && signum <= 8) {
-        std::cout << "HoverX: Received POSIX Dump signal type #" << signum << '\n';
+        std::println("HoverX: Received POSIX Dump signal type #{}", signum);
     } else if(signum == 18) { //Continue
-        std::cout << "HoverX: Received POSIX Continue signal type #" << signum << '\n';
+        std::println("HoverX: Received POSIX Continue signal type #{}", signum);
     } else if(signum == 19) { //Pause
-        std::cout << "HoverX: Received POSIX Stop signal type #" << signum << '\n';
+        std::println("HoverX: Received POSIX Stop signal type #{}", signum);
     } else {
-        std::cout << "HoverX: Received unkonwn POSIX signal type #" << '\n';
+        std::println("HoverX: Received unkonwn POSIX signal type #");
     }
 
     done = 1; // Exit the main loop
@@ -191,7 +192,7 @@ void ParseTKV(std::string worldstr, TypeKeyValue *TKV) {     //turn data string 
         //find the '/'
         slash1 = worldstr.find('/', slash1);
         slash2 = worldstr.find('/', slash1 + 1);
-        //cout << "slash1: " << slash1 << " slash2: " << slash2 << '\n';
+        //std::println("slash1: {} slash2: {}", slash1, slash2);
 
         //use the end of the file as the end if there are no more '/'
         if(slash2 == std::string::npos) {
@@ -202,7 +203,7 @@ void ParseTKV(std::string worldstr, TypeKeyValue *TKV) {     //turn data string 
         if(slash1 != std::string::npos && slash2 != std::string::npos) {
             //seperate the type class from the rest of the string
             datapoint = worldstr.substr(slash1 + 1, slash2 - 1);
-            //cout << "datapoint: " << datapoint << '\n';
+            //std::println("datapoint: {}", datapoint);
 
             //remove datapoin from the world string so it doesnt get proccessed again
             worldstr = worldstr.substr(slash2, worldstr.length());
@@ -210,7 +211,7 @@ void ParseTKV(std::string worldstr, TypeKeyValue *TKV) {     //turn data string 
             //get the type
             spacepos = datapoint.find(' ');
             TKV[i].Type = datapoint.substr(0, spacepos);
-            //cout << "type: " << TKV[i].Type << "->";
+            //std::println("type: {}->", TKV[i].Type);
 
             //remove type from datapoint
             datapoint = datapoint.substr(spacepos, datapoint.length());
@@ -218,7 +219,7 @@ void ParseTKV(std::string worldstr, TypeKeyValue *TKV) {     //turn data string 
             j = 0;
             endofkv = false;
             while( !endofkv && j < 31 ) {
-                //cout << '\n' << "what to process: \"" << datapoint << "\"" << '\n';
+                //std::println("\nwhat to process: \"{}\"", datapoint);
 
                 //remove space from begining of string; potentail bug only removes 1 leading ' '
                 if(datapoint.length() != 0) {
@@ -238,27 +239,27 @@ void ParseTKV(std::string worldstr, TypeKeyValue *TKV) {     //turn data string 
 
                     if(equalpos != std::string::npos) {
                         std::string keyvaluestr = datapoint.substr(0, strend);
-                        //cout << "keyvaluestr: \"" << keyvaluestr << "\"" << '\n';
+                        //std::println("keyvaluestr: \"{}\"", keyvaluestr);
 
                         datapoint = datapoint.substr(strend, datapoint.length());
-                        //cout << "new datapoint: \"" << datapoint << "\"" << '\n';
+                        //std::println("new datapoint: \"{}\"", datapoint);
 
                         //now pull out the left and right side of the '='
                         TKV[i].KV[j].Key = keyvaluestr.substr(0, equalpos);
                         TKV[i].KV[j].sValue = keyvaluestr.substr(equalpos+1, strend);
 
-                        //cout << "\"" << TKV[i].KV[j].Key << "\"" << "=" << "\"" << TKV[i].KV[j].sValue << "\"" << '\n';
+                        //std::println("\"{}\"=\"{}\"", TKV[i].KV[j].Key, TKV[i].KV[j].sValue);
                     }
                 }
                 else endofkv = true;
 
                 j++;
             }
-            if(j >= 31) std::cout << "HandleWorldString: more than 32 key/values in type" << '\n';
+            if(j >= 31) std::println("HandleWorldString: more than 32 key/values in type");
         }
 
         i++;
     }
-    if(i >= 63) std::cout << "HandleWorldString: more than 64 types in string" << '\n';
+    if(i >= 63) std::println("HandleWorldString: more than 64 types in string");
 
 }
